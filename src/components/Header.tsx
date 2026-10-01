@@ -1,4 +1,5 @@
 import React from 'react';
+import { PWAInstallButton } from './PWAInstallButton';
 import { 
   Building2, 
   FlaskConical, 
@@ -94,8 +95,10 @@ export const Header: React.FC<HeaderProps> = ({
           />
         </div>
 
-        {/* Quick New Patient Action */}
+        {/* Quick Actions & PWA Install */}
         <div className="flex items-center gap-2">
+          <PWAInstallButton />
+          
           <button
             onClick={onNewPatientClick}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-800 to-rose-700 hover:from-red-700 hover:to-rose-600 text-white font-bold text-sm rounded-lg shadow-md shadow-red-950/40 hover:shadow-lg transition-all active:scale-[0.98]"

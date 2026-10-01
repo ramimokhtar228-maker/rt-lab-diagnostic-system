@@ -12,6 +12,7 @@ import { CatalogBrowser } from './components/CatalogBrowser';
 import { StaffSettingsModal } from './components/StaffSettingsModal';
 import { TestCatalogModal } from './components/TestCatalogModal';
 import { ManualTestModal } from './components/ManualTestModal';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { formatWhatsAppMessage, openWhatsApp } from './utils/whatsapp';
 import { exportReportToPPTX } from './utils/pptxExport';
 import { CheckCircle2 } from 'lucide-react';
@@ -435,6 +436,9 @@ export default function App() {
           onAddManualTest={handleAddManualTest}
         />
       )}
+
+      {/* Offline Connectivity State */}
+      <OfflineIndicator />
     </div>
   );
 }
