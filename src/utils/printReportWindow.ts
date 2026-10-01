@@ -116,12 +116,13 @@ export function openPrintReportWindow(report: LabReport): void {
               <div style="width:58px; height:58px; background:linear-gradient(135deg, #800000, #991b1b, #0f172a); border-radius:12px; padding:2px; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 6px rgba(0,0,0,0.15);">
                 <div style="width:100%; height:100%; background:#020617; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#ffffff;">
                   <div style="font-weight:900; font-size:20px; line-height:1; letter-spacing:-1px;">
-                    <span style="color:#f43f5e;">R</span><span style="color:#ffffff;">T</span>
+                    <span style="color:#f43f5e;">R</span><span style="color:#ef4444; font-size:14px; margin:0 -2px;">💧</span><span style="color:#ffffff;">T</span>
                   </div>
                   <div style="font-size:7px; font-weight:800; letter-spacing:1px; color:#cbd5e1; margin-top:2px;">LABS</div>
                 </div>
               </div>
               <div style="font-size:8px; font-weight:800; color:#800000; letter-spacing:1px; margin-top:3px; text-transform:uppercase;">Kasr Al Ainy</div>
+              <div style="font-size:9px; font-weight:900; color:#991b1b; margin-top:2px;">التشخيص الصحيح يبدأ معنا</div>
             </div>
 
             <!-- English Side -->

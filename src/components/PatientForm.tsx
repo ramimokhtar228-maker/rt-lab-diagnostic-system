@@ -231,6 +231,41 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
             className="w-full text-sm bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-rose-600 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 transition-all"
           />
         </div>
+
+        {/* Blood Group & Emergency Contact */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">
+            فصيلة الدم (Blood Group)
+          </label>
+          <select
+            value={patient.bloodGroup || 'O+'}
+            onChange={(e) => updateField('bloodGroup', e.target.value)}
+            className="w-full text-xs font-bold font-mono bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-rose-600 rounded-lg px-3 py-2 text-slate-900"
+          >
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">
+            هاتف الطوارئ لكرت المريض
+          </label>
+          <input
+            type="tel"
+            placeholder="010XXXXXXXX"
+            value={patient.emergencyContact || ''}
+            onChange={(e) => updateField('emergencyContact', e.target.value)}
+            className="w-full text-sm font-mono-numbers bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-rose-600 rounded-lg px-3 py-2 text-slate-900 text-left"
+            dir="ltr"
+          />
+        </div>
       </div>
     </div>
   );

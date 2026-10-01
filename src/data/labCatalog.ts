@@ -552,3 +552,9 @@ export const LAB_CATALOG: CatalogProfileTemplate[] = [
     ]
   }
 ];
+
+export * from './packagesData';
+export * from './individualTestsData';
+export * from './staffAndFacilitiesData';
+export * from './loyaltyData';
+

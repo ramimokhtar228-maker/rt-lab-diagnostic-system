@@ -20,6 +20,12 @@ export interface Patient {
   clinicalHistory?: string;
   fastingHours?: number;
   nationalId?: string;
+  bloodGroup?: string; // e.g. "A+", "O+", "B-", etc.
+  emergencyContact?: string;
+  loyaltyPoints?: number;
+  assignedPackageId?: string;
+  totalCost?: number;
+  discountApplied?: number;
 }
 
 export interface TestParameter {
@@ -39,7 +45,7 @@ export interface TestParameter {
 
 export interface TestProfile {
   id: string;
-  profileCode: string; // "CBC", "LFT", "KFT", "LIPID", "GLYCEMIC", "THYROID", etc.
+  profileCode: string; // "CBC", "LFT", "KFT", "LIPID", "GLYCEMIC", "THYROID", "INDIVIDUAL", etc.
   titleEn: string;
   titleAr: string;
   category: string;
@@ -55,6 +61,99 @@ export interface LabStaffSignatures {
   pathologist: string; // Pathologist (استشاري الباثولوجيا الإكلينيكية والكيميائية)
 }
 
+export type StaffRole = 'chemist' | 'verifier' | 'pathologist' | 'phlebotomist' | 'receptionist';
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  role: StaffRole;
+  title: string; // المسمى الوظيفي والدرجة العلمية
+  specialty: string;
+  licenseNumber: string; // رقم القيد والترخيص
+  phone: string;
+  branchId: string; // الفرع التابع له
+  signatureLabel: string; // الصيغة المعتمدة في تقرير التحليل
+  isActive: boolean;
+}
+
+export interface LabFacility {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  branchCode: string;
+  address: string;
+  city: string;
+  phones: string[];
+  whatsapp: string;
+  managerName: string;
+  operatingHours: string;
+  availableServices: string[];
+  isMainBranch: boolean;
+  isActive: boolean;
+}
+
+export type LoyaltyTier = 'Silver' | 'Gold' | 'Platinum' | 'VIP';
+
+export interface LoyaltyTransaction {
+  id: string;
+  date: string;
+  type: 'earn' | 'redeem' | 'bonus';
+  points: number;
+  description: string;
+  reportNumber?: string;
+}
+
+export interface PatientLoyaltyProfile {
+  patientId: string;
+  patientName: string;
+  phone: string;
+  barcode: string;
+  bloodGroup: string;
+  totalPoints: number;
+  tier: LoyaltyTier;
+  lifetimeSpent: number;
+  emergencyContact?: string;
+  chronicConditions?: string[];
+  issueDate: string;
+  transactions: LoyaltyTransaction[];
+}
+
+export interface IndividualTest {
+  id: string;
+  code: string; // e.g. "GLU_F", "CREAT", "ALT", "TSH", "VIT_D"
+  nameEn: string;
+  nameAr: string;
+  category: string;
+  sampleType: string;
+  unit: string;
+  minNormal?: number;
+  maxNormal?: number;
+  panicLow?: number;
+  panicHigh?: number;
+  textReference?: string;
+  method?: string;
+  fastingInstructions?: string;
+  turnaroundHours: number;
+  price: number; // EGP
+}
+
+export interface ComprehensivePackage {
+  id: string;
+  code: string; // e.g. "PKG-WELLNESS", "PKG-MEN", "PKG-WOMEN"
+  titleAr: string;
+  titleEn: string;
+  descriptionAr: string;
+  targetAudience: string;
+  includedProfiles: string[]; // Codes of profile templates
+  includedIndividualTestCodes: string[]; // Individual test codes
+  originalPrice: number;
+  packagePrice: number;
+  discountPercentage: number;
+  fastingRequired: string;
+  sampleTypes: string[];
+  isPopular?: boolean;
+}
+
 export type ReportStatus = 'draft' | 'in_progress' | 'verified' | 'released';
 
 export interface LabReport {
@@ -67,6 +166,11 @@ export interface LabReport {
   status: ReportStatus;
   createdAt: string;
   updatedAt: string;
+  packageApplied?: {
+    code: string;
+    titleAr: string;
+    packagePrice: number;
+  };
 }
 
 export interface CatalogProfileTemplate {
@@ -77,4 +181,5 @@ export interface CatalogProfileTemplate {
   sampleType: string;
   defaultInterpretation?: string;
   parameters: Omit<TestParameter, 'id' | 'result' | 'flag'>[];
+  profilePrice?: number;
 }

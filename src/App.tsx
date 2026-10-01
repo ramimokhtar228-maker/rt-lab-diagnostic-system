@@ -1,15 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { LabReport, TestProfile, TestParameter, CatalogProfileTemplate, LabStaffSignatures } from './types/lab';
+import { 
+  LabReport, 
+  TestProfile, 
+  TestParameter, 
+  CatalogProfileTemplate, 
+  LabStaffSignatures,
+  ComprehensivePackage,
+  IndividualTest,
+  StaffMember,
+  LabFacility,
+  PatientLoyaltyProfile
+} from './types/lab';
 import { INITIAL_REPORTS } from './data/initialData';
-import { DEFAULT_STAFF, LAB_CATALOG } from './data/labCatalog';
-import { Header } from './components/Header';
+import { 
+  DEFAULT_STAFF, 
+  LAB_CATALOG, 
+  INITIAL_PACKAGES, 
+  INITIAL_INDIVIDUAL_TESTS,
+  INITIAL_STAFF_MEMBERS,
+  INITIAL_FACILITIES,
+  INITIAL_LOYALTY_PROFILES
+} from './data/labCatalog';
+import { Header, MainNavTab } from './components/Header';
 import { PatientForm } from './components/PatientForm';
 import { ReportEditor } from './components/ReportEditor';
 import { ReportViewerPrint } from './components/ReportViewerPrint';
 import { ArchiveTable } from './components/ArchiveTable';
 import { PatientTrendChart } from './components/PatientTrendChart';
 import { CatalogBrowser } from './components/CatalogBrowser';
-import { StaffSettingsModal } from './components/StaffSettingsModal';
+import { PackagesManager } from './components/PackagesManager';
+import { PatientCardsAndPoints } from './components/PatientCardsAndPoints';
+import { StaffAndFacilitiesManager } from './components/StaffAndFacilitiesManager';
 import { TestCatalogModal } from './components/TestCatalogModal';
 import { ManualTestModal } from './components/ManualTestModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
@@ -20,9 +41,14 @@ import { CheckCircle2 } from 'lucide-react';
 const STORAGE_KEY = 'rt_lab_reports_v1';
 const STAFF_STORAGE_KEY = 'rt_lab_staff_v1';
 const CATALOG_STORAGE_KEY = 'rt_lab_custom_catalog_v2';
+const PACKAGES_STORAGE_KEY = 'rt_lab_packages_v1';
+const INDIVIDUAL_TESTS_STORAGE_KEY = 'rt_lab_individual_tests_v1';
+const STAFF_MEMBERS_STORAGE_KEY = 'rt_lab_staff_members_v1';
+const FACILITIES_STORAGE_KEY = 'rt_lab_facilities_v1';
+const LOYALTY_STORAGE_KEY = 'rt_lab_loyalty_profiles_v1';
 
 export default function App() {
-  // Load staff defaults
+  // 1. Staff Default Signatures
   const [defaultStaff, setDefaultStaff] = useState<LabStaffSignatures>(() => {
     try {
       const saved = localStorage.getItem(STAFF_STORAGE_KEY);
@@ -32,7 +58,7 @@ export default function App() {
     }
   });
 
-  // Load custom catalog with fallback
+  // 2. Custom Catalog (Profiles)
   const [catalog, setCatalog] = useState<CatalogProfileTemplate[]>(() => {
     try {
       const saved = localStorage.getItem(CATALOG_STORAGE_KEY);
@@ -42,28 +68,57 @@ export default function App() {
     }
   });
 
-  const handleUpdateCatalog = (newCat: CatalogProfileTemplate[]) => {
-    setCatalog(newCat);
+  // 3. Packages
+  const [packages, setPackages] = useState<ComprehensivePackage[]>(() => {
     try {
-      localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(newCat));
-    } catch (e) {
-      console.error(e);
+      const saved = localStorage.getItem(PACKAGES_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : INITIAL_PACKAGES;
+    } catch {
+      return INITIAL_PACKAGES;
     }
-  };
+  });
 
-  const handleResetCatalog = () => {
-    if (confirm('هل أنت متأكد من استعادة كافة التحاليل والمعدلات الافتراضية للكتالوج؟')) {
-      setCatalog(LAB_CATALOG);
-      try {
-        localStorage.removeItem(CATALOG_STORAGE_KEY);
-      } catch (e) {
-        console.error(e);
-      }
-      showToast('تمت استعادة الكتالوج الافتراضي بنجاح');
+  // 4. Individual Tests Catalog
+  const [individualTests, setIndividualTests] = useState<IndividualTest[]>(() => {
+    try {
+      const saved = localStorage.getItem(INDIVIDUAL_TESTS_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : INITIAL_INDIVIDUAL_TESTS;
+    } catch {
+      return INITIAL_INDIVIDUAL_TESTS;
     }
-  };
+  });
 
-  // Load reports
+  // 5. Staff Members Directory
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>(() => {
+    try {
+      const saved = localStorage.getItem(STAFF_MEMBERS_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : INITIAL_STAFF_MEMBERS;
+    } catch {
+      return INITIAL_STAFF_MEMBERS;
+    }
+  });
+
+  // 6. Facilities and Branches
+  const [facilities, setFacilities] = useState<LabFacility[]>(() => {
+    try {
+      const saved = localStorage.getItem(FACILITIES_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : INITIAL_FACILITIES;
+    } catch {
+      return INITIAL_FACILITIES;
+    }
+  });
+
+  // 7. Patient Loyalty Profiles & Cards
+  const [loyaltyProfiles, setLoyaltyProfiles] = useState<PatientLoyaltyProfile[]>(() => {
+    try {
+      const saved = localStorage.getItem(LOYALTY_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : INITIAL_LOYALTY_PROFILES;
+    } catch {
+      return INITIAL_LOYALTY_PROFILES;
+    }
+  });
+
+  // 8. Patient Reports
   const [reports, setReports] = useState<LabReport[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -74,7 +129,7 @@ export default function App() {
   });
 
   // Navigation and active states
-  const [activeTab, setActiveTab] = useState<'archive' | 'new-patient' | 'trends' | 'catalog' | 'settings'>('archive');
+  const [activeTab, setActiveTab] = useState<MainNavTab>('archive');
   const [viewMode, setViewMode] = useState<'editor' | 'print'>('editor');
   const [currentReportId, setCurrentReportId] = useState<string>(reports[0]?.id || '');
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,7 +144,7 @@ export default function App() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
     } catch (e) {
-      console.error('Error saving reports to localStorage:', e);
+      console.error('Error saving reports:', e);
     }
   }, [reports]);
 
@@ -97,13 +152,77 @@ export default function App() {
     try {
       localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(defaultStaff));
     } catch (e) {
-      console.error('Error saving staff to localStorage:', e);
+      console.error('Error saving defaultStaff:', e);
     }
   }, [defaultStaff]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(catalog));
+    } catch (e) {
+      console.error('Error saving catalog:', e);
+    }
+  }, [catalog]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PACKAGES_STORAGE_KEY, JSON.stringify(packages));
+    } catch (e) {
+      console.error('Error saving packages:', e);
+    }
+  }, [packages]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(INDIVIDUAL_TESTS_STORAGE_KEY, JSON.stringify(individualTests));
+    } catch (e) {
+      console.error('Error saving individualTests:', e);
+    }
+  }, [individualTests]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STAFF_MEMBERS_STORAGE_KEY, JSON.stringify(staffMembers));
+    } catch (e) {
+      console.error('Error saving staffMembers:', e);
+    }
+  }, [staffMembers]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(FACILITIES_STORAGE_KEY, JSON.stringify(facilities));
+    } catch (e) {
+      console.error('Error saving facilities:', e);
+    }
+  }, [facilities]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOYALTY_STORAGE_KEY, JSON.stringify(loyaltyProfiles));
+    } catch (e) {
+      console.error('Error saving loyaltyProfiles:', e);
+    }
+  }, [loyaltyProfiles]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleResetCatalog = () => {
+    if (confirm('هل أنت متأكد من استعادة كافة التحاليل والمعدلات الافتراضية للكتالوج؟')) {
+      setCatalog(LAB_CATALOG);
+      setIndividualTests(INITIAL_INDIVIDUAL_TESTS);
+      setPackages(INITIAL_PACKAGES);
+      try {
+        localStorage.removeItem(CATALOG_STORAGE_KEY);
+        localStorage.removeItem(INDIVIDUAL_TESTS_STORAGE_KEY);
+        localStorage.removeItem(PACKAGES_STORAGE_KEY);
+      } catch (e) {
+        console.error(e);
+      }
+      showToast('تمت استعادة الكتالوج والباقات الافتراضية بنجاح');
+    }
   };
 
   // Helper to generate a new blank report
@@ -113,7 +232,7 @@ export default function App() {
     const barcode = `${Math.floor(1000000000 + Math.random() * 9000000000)}`;
     const nowIso = new Date().toISOString();
 
-    const templateToUse = initialTemplate || LAB_CATALOG[0]; // Default CBC
+    const templateToUse = initialTemplate || catalog[0] || LAB_CATALOG[0];
 
     const initialProfile: TestProfile = {
       id: `prof-${Date.now()}`,
@@ -148,7 +267,8 @@ export default function App() {
         sampleDate: nowIso.substring(0, 16),
         reportingDate: nowIso.substring(0, 16),
         clinicalHistory: '',
-        fastingHours: undefined
+        fastingHours: undefined,
+        bloodGroup: 'O+'
       },
       status: 'in_progress',
       staff: defaultStaff,
@@ -163,6 +283,73 @@ export default function App() {
     setViewMode('editor');
     setActiveTab('new-patient');
     showToast(`تم فتح حالة جديدة برقم (${labNumber})`);
+  };
+
+  // Create new report with single individual test
+  const handleSelectIndividualTestForNewCase = (test: IndividualTest) => {
+    const nextNum = Math.floor(1000 + Math.random() * 9000);
+    const labNumber = `RT-2026-${nextNum}`;
+    const barcode = `${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+    const nowIso = new Date().toISOString();
+
+    const initialProfile: TestProfile = {
+      id: `prof-${Date.now()}`,
+      profileCode: 'INDIVIDUAL',
+      titleEn: 'Individual Diagnostic Test',
+      titleAr: test.nameAr,
+      category: test.category,
+      sampleType: test.sampleType,
+      parameters: [
+        {
+          id: `param-${Date.now()}`,
+          name: `${test.nameAr} (${test.nameEn})`,
+          result: '',
+          unit: test.unit,
+          minNormal: test.minNormal,
+          maxNormal: test.maxNormal,
+          panicLow: test.panicLow,
+          panicHigh: test.panicHigh,
+          textReference: test.textReference,
+          method: test.method,
+          flag: ''
+        }
+      ]
+    };
+
+    const newRep: LabReport = {
+      id: `rep-${Date.now()}`,
+      reportNumber: labNumber,
+      patient: {
+        id: `pat-${Date.now()}`,
+        labNumber,
+        barcode,
+        fullName: '',
+        age: 30,
+        ageUnit: 'years',
+        gender: 'male',
+        phone: '01',
+        referringDoctorTitle: 'Prof. Dr.',
+        referringDoctorName: '',
+        sampleDate: nowIso.substring(0, 16),
+        reportingDate: nowIso.substring(0, 16),
+        clinicalHistory: '',
+        fastingHours: undefined,
+        bloodGroup: 'O+',
+        totalCost: test.price
+      },
+      status: 'in_progress',
+      staff: defaultStaff,
+      generalComment: '',
+      createdAt: nowIso,
+      updatedAt: nowIso,
+      profiles: [initialProfile]
+    };
+
+    setReports([newRep, ...reports]);
+    setCurrentReportId(newRep.id);
+    setViewMode('editor');
+    setActiveTab('new-patient');
+    showToast(`تم فتح حالة جديدة بالفحص المنفرد: (${test.nameAr})`);
   };
 
   // Get current active report object
@@ -182,7 +369,7 @@ export default function App() {
     showToast('تم حفظ وتحديث بيانات التقرير بالأرشيف بنجاح ✅');
   };
 
-  // Duplicate report for new follow-up visit of same patient
+  // Duplicate report for new visit
   const handleDuplicateReport = (rep: LabReport) => {
     const nextNum = Math.floor(1000 + Math.random() * 9000);
     const labNumber = `RT-2026-${nextNum}`;
@@ -245,6 +432,145 @@ export default function App() {
     showToast(`تمت إضافة بروفايل (${newProfile.titleEn}) بنجاح`);
   };
 
+  // Add individual test to current report
+  const handleAddIndividualTest = (test: IndividualTest) => {
+    if (!currentReport) return;
+
+    // Check if an INDIVIDUAL profile exists
+    const existingIndiv = currentReport.profiles.find(p => p.profileCode === 'INDIVIDUAL');
+    const newParam: TestParameter = {
+      id: `param-${Date.now()}`,
+      name: `${test.nameAr} (${test.nameEn})`,
+      result: '',
+      unit: test.unit,
+      minNormal: test.minNormal,
+      maxNormal: test.maxNormal,
+      panicLow: test.panicLow,
+      panicHigh: test.panicHigh,
+      textReference: test.textReference,
+      method: test.method,
+      flag: ''
+    };
+
+    if (existingIndiv) {
+      const updatedProfiles = currentReport.profiles.map(p => 
+        p.profileCode === 'INDIVIDUAL' 
+          ? { ...p, parameters: [...p.parameters, newParam] }
+          : p
+      );
+      handleUpdateCurrentReport({
+        ...currentReport,
+        profiles: updatedProfiles,
+        updatedAt: new Date().toISOString()
+      });
+    } else {
+      const newProf: TestProfile = {
+        id: `prof-indiv-${Date.now()}`,
+        profileCode: 'INDIVIDUAL',
+        titleEn: 'Individual Diagnostic Investigations',
+        titleAr: 'تحاليل واستقصاءات منفردة',
+        category: test.category,
+        sampleType: test.sampleType,
+        parameters: [newParam]
+      };
+      handleUpdateCurrentReport({
+        ...currentReport,
+        profiles: [...currentReport.profiles, newProf],
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    setIsCatalogModalOpen(false);
+    showToast(`تمت إضافة التحليل المنفرد (${test.nameAr}) للتقرير بنجاح`);
+  };
+
+  // Apply Package to report
+  const handleApplyPackageToReport = (pkg: ComprehensivePackage) => {
+    if (!currentReport) return;
+
+    // Build profiles from package
+    const newProfiles: TestProfile[] = [];
+
+    // Add profile templates
+    pkg.includedProfiles.forEach(code => {
+      const template = catalog.find(c => c.code === code) || LAB_CATALOG.find(c => c.code === code);
+      if (template) {
+        newProfiles.push({
+          id: `prof-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+          profileCode: template.code,
+          titleEn: template.titleEn,
+          titleAr: template.titleAr,
+          category: template.category,
+          sampleType: template.sampleType,
+          interpretation: template.defaultInterpretation || '',
+          parameters: template.parameters.map((p, idx) => ({
+            ...p,
+            id: `param-${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 4)}`,
+            result: '',
+            flag: ''
+          }))
+        });
+      }
+    });
+
+    // Add individual tests in package
+    if (pkg.includedIndividualTestCodes.length > 0) {
+      const indivParams: TestParameter[] = [];
+      pkg.includedIndividualTestCodes.forEach(tCode => {
+        const test = individualTests.find(t => t.code === tCode) || INITIAL_INDIVIDUAL_TESTS.find(t => t.code === tCode);
+        if (test) {
+          indivParams.push({
+            id: `param-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+            name: `${test.nameAr} (${test.nameEn})`,
+            result: '',
+            unit: test.unit,
+            minNormal: test.minNormal,
+            maxNormal: test.maxNormal,
+            panicLow: test.panicLow,
+            panicHigh: test.panicHigh,
+            textReference: test.textReference,
+            method: test.method,
+            flag: ''
+          });
+        }
+      });
+
+      if (indivParams.length > 0) {
+        newProfiles.push({
+          id: `prof-indiv-${Date.now()}`,
+          profileCode: 'INDIVIDUAL',
+          titleEn: `${pkg.titleEn} - Special Investigations`,
+          titleAr: `فحوصات ${pkg.titleAr} الإضافية`,
+          category: 'Special Chemistry & Hormones',
+          sampleType: pkg.sampleTypes.join(', '),
+          parameters: indivParams
+        });
+      }
+    }
+
+    const updatedRep: LabReport = {
+      ...currentReport,
+      profiles: newProfiles.length > 0 ? newProfiles : currentReport.profiles,
+      packageApplied: {
+        code: pkg.code,
+        titleAr: pkg.titleAr,
+        packagePrice: pkg.packagePrice
+      },
+      patient: {
+        ...currentReport.patient,
+        assignedPackageId: pkg.id,
+        totalCost: pkg.packagePrice,
+        discountApplied: pkg.originalPrice - pkg.packagePrice
+      },
+      updatedAt: new Date().toISOString()
+    };
+
+    handleUpdateCurrentReport(updatedRep);
+    setViewMode('editor');
+    setActiveTab('new-patient');
+    showToast(`تم تطبيق باقة (${pkg.titleAr}) بسعر مخفض ${pkg.packagePrice} ج.م بنجاح!`);
+  };
+
   // Add manual custom test
   const handleAddManualTest = (
     targetProfileId: string | 'new',
@@ -290,14 +616,27 @@ export default function App() {
 
   // Backup JSON database
   const handleBackupDatabase = () => {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(reports, null, 2));
+    const fullBackup = {
+      reports,
+      packages,
+      individualTests,
+      staffMembers,
+      facilities,
+      loyaltyProfiles,
+      defaultStaff,
+      catalog,
+      version: '2.0.0',
+      exportedAt: new Date().toISOString()
+    };
+
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(fullBackup, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', `RT_LAB_Backup_${new Date().toISOString().substring(0, 10)}.json`);
+    downloadAnchor.setAttribute('download', `RT_LAB_FullDatabase_${new Date().toISOString().substring(0, 10)}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-    showToast('تم تصدير النسخة الاحتياطية بنجاح 💾');
+    showToast('تم تصدير النسخة الاحتياطية الشاملة بنجاح 💾');
   };
 
   // Restore JSON database
@@ -309,7 +648,17 @@ export default function App() {
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target?.result as string);
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].patient) {
+        if (parsed.reports && Array.isArray(parsed.reports)) {
+          setReports(parsed.reports);
+          if (parsed.packages) setPackages(parsed.packages);
+          if (parsed.individualTests) setIndividualTests(parsed.individualTests);
+          if (parsed.staffMembers) setStaffMembers(parsed.staffMembers);
+          if (parsed.facilities) setFacilities(parsed.facilities);
+          if (parsed.loyaltyProfiles) setLoyaltyProfiles(parsed.loyaltyProfiles);
+          if (parsed.defaultStaff) setDefaultStaff(parsed.defaultStaff);
+          if (parsed.catalog) setCatalog(parsed.catalog);
+          showToast(`تمت استعادة قاعدة البيانات المتكاملة بنجاح!`);
+        } else if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].patient) {
           setReports(parsed);
           setCurrentReportId(parsed[0].id);
           showToast(`تمت استعادة ${parsed.length} سجل بنجاح!`);
@@ -348,7 +697,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-        {/* VIEW 1: PRINT & PDF VIEWER (Automated Print Layout with each profile on separate page) */}
+        {/* VIEW 1: PRINT & PDF VIEWER (Each profile on an independent page) */}
         {viewMode === 'print' && currentReport ? (
           <ReportViewerPrint
             report={currentReport}
@@ -381,6 +730,21 @@ export default function App() {
             {/* TAB 2: PATIENT ENTRY & REPORT EDITOR */}
             {activeTab === 'new-patient' && currentReport && (
               <div className="space-y-6">
+                {/* Active Package Banner (if applied) */}
+                {currentReport.packageApplied && (
+                  <div className="p-3.5 bg-gradient-to-r from-red-950 via-rose-900 to-slate-900 text-white rounded-xl shadow-md flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="font-mono bg-red-800/80 px-2 py-0.5 rounded font-bold">
+                        {currentReport.packageApplied.code}
+                      </span>
+                      <span>الباقة المطبقة حالياً: <strong>{currentReport.packageApplied.titleAr}</strong></span>
+                    </div>
+                    <div className="text-xs font-black text-rose-200 font-mono">
+                      السعر الإجمالي للباقة: {currentReport.packageApplied.packagePrice} ج.م
+                    </div>
+                  </div>
+                )}
+
                 {/* Patient Demographics */}
                 <PatientForm
                   patient={currentReport.patient}
@@ -412,11 +776,14 @@ export default function App() {
               </div>
             )}
 
-            {/* TAB 3: LONGITUDINAL TREND CHARTS */}
-            {activeTab === 'trends' && (
-              <PatientTrendChart
-                reports={reports}
-                initialPatientId={currentReport?.patient.id}
+            {/* TAB 3: PACKAGES MANAGER */}
+            {activeTab === 'packages' && (
+              <PackagesManager
+                packages={packages}
+                onUpdatePackages={setPackages}
+                catalogProfiles={catalog}
+                individualTests={individualTests}
+                onApplyPackageToReport={handleApplyPackageToReport}
               />
             )}
 
@@ -424,19 +791,43 @@ export default function App() {
             {activeTab === 'catalog' && (
               <CatalogBrowser
                 catalog={catalog}
-                onUpdateCatalog={handleUpdateCatalog}
+                onUpdateCatalog={setCatalog}
                 onResetCatalog={handleResetCatalog}
                 onSelectProfileForNewCase={(template) => {
                   createNewReport(template);
                 }}
+                individualTests={individualTests}
+                onUpdateIndividualTests={setIndividualTests}
+                onSelectIndividualTestForNewCase={handleSelectIndividualTestForNewCase}
               />
             )}
 
-            {/* TAB 5: STAFF & SIGNATURES SETTINGS */}
-            {activeTab === 'settings' && (
-              <StaffSettingsModal
-                currentStaff={defaultStaff}
-                onUpdateDefaultStaff={(updated) => {
+            {/* TAB 5: PATIENT CARDS & LOYALTY POINTS */}
+            {activeTab === 'patient-cards' && (
+              <PatientCardsAndPoints
+                loyaltyProfiles={loyaltyProfiles}
+                onUpdateProfiles={setLoyaltyProfiles}
+                reports={reports}
+              />
+            )}
+
+            {/* TAB 6: LONGITUDINAL TREND CHARTS */}
+            {activeTab === 'trends' && (
+              <PatientTrendChart
+                reports={reports}
+                initialPatientId={currentReport?.patient.id}
+              />
+            )}
+
+            {/* TAB 7: STAFF & FACILITIES MANAGEMENT */}
+            {activeTab === 'staff-facilities' && (
+              <StaffAndFacilitiesManager
+                staffMembers={staffMembers}
+                onUpdateStaffMembers={setStaffMembers}
+                facilities={facilities}
+                onUpdateFacilities={setFacilities}
+                defaultSignatures={defaultStaff}
+                onUpdateDefaultSignatures={(updated) => {
                   setDefaultStaff(updated);
                   if (currentReport) {
                     handleUpdateCurrentReport({
@@ -452,7 +843,7 @@ export default function App() {
         )}
       </main>
 
-      {/* Catalog Selector Modal */}
+      {/* Catalog Selector Modal with Individual Tests & Packages */}
       {currentReport && (
         <TestCatalogModal
           isOpen={isCatalogModalOpen}
@@ -460,6 +851,10 @@ export default function App() {
           onAddProfile={handleAddProfileFromCatalog}
           existingProfileCodes={currentReport.profiles.map(p => p.profileCode)}
           catalog={catalog}
+          individualTests={individualTests}
+          packages={packages}
+          onAddIndividualTest={handleAddIndividualTest}
+          onApplyPackage={handleApplyPackageToReport}
         />
       )}
 

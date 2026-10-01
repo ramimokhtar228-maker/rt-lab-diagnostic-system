@@ -188,6 +188,9 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
                       <span className="text-[9px] font-black text-rose-950 tracking-widest mt-1 uppercase">
                         Kasr Al Ainy
                       </span>
+                      <span className="text-[10px] font-black text-rose-900 tracking-wide mt-0.5 whitespace-nowrap">
+                        التشخيص الصحيح يبدأ معنا
+                      </span>
                     </div>
 
                     {/* English credentials */}
