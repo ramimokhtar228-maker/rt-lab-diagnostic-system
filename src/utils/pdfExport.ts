@@ -1,78 +1,84 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { LabReport } from '../types/lab';
+import { openPrintReportWindow } from './printReportWindow';
 
 /**
- * Generates and downloads a real, multi-page PDF document
- * with each medical profile on its own separate A4 page.
+ * Generates and downloads or displays the report as PDF.
+ * Uses robust multi-engine approach:
+ * 1. Opens standalone high-resolution print/PDF view with native browser Save-as-PDF.
+ * 2. Attempts client-side canvas capture if supported.
  */
 export async function downloadReportPDF(
   report: LabReport,
   pageElementsSelector = '.report-page-container'
 ): Promise<void> {
-  const pageNodes = document.querySelectorAll(pageElementsSelector);
+  try {
+    // Dynamically attempt html2canvas & jspdf
+    const { default: html2canvas } = await import('html2canvas');
+    const { default: jsPDF } = await import('jspdf');
 
-  if (!pageNodes || pageNodes.length === 0) {
-    // Fallback: try window.print()
-    try {
-      window.print();
-    } catch (e) {
-      console.warn('window.print failed:', e);
+    const pageNodes = document.querySelectorAll(pageElementsSelector);
+
+    if (!pageNodes || pageNodes.length === 0) {
+      openPrintReportWindow(report);
+      return;
     }
-    return;
-  }
 
-  // Create A4 PDF (210mm x 297mm)
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
-    compress: true
-  });
-
-  const pdfWidth = 210;
-  const pdfHeight = 297;
-
-  for (let i = 0; i < pageNodes.length; i++) {
-    const node = pageNodes[i] as HTMLElement;
-
-    // Convert DOM page to high-resolution canvas
-    const canvas = await html2canvas(node, {
-      scale: 2, // 2x for sharp print quality
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      windowWidth: 1200
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
     });
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdfWidth = 210;
+    const pdfHeight = 297;
 
-    if (i > 0) {
-      pdf.addPage('a4', 'portrait');
+    for (let i = 0; i < pageNodes.length; i++) {
+      const node = pageNodes[i] as HTMLElement;
+
+      const canvas = await html2canvas(node, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: 1200,
+        ignoreElements: (el) => {
+          return el.classList && el.classList.contains('no-print');
+        }
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      if (i > 0) {
+        pdf.addPage('a4', 'portrait');
+      }
+
+      const margin = 6;
+      const contentWidth = pdfWidth - margin * 2;
+      const contentHeight = (canvas.height * contentWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'JPEG', margin, margin, contentWidth, Math.min(contentHeight, pdfHeight - margin * 2));
     }
 
-    // Add canvas image to fill A4 page with 6mm margins
-    const margin = 6;
-    const contentWidth = pdfWidth - margin * 2;
-    const contentHeight = (canvas.height * contentWidth) / canvas.width;
+    const safeName = report.patient.fullName.trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\u0600-\u06FF]/g, '') || 'Patient';
+    const fileName = `RT_LAB_${safeName}_${report.patient.labNumber}.pdf`;
 
-    pdf.addImage(imgData, 'JPEG', margin, margin, contentWidth, Math.min(contentHeight, pdfHeight - margin * 2));
+    pdf.save(fileName);
+  } catch (err) {
+    console.warn('Canvas PDF generator encountered browser CSS constraints, falling back to dedicated print window:', err);
+    // Reliable fallback: Opens the isolated print document with automatic Print to PDF dialog!
+    openPrintReportWindow(report);
   }
-
-  const safeName = report.patient.fullName.trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\u0600-\u06FF]/g, '') || 'Patient';
-  const fileName = `RT_LAB_${safeName}_${report.patient.labNumber}.pdf`;
-
-  pdf.save(fileName);
 }
 
-/**
- * Robust print helper that handles iframe restrictions
- */
-export function triggerPrintDialog(): void {
+export function triggerPrintDialog(report?: LabReport): void {
+  if (report) {
+    openPrintReportWindow(report);
+    return;
+  }
   try {
     window.print();
-  } catch (err) {
-    console.error('Error triggering window.print():', err);
-    alert('تنبيه: لتجنب قيود متصفح الويب داخل نافذة المعاينة، يمكنك الضغط على زر "تحميل ملف PDF" لتحميل التقرير كملف PDF مباشر بجودة عالية وطباعته.');
+  } catch {
+    alert('يرجى الضغط على زر تحميل ملف PDF لحفظ التقرير.');
   }
 }

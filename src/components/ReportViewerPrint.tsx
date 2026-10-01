@@ -6,6 +6,7 @@ import { FlagBadge } from './FlagBadge';
 import { exportReportToPPTX } from '../utils/pptxExport';
 import { formatWhatsAppMessage, openWhatsApp } from '../utils/whatsapp';
 import { downloadReportPDF, triggerPrintDialog } from '../utils/pdfExport';
+import { openPrintReportWindow } from '../utils/printReportWindow';
 import { 
   Printer, 
   Share2, 
@@ -39,15 +40,14 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
       await downloadReportPDF(report);
     } catch (err) {
       console.error('Failed to generate PDF:', err);
-      // Fallback
-      triggerPrintDialog();
+      openPrintReportWindow(report);
     } finally {
       setIsGeneratingPDF(false);
     }
   };
 
   const handlePrint = () => {
-    triggerPrintDialog();
+    openPrintReportWindow(report);
   };
 
   const handleWhatsApp = () => {
