@@ -8,22 +8,25 @@ interface TestCatalogModalProps {
   onClose: () => void;
   onAddProfile: (profile: TestProfile) => void;
   existingProfileCodes: string[];
+  catalog?: CatalogProfileTemplate[];
 }
 
 export const TestCatalogModal: React.FC<TestCatalogModalProps> = ({
   isOpen,
   onClose,
   onAddProfile,
-  existingProfileCodes
+  existingProfileCodes,
+  catalog = LAB_CATALOG
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   if (!isOpen) return null;
 
-  const categories = ['All', ...Array.from(new Set(LAB_CATALOG.map(c => c.category)))];
+  const activeCatalog = catalog.length > 0 ? catalog : LAB_CATALOG;
+  const categories = ['All', ...Array.from(new Set(activeCatalog.map(c => c.category)))];
 
-  const filteredCatalog = LAB_CATALOG.filter(item => {
+  const filteredCatalog = activeCatalog.filter(item => {
     const matchesSearch =
       item.titleEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.titleAr.includes(searchTerm) ||

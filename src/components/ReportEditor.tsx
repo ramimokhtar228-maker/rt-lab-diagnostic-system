@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { LabReport, TestProfile, TestParameter, LabStaffSignatures, ReportStatus } from '../types/lab';
-import { calculateFlag, formatReferenceDisplay } from '../utils/calculator';
+import { calculateFlag, formatReferenceDisplay, runAutomaticCalculations } from '../utils/calculator';
 import { COMMON_INTERPRETATIONS, STAFF_OPTIONS } from '../data/labCatalog';
 import { ColouredRangeChart } from './ColouredRangeChart';
 import { FlagBadge } from './FlagBadge';
+import { QuickResultPicker } from './QuickResultPicker';
+import { ParameterEditModal } from './ParameterEditModal';
+import { AddParameterModal } from './AddParameterModal';
 import { 
   Plus, 
   Trash2, 
@@ -20,7 +23,9 @@ import {
   Layers,
   ChevronDown,
   Sparkles,
-  UserCheck
+  UserCheck,
+  Calculator,
+  AlertCircle
 } from 'lucide-react';
 
 interface ReportEditorProps {
@@ -45,7 +50,9 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
   onOpenManualTest
 }) => {
   const [activeProfileTab, setActiveProfileTab] = useState<string>(report.profiles[0]?.id || '');
-  const [editingParamId, setEditingParamId] = useState<string | null>(null);
+  const [modalParamToEdit, setModalParamToEdit] = useState<TestParameter | null>(null);
+  const [isAddParamModalOpen, setIsAddParamModalOpen] = useState(false);
+  const [lastCalculatedInfo, setLastCalculatedInfo] = useState<string[]>([]);
 
   // Update profile field
   const handleUpdateProfile = (profileId: string, updates: Partial<TestProfile>) => {
@@ -86,14 +93,38 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
     }
   };
 
+  // Trigger Automatic Calculations on active profile or across report
+  const handleRunAutoCalc = (profileId: string) => {
+    const currentProf = report.profiles.find(p => p.id === profileId);
+    if (!currentProf) return;
+
+    const { updatedParams, calculationsApplied } = runAutomaticCalculations(
+      currentProf.parameters,
+      { age: report.patient.age, gender: report.patient.gender }
+    );
+
+    if (calculationsApplied.length > 0) {
+      const updatedProfiles = report.profiles.map(p => {
+        if (p.id === profileId) {
+          return { ...p, parameters: updatedParams };
+        }
+        return p;
+      });
+      onUpdateReport({ ...report, profiles: updatedProfiles, updatedAt: new Date().toISOString() });
+      setLastCalculatedInfo(calculationsApplied);
+    } else {
+      alert('تم فحص البارامترات: لم يتم العثور على قيم جديدة بحاجة لحساب أو أن القيم المدخلة غير كافية لحساب المعادلات (مثل RBC مع HCT/HGB، أو Glucose مع Fasting Insulin).');
+    }
+  };
+
   // Update single parameter
   const handleUpdateParameter = (profileId: string, paramId: string, updates: Partial<TestParameter>) => {
     const updatedProfiles = report.profiles.map(prof => {
       if (prof.id === profileId) {
-        const updatedParams = prof.parameters.map(param => {
+        let updatedParams = prof.parameters.map(param => {
           if (param.id === paramId) {
             const merged = { ...param, ...updates };
-            // If result or min/max changed, recalculate flag
+            // Recalculate flag if result or ranges changed
             if (updates.result !== undefined || updates.minNormal !== undefined || updates.maxNormal !== undefined) {
               merged.flag = calculateFlag(merged.result, merged.minNormal, merged.maxNormal, merged.panicLow, merged.panicHigh);
             }
@@ -101,10 +132,43 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
           }
           return param;
         });
+
+        // If a result was entered/changed, automatically evaluate dependent clinical calculations!
+        if (updates.result !== undefined && updates.result.trim() !== '') {
+          const autoRes = runAutomaticCalculations(updatedParams, { age: report.patient.age, gender: report.patient.gender });
+          if (autoRes.calculationsApplied.length > 0) {
+            updatedParams = autoRes.updatedParams;
+            setLastCalculatedInfo(autoRes.calculationsApplied);
+          }
+        }
+
         return { ...prof, parameters: updatedParams };
       }
       return prof;
     });
+
+    onUpdateReport({ ...report, profiles: updatedProfiles, updatedAt: new Date().toISOString() });
+  };
+
+  // Add new parameter to current profile
+  const handleAddParameterToCurrentProfile = (newParam: Omit<TestParameter, 'id' | 'result' | 'flag'>) => {
+    const paramWithId: TestParameter = {
+      ...newParam,
+      id: `param-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      result: '',
+      flag: ''
+    };
+
+    const updatedProfiles = report.profiles.map(prof => {
+      if (prof.id === activeProfileTab) {
+        return {
+          ...prof,
+          parameters: [...prof.parameters, paramWithId]
+        };
+      }
+      return prof;
+    });
+
     onUpdateReport({ ...report, profiles: updatedProfiles, updatedAt: new Date().toISOString() });
   };
 
@@ -127,16 +191,18 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
 
   // Delete single parameter
   const handleDeleteParameter = (profileId: string, paramId: string) => {
-    const updatedProfiles = report.profiles.map(prof => {
-      if (prof.id === profileId) {
-        return {
-          ...prof,
-          parameters: prof.parameters.filter(p => p.id !== paramId)
-        };
-      }
-      return prof;
-    });
-    onUpdateReport({ ...report, profiles: updatedProfiles, updatedAt: new Date().toISOString() });
+    if (confirm('هل أنت متأكد من حذف هذا التحليل من التقرير؟')) {
+      const updatedProfiles = report.profiles.map(prof => {
+        if (prof.id === profileId) {
+          return {
+            ...prof,
+            parameters: prof.parameters.filter(p => p.id !== paramId)
+          };
+        }
+        return prof;
+      });
+      onUpdateReport({ ...report, profiles: updatedProfiles, updatedAt: new Date().toISOString() });
+    }
   };
 
   // Staff updates
@@ -173,71 +239,53 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
           >
             <option value="draft">مسودة (Draft)</option>
             <option value="in_progress">قيد الفحص (In Progress)</option>
-            <option value="verified">تمت المراجعة والتدقيق (Verified)</option>
-            <option value="released">معتمد ومصدر رسمياً (Released)</option>
+            <option value="verified">تمت المراجعة والاعتماد (Verified)</option>
+            <option value="released">تم الإصدار النهائي للمريض (Released)</option>
           </select>
 
-          <span className="text-slate-300 text-xs hidden sm:inline">|</span>
-          <span className="text-xs text-slate-500 hidden sm:inline">
-            عدد البروفايلات: <strong className="text-slate-800">{report.profiles.length}</strong> (كل بروفايل في صفحة مستقلة)
-          </span>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Add test buttons */}
-          <button
-            onClick={onOpenCatalog}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg border border-slate-300 transition-colors"
-          >
-            <BookOpen className="w-3.5 h-3.5 text-rose-800" />
-            <span>إضافة من الكتالوج</span>
-          </button>
+          <span className="text-slate-300">|</span>
 
           <button
-            onClick={onOpenManualTest}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-900 text-xs font-bold rounded-lg border border-rose-300 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5 text-rose-800" />
-            <span>إضافة تحليل يدوي</span>
-          </button>
-
-          {/* Save button */}
-          <button
+            type="button"
             onClick={onSaveToArchive}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg shadow-xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-900 hover:bg-rose-800 text-white rounded-lg text-xs font-bold shadow-xs transition-all active:scale-95"
           >
             <Save className="w-3.5 h-3.5" />
             <span>حفظ بالأرشيف</span>
           </button>
+        </div>
 
-          {/* WhatsApp Direct Alert */}
+        <div className="flex items-center gap-2">
+          {/* WhatsApp Alert */}
           <button
+            type="button"
             onClick={onSendWhatsApp}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg shadow-xs transition-colors"
-            title="إرسال تنبيه فوري عبر واتساب للمريض"
+            className="flex items-center gap-1 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition-all"
+            title="إرسال تنبيه واتساب مباشر للمريض"
           >
             <Share2 className="w-3.5 h-3.5" />
-            <span>تنبيه واتساب</span>
+            <span>واتساب</span>
           </button>
 
-          {/* PPTX Export */}
+          {/* Export PPTX */}
           <button
+            type="button"
             onClick={onExportPPTX}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg shadow-xs transition-colors"
+            className="flex items-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg transition-all"
             title="تصدير عرض تقديمي بوربوينت"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>PowerPoint</span>
           </button>
 
-          {/* Automated Print & PDF */}
+          {/* Print Preview */}
           <button
+            type="button"
             onClick={onPrintPreview}
-            className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-red-800 to-rose-700 hover:from-red-700 hover:to-rose-600 text-white text-xs font-bold rounded-lg shadow-sm transition-all active:scale-98"
+            className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-red-800 to-rose-700 hover:from-red-700 hover:to-rose-600 text-white text-xs font-black rounded-lg shadow-sm transition-all"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>الطباعة الآلية والـ PDF</span>
+            <span>معاينة وطباعة التقرير (A4)</span>
           </button>
         </div>
       </div>
@@ -265,13 +313,13 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
             ))}
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={onOpenCatalog}
               className="flex items-center gap-1 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-900 rounded-lg text-xs font-bold border border-rose-200"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>إضافة بروفايل</span>
+              <span>إضافة بروفايل من الكتالوج</span>
             </button>
           </div>
         </div>
@@ -279,10 +327,10 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
         {/* Current Active Profile Editor */}
         {currentProfile && (
           <div className="p-5 space-y-5">
-            {/* Profile Header Controls: Title, category, reorder & delete */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            {/* Profile Header Controls: Title, category, auto-calculate & delete */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono-numbers font-semibold">
                     {currentProfile.profileCode || 'CUSTOM'}
                   </span>
@@ -309,65 +357,101 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
                     value={currentProfile.sampleType}
                     onChange={(e) => handleUpdateProfile(currentProfile.id, { sampleType: e.target.value })}
                     className="border-b border-slate-200 text-slate-700 px-1 py-0.5 font-medium"
-                    placeholder="e.g. EDTA Whole Blood, Serum"
+                    placeholder="e.g. EDTA Whole Blood, Serum, Urine"
                   />
                 </div>
               </div>
 
-              {/* Profile Reordering / Delete */}
-              <div className="flex items-center gap-1.5 text-xs">
-                <span className="text-slate-400 ml-1">ترتيب الصفحة:</span>
+              {/* Action Buttons: Auto-Calculate, Add Parameter, Profile Reordering & Delete */}
+              <div className="flex items-center gap-2 flex-wrap text-xs">
+                {/* Auto Calculate Button */}
                 <button
                   type="button"
-                  disabled={currentProfileIdx === 0}
-                  onClick={() => handleMoveProfile(currentProfileIdx, 'up')}
-                  className="p-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-30 disabled:pointer-events-none"
-                  title="تحريك البروفايل لأعلى"
+                  onClick={() => handleRunAutoCalc(currentProfile.id)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg font-bold shadow-xs active:scale-95 transition-all"
+                  title="حساب المعادلات تلقائياً (CBC Indices, HOMA-IR, eAG, VLDL, LDL, ACR, Corrected Ca...)"
                 >
-                  <ArrowUp className="w-3.5 h-3.5" />
+                  <Calculator className="w-3.5 h-3.5 text-blue-200" />
+                  <span>⚡ حساب المعادلات تلقائياً</span>
                 </button>
+
+                {/* Add Parameter to Profile */}
                 <button
                   type="button"
-                  disabled={currentProfileIdx === report.profiles.length - 1}
-                  onClick={() => handleMoveProfile(currentProfileIdx, 'down')}
-                  className="p-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-30 disabled:pointer-events-none"
-                  title="تحريك البروفايل لأسفل"
+                  onClick={() => setIsAddParamModalOpen(true)}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 rounded-lg font-bold transition-all"
                 >
-                  <ArrowDown className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>إضافة تحليل هنا</span>
                 </button>
+
+                {/* Move Profile Up/Down */}
+                <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                  <button
+                    type="button"
+                    disabled={currentProfileIdx === 0}
+                    onClick={() => handleMoveProfile(currentProfileIdx, 'up')}
+                    className="p-1 rounded text-slate-600 hover:bg-white disabled:opacity-30 disabled:pointer-events-none"
+                    title="تحريك البروفايل لأعلى"
+                  >
+                    <ArrowUp className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={currentProfileIdx === report.profiles.length - 1}
+                    onClick={() => handleMoveProfile(currentProfileIdx, 'down')}
+                    className="p-1 rounded text-slate-600 hover:bg-white disabled:opacity-30 disabled:pointer-events-none"
+                    title="تحريك البروفايل لأسفل"
+                  >
+                    <ArrowDown className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Delete Profile */}
                 <button
                   type="button"
                   onClick={() => handleDeleteProfile(currentProfile.id)}
-                  className="p-1.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 ml-2"
-                  title="حذف هذا البروفايل"
+                  className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200"
+                  title="حذف هذا البروفايل بالكامل"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
+            {/* Auto Calculations Banner if any occurred */}
+            {lastCalculatedInfo.length > 0 && (
+              <div className="bg-blue-50 border border-blue-200 text-blue-900 px-3.5 py-2 rounded-xl text-xs flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-blue-600" />
+                  <span>تم حساب وتحديث المعادلات بنجاح: <strong>{lastCalculatedInfo.join('، ')}</strong></span>
+                </div>
+                <button onClick={() => setLastCalculatedInfo([])} className="text-blue-500 hover:text-blue-800 text-[11px]">✕</button>
+              </div>
+            )}
+
             {/* Test Parameters Table:
                 User requested exact order from left to right:
                 Investigations / results / coloured chart / flags / references
             */}
-            <div className="overflow-x-auto rounded-lg border border-slate-200">
+            <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-2xs">
               <table className="w-full text-right border-collapse" dir="ltr">
                 <thead>
                   <tr className="bg-gradient-to-r from-red-950 via-slate-900 to-slate-900 text-white text-xs font-bold uppercase tracking-wider">
                     <th className="py-2.5 px-3 text-left w-10">#</th>
                     <th className="py-2.5 px-3 text-left">Investigations</th>
-                    <th className="py-2.5 px-3 text-center w-36">Results</th>
-                    <th className="py-2.5 px-3 text-center w-40">Coloured Chart</th>
-                    <th className="py-2.5 px-3 text-center w-32">Flags</th>
+                    <th className="py-2.5 px-3 text-center w-48">Results & Options</th>
+                    <th className="py-2.5 px-3 text-center w-36">Coloured Chart</th>
+                    <th className="py-2.5 px-3 text-center w-28">Flags</th>
                     <th className="py-2.5 px-3 text-left w-48">References</th>
-                    <th className="py-2.5 px-2 text-center w-24">Actions</th>
+                    <th className="py-2.5 px-2 text-center w-28">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 bg-white text-sm">
                   {currentProfile.parameters.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-8 text-slate-400 text-xs">
-                        لا توجد تحاليل في هذا البروفايل حالياً. اضغط "إضافة تحليل" للبدء.
+                        لا توجد تحاليل في هذا البروفايل حالياً. اضغط "إضافة تحليل هنا" للبدء.
                       </td>
                     </tr>
                   ) : (
@@ -394,23 +478,29 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
                                 onChange={(e) => handleUpdateParameter(currentProfile.id, param.id, { name: e.target.value })}
                                 className="w-full font-bold text-slate-900 bg-transparent hover:bg-slate-50 focus:bg-white rounded px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-rose-500 border border-transparent focus:border-rose-400 text-sm"
                               />
-                              {param.method && (
-                                <span className="text-[10px] text-slate-400 px-1 block font-mono">
-                                  Method: {param.method}
-                                </span>
-                              )}
+                              <div className="flex items-center gap-2 text-[10px] text-slate-400 px-1 font-mono">
+                                {param.method && <span>Method: {param.method}</span>}
+                                {param.notes && <span className="text-rose-700 font-semibold">• {param.notes}</span>}
+                              </div>
                             </div>
                           </td>
 
-                          {/* 2. Results */}
+                          {/* 2. Results & Clinical Prefill Picker */}
                           <td className="py-2.5 px-3 text-center">
-                            <div className="flex items-center justify-center gap-1">
+                            <div className="flex items-center justify-center gap-1.5">
+                              {/* Quick clinical pre-fill options (Colors, Transparency, Nil, +, etc.) */}
+                              <QuickResultPicker
+                                paramName={param.name}
+                                currentValue={param.result}
+                                onSelect={(val) => handleUpdateParameter(currentProfile.id, param.id, { result: val })}
+                              />
+
                               <input
                                 type="text"
                                 placeholder="النتيجة"
                                 value={param.result}
                                 onChange={(e) => handleUpdateParameter(currentProfile.id, param.id, { result: e.target.value })}
-                                className={`w-24 text-center font-black font-mono-numbers text-sm rounded-md px-2 py-1 border transition-all ${
+                                className={`w-28 text-center font-black font-mono-numbers text-sm rounded-md px-2 py-1 border transition-all ${
                                   param.flag === 'HIGH' || param.flag === 'PANIC_HIGH'
                                     ? 'bg-rose-50 text-rose-900 border-rose-400 font-extrabold'
                                     : param.flag === 'LOW' || param.flag === 'PANIC_LOW'
@@ -418,9 +508,12 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
                                     : 'bg-slate-50 text-slate-900 border-slate-300 focus:bg-white focus:border-rose-600'
                                 } focus:outline-none focus:ring-2 focus:ring-rose-500/20`}
                               />
-                              <span className="text-xs text-slate-500 font-medium">
-                                {param.unit}
-                              </span>
+
+                              {param.unit && (
+                                <span className="text-xs text-slate-500 font-medium">
+                                  {param.unit}
+                                </span>
+                              )}
                             </div>
                           </td>
 
@@ -442,63 +535,25 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
 
                           {/* 5. References */}
                           <td className="py-2.5 px-3 text-left">
-                            <div className="space-y-0.5">
-                              <span className="text-xs text-slate-700 font-mono-numbers block font-medium">
-                                {formatReferenceDisplay(param)}
-                              </span>
-                              {/* Edit references trigger */}
-                              {editingParamId === param.id ? (
-                                <div className="p-2 bg-slate-100 rounded-lg space-y-1 text-xs border border-slate-300 mt-1">
-                                  <div className="flex gap-1 items-center">
-                                    <span className="text-[10px] text-slate-500">Min:</span>
-                                    <input
-                                      type="number"
-                                      step="any"
-                                      value={param.minNormal !== undefined ? param.minNormal : ''}
-                                      onChange={(e) => handleUpdateParameter(currentProfile.id, param.id, { minNormal: e.target.value ? parseFloat(e.target.value) : undefined })}
-                                      className="w-14 bg-white border border-slate-300 rounded px-1 text-xs"
-                                    />
-                                    <span className="text-[10px] text-slate-500">Max:</span>
-                                    <input
-                                      type="number"
-                                      step="any"
-                                      value={param.maxNormal !== undefined ? param.maxNormal : ''}
-                                      onChange={(e) => handleUpdateParameter(currentProfile.id, param.id, { maxNormal: e.target.value ? parseFloat(e.target.value) : undefined })}
-                                      className="w-14 bg-white border border-slate-300 rounded px-1 text-xs"
-                                    />
-                                  </div>
-                                  <div className="flex gap-1 items-center">
-                                    <span className="text-[10px] text-slate-500">Unit:</span>
-                                    <input
-                                      type="text"
-                                      value={param.unit}
-                                      onChange={(e) => handleUpdateParameter(currentProfile.id, param.id, { unit: e.target.value })}
-                                      className="w-20 bg-white border border-slate-300 rounded px-1 text-xs"
-                                    />
-                                    <button
-                                      onClick={() => setEditingParamId(null)}
-                                      className="text-[10px] bg-slate-800 text-white px-2 py-0.5 rounded ml-auto"
-                                    >
-                                      تم
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => setEditingParamId(param.id)}
-                                  className="text-[10px] text-rose-800 hover:text-rose-950 underline flex items-center gap-0.5"
-                                >
-                                  <Edit2 className="w-2.5 h-2.5" />
-                                  <span>تعديل المعدل</span>
-                                </button>
-                              )}
-                            </div>
+                            <span className="text-xs text-slate-700 font-mono-numbers block font-medium">
+                              {formatReferenceDisplay(param)}
+                            </span>
                           </td>
 
-                          {/* Row Actions: Reorder & Delete */}
+                          {/* 6. Actions: Edit, Up, Down, Delete */}
                           <td className="py-2 px-2 text-center">
                             <div className="flex items-center justify-center gap-1">
+                              {/* Edit Modal Button */}
+                              <button
+                                type="button"
+                                onClick={() => setModalParamToEdit(param)}
+                                className="p-1.5 text-slate-500 hover:text-rose-900 hover:bg-rose-50 rounded-md transition-colors"
+                                title="تعديل اسم التحليل والمعدل الطبيعي ووحدة القياس"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+
+                              {/* Move Up */}
                               <button
                                 type="button"
                                 disabled={pIdx === 0}
@@ -508,6 +563,8 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
                               >
                                 <ArrowUp className="w-3 h-3" />
                               </button>
+
+                              {/* Move Down */}
                               <button
                                 type="button"
                                 disabled={pIdx === currentProfile.parameters.length - 1}
@@ -517,10 +574,12 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
                               >
                                 <ArrowDown className="w-3 h-3" />
                               </button>
+
+                              {/* Delete Parameter */}
                               <button
                                 type="button"
                                 onClick={() => handleDeleteParameter(currentProfile.id, param.id)}
-                                className="p-1 text-rose-600 hover:text-rose-900"
+                                className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
                                 title="حذف هذا التحليل"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -535,170 +594,139 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
               </table>
             </div>
 
-            {/* Quick add manual parameter to this profile */}
-            <div className="flex justify-start">
+            {/* Bottom Add Parameter Bar */}
+            <div className="flex items-center justify-between pt-1">
               <button
                 type="button"
-                onClick={onOpenManualTest}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-900 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition-colors"
+                onClick={() => setIsAddParamModalOpen(true)}
+                className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg border border-slate-300 transition-colors"
               >
-                <Plus className="w-3.5 h-3.5" />
-                <span>إضافة تحليل آخر يدوي لهذا البروفايل</span>
+                <Plus className="w-4 h-4 text-rose-700" />
+                <span>+ إضافة سطر تحليل جديد لهذا الفحص</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleRunAutoCalc(currentProfile.id)}
+                className="flex items-center gap-1 text-xs font-bold text-blue-700 hover:text-blue-900"
+              >
+                <Calculator className="w-3.5 h-3.5" />
+                <span>إعادة تشغيل الحسابات الآلية (Auto Calc)</span>
               </button>
             </div>
 
-            {/* Interpretation & Comment Section (Interpretation and comment) */}
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-rose-900" />
-                  <h4 className="text-xs font-bold text-slate-900">
-                    Clinical Interpretation & Comment (التعليق والتقرير الإكلينيكي)
-                  </h4>
-                </div>
-
-                {/* Predefined comment templates for Kasr Al Ainy pathology */}
-                {COMMON_INTERPRETATIONS[currentProfile.profileCode] && (
-                  <div className="relative group">
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 text-[11px] font-semibold text-rose-900 bg-white px-2.5 py-1 rounded-md border border-rose-200 hover:bg-rose-50 transition-colors"
-                    >
-                      <Sparkles className="w-3 h-3 text-rose-700" />
-                      <span>قوالب تعليقات استشارية جاهزة</span>
-                      <ChevronDown className="w-3 h-3" />
-                    </button>
-                    <div className="absolute left-0 mt-1 w-80 bg-white rounded-lg shadow-xl border border-slate-200 p-2 hidden group-hover:block z-20 space-y-1">
-                      <p className="text-[10px] font-bold text-slate-400 px-2 py-1">اختر تعليقاً إكلينيكياً معتمداً:</p>
-                      {COMMON_INTERPRETATIONS[currentProfile.profileCode].map((txt, i) => (
-                        <button
-                          key={i}
-                          type="button"
-                          onClick={() => handleUpdateProfile(currentProfile.id, { interpretation: txt })}
-                          className="w-full text-right p-2 text-xs text-slate-700 hover:bg-rose-50 hover:text-rose-950 rounded transition-colors"
-                        >
-                          {txt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {/* Clinical Interpretation & Comments */}
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-4">
+              <div className="flex items-center gap-2 text-rose-950 font-bold text-xs">
+                <MessageSquare className="w-4 h-4 text-rose-700" />
+                <span>التشخيص والتعليق الإكلينيكي المعتمد (Clinical Interpretation):</span>
               </div>
 
-              <div className="space-y-2">
+              <div>
                 <textarea
                   rows={2}
                   value={currentProfile.interpretation || ''}
                   onChange={(e) => handleUpdateProfile(currentProfile.id, { interpretation: e.target.value })}
-                  placeholder="اكتب التفسير الإكلينيكي للنتائج (Clinical Interpretation)..."
-                  className="w-full text-xs bg-white border border-slate-300 rounded-lg p-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600"
-                />
-
-                <input
-                  type="text"
-                  value={currentProfile.comment || ''}
-                  onChange={(e) => handleUpdateProfile(currentProfile.id, { comment: e.target.value })}
-                  placeholder="ملاحظة إضافية للبروفايل (مثل: تم التأكيد بإعادة الفحص، عينة صيام، إلخ...)"
-                  className="w-full text-xs bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  placeholder="اكتب التفسير التشخيصي للنتائج (يظهر في تقرير المريض المطبوع)..."
+                  className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600"
                 />
               </div>
+
+              {/* Quick Interpretation Snippets */}
+              {COMMON_INTERPRETATIONS[currentProfile.profileCode] && (
+                <div className="space-y-1.5">
+                  <div className="text-[11px] font-semibold text-slate-500">
+                    عبارات تشخيصية استرشادية جاهزة للاختيار:
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {COMMON_INTERPRETATIONS[currentProfile.profileCode].map((text, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => handleUpdateProfile(currentProfile.id, { interpretation: text })}
+                        className="text-[11px] bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-900 border border-slate-200 px-2.5 py-1 rounded-md text-right transition-colors"
+                      >
+                        • {text.slice(0, 60)}...
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
       </div>
 
-      {/* Signatures Selection Section:
-          User requested:
-          امضاءات
-          اختبار من قائمه
-          Lab CHEMIST
-          Verify by
-          Pathologist
-          اضافه اسماء تحت كل بند للاختيار
-      */}
+      {/* Staff Signatures Box */}
       <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
-        <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-          <UserCheck className="w-5 h-5 text-rose-900" />
-          <div>
-            <h3 className="text-sm font-bold text-slate-900">اعتماد وإمضاءات الفريق الطبي المعملي</h3>
-            <p className="text-xs text-slate-500">اختر أو عدل أسماء المسؤولين عن التحليل والمراجعة والاعتماد النهائي</p>
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <UserCheck className="w-4 h-4 text-rose-800" />
+            <h3 className="font-bold text-sm text-slate-900">طاقم الفحص والاعتماد (يظهر أسفل كل صفحة بالتقرير)</h3>
           </div>
+          <span className="text-xs text-slate-500">معامل رامي مختار - قصر العيني</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* 1. Lab CHEMIST */}
-          <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
-            <label className="block text-xs font-bold text-slate-800">
-              1. Lab CHEMIST (كيميائي المعمل)
+          {/* Lab Chemist */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Lab CHEMIST (الكيميائي المسؤول):
             </label>
-            <select
-              value={report.staff.labChemist}
-              onChange={(e) => handleStaffChange('labChemist', e.target.value)}
-              className="w-full text-xs font-medium bg-white border border-slate-300 rounded-lg p-2 text-slate-900 focus:ring-2 focus:ring-rose-500/20"
-            >
-              {STAFF_OPTIONS.chemists.map((chem, idx) => (
-                <option key={idx} value={chem}>{chem}</option>
-              ))}
-              <option value="custom">-- إدخال اسم يدوي مخصص --</option>
-            </select>
             <input
               type="text"
               value={report.staff.labChemist}
               onChange={(e) => handleStaffChange('labChemist', e.target.value)}
-              placeholder="تعديل الاسم واللقب..."
-              className="w-full text-xs bg-white border border-slate-200 rounded p-1.5 text-slate-800"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
           </div>
 
-          {/* 2. Verify by */}
-          <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
-            <label className="block text-xs font-bold text-slate-800">
-              2. Verify by (مراجعة وتدقيق)
+          {/* Verifier */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Verify by (المراجعة الإكلينيكية):
             </label>
-            <select
-              value={report.staff.verifiedBy}
-              onChange={(e) => handleStaffChange('verifiedBy', e.target.value)}
-              className="w-full text-xs font-medium bg-white border border-slate-300 rounded-lg p-2 text-slate-900 focus:ring-2 focus:ring-rose-500/20"
-            >
-              {STAFF_OPTIONS.verifiers.map((ver, idx) => (
-                <option key={idx} value={ver}>{ver}</option>
-              ))}
-              <option value="custom">-- إدخال اسم يدوي مخصص --</option>
-            </select>
             <input
               type="text"
               value={report.staff.verifiedBy}
               onChange={(e) => handleStaffChange('verifiedBy', e.target.value)}
-              placeholder="تعديل الاسم واللقب..."
-              className="w-full text-xs bg-white border border-slate-200 rounded p-1.5 text-slate-800"
+              className="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
           </div>
 
-          {/* 3. Pathologist */}
-          <div className="space-y-1.5 p-3 rounded-xl bg-rose-50/60 border border-rose-200">
-            <label className="block text-xs font-bold text-rose-950">
-              3. Pathologist (أطباء الباثولوجيا الإكلينيكية والكيميائية)
+          {/* Pathologist */}
+          <div>
+            <label className="block text-xs font-bold text-rose-900 mb-1">
+              Consultant Pathologist (استشاري الباثولوجيا):
             </label>
-            <select
-              value={report.staff.pathologist}
-              onChange={(e) => handleStaffChange('pathologist', e.target.value)}
-              className="w-full text-xs font-bold bg-white border border-rose-300 rounded-lg p-2 text-rose-950 focus:ring-2 focus:ring-rose-500/20"
-            >
-              {STAFF_OPTIONS.pathologists.map((path, idx) => (
-                <option key={idx} value={path}>{path}</option>
-              ))}
-              <option value="custom">-- إدخال اسم يدوي مخصص --</option>
-            </select>
             <input
               type="text"
               value={report.staff.pathologist}
               onChange={(e) => handleStaffChange('pathologist', e.target.value)}
-              placeholder="تعديل اسم الاستشاري..."
-              className="w-full text-xs bg-white border border-rose-200 rounded p-1.5 text-slate-900 font-semibold"
+              className="w-full text-xs p-2.5 rounded-lg border border-rose-300 bg-rose-50/40 text-rose-950 font-bold focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
           </div>
         </div>
       </div>
+
+      {/* Parameter Edit Modal */}
+      <ParameterEditModal
+        isOpen={!!modalParamToEdit}
+        onClose={() => setModalParamToEdit(null)}
+        parameter={modalParamToEdit}
+        onSave={(updated) => {
+          if (modalParamToEdit && currentProfile) {
+            handleUpdateParameter(currentProfile.id, modalParamToEdit.id, updated);
+          }
+        }}
+      />
+
+      {/* Add Parameter Modal */}
+      <AddParameterModal
+        isOpen={isAddParamModalOpen}
+        onClose={() => setIsAddParamModalOpen(false)}
+        onAdd={handleAddParameterToCurrentProfile}
+      />
     </div>
   );
 };

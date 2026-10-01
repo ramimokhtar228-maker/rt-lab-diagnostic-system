@@ -19,6 +19,7 @@ import { CheckCircle2 } from 'lucide-react';
 
 const STORAGE_KEY = 'rt_lab_reports_v1';
 const STAFF_STORAGE_KEY = 'rt_lab_staff_v1';
+const CATALOG_STORAGE_KEY = 'rt_lab_custom_catalog_v2';
 
 export default function App() {
   // Load staff defaults
@@ -30,6 +31,37 @@ export default function App() {
       return DEFAULT_STAFF;
     }
   });
+
+  // Load custom catalog with fallback
+  const [catalog, setCatalog] = useState<CatalogProfileTemplate[]>(() => {
+    try {
+      const saved = localStorage.getItem(CATALOG_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : LAB_CATALOG;
+    } catch {
+      return LAB_CATALOG;
+    }
+  });
+
+  const handleUpdateCatalog = (newCat: CatalogProfileTemplate[]) => {
+    setCatalog(newCat);
+    try {
+      localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(newCat));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleResetCatalog = () => {
+    if (confirm('هل أنت متأكد من استعادة كافة التحاليل والمعدلات الافتراضية للكتالوج؟')) {
+      setCatalog(LAB_CATALOG);
+      try {
+        localStorage.removeItem(CATALOG_STORAGE_KEY);
+      } catch (e) {
+        console.error(e);
+      }
+      showToast('تمت استعادة الكتالوج الافتراضي بنجاح');
+    }
+  };
 
   // Load reports
   const [reports, setReports] = useState<LabReport[]>(() => {
@@ -391,6 +423,9 @@ export default function App() {
             {/* TAB 4: MEDICAL TEST CATALOG BROWSER */}
             {activeTab === 'catalog' && (
               <CatalogBrowser
+                catalog={catalog}
+                onUpdateCatalog={handleUpdateCatalog}
+                onResetCatalog={handleResetCatalog}
                 onSelectProfileForNewCase={(template) => {
                   createNewReport(template);
                 }}
@@ -424,6 +459,7 @@ export default function App() {
           onClose={() => setIsCatalogModalOpen(false)}
           onAddProfile={handleAddProfileFromCatalog}
           existingProfileCodes={currentReport.profiles.map(p => p.profileCode)}
+          catalog={catalog}
         />
       )}
 
