@@ -1,0 +1,332 @@
+import React, { useState } from 'react';
+import { LabReport, ReportStatus } from '../types/lab';
+import { formatWhatsAppMessage, openWhatsApp } from '../utils/whatsapp';
+import { exportReportToPPTX } from '../utils/pptxExport';
+import { 
+  Archive, 
+  Search, 
+  Filter, 
+  Printer, 
+  Share2, 
+  FileSpreadsheet, 
+  Edit3, 
+  Trash2, 
+  Copy, 
+  User, 
+  Calendar, 
+  CheckCircle2, 
+  Clock, 
+  Download, 
+  Upload,
+  Phone,
+  Layers
+} from 'lucide-react';
+
+interface ArchiveTableProps {
+  reports: LabReport[];
+  searchTerm: string;
+  setSearchTerm: (s: string) => void;
+  onSelectReport: (report: LabReport) => void;
+  onPrintReport: (report: LabReport) => void;
+  onDeleteReport: (reportId: string) => void;
+  onDuplicateReport: (report: LabReport) => void;
+  onBackupDatabase: () => void;
+  onRestoreDatabase: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export const ArchiveTable: React.FC<ArchiveTableProps> = ({
+  reports,
+  searchTerm,
+  setSearchTerm,
+  onSelectReport,
+  onPrintReport,
+  onDeleteReport,
+  onDuplicateReport,
+  onBackupDatabase,
+  onRestoreDatabase
+}) => {
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  const filteredReports = reports.filter(r => {
+    const term = searchTerm.toLowerCase().trim();
+    const matchesSearch =
+      !term ||
+      r.patient.fullName.toLowerCase().includes(term) ||
+      r.patient.labNumber.toLowerCase().includes(term) ||
+      r.patient.phone.includes(term) ||
+      r.patient.barcode.includes(term) ||
+      r.patient.referringDoctorName.toLowerCase().includes(term) ||
+      r.profiles.some(p => p.titleEn.toLowerCase().includes(term) || p.titleAr.includes(term));
+
+    const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const handleWhatsAppClick = (report: LabReport) => {
+    const msg = formatWhatsAppMessage(report);
+    openWhatsApp(report.patient.phone, msg);
+  };
+
+  const handlePPTXClick = async (report: LabReport) => {
+    await exportReportToPPTX(report);
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+      {/* Archive Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-900 to-rose-950 text-white flex items-center justify-center shadow-md">
+            <Archive className="w-5 h-5 text-rose-400" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              الأرشيف الإلكتروني وسجل تقارير المرضى
+            </h2>
+            <p className="text-xs text-slate-500">
+              إدارة وبحث واسترجاع نتائج التحاليل، والطباعة الآلية، والتنبيه الفوري عبر واتساب
+            </p>
+          </div>
+        </div>
+
+        {/* Database Backup & Restore */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onBackupDatabase}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-200"
+            title="تصدير نسخة احتياطية من كافة السجلات والتحاليل"
+          >
+            <Download className="w-3.5 h-3.5 text-slate-500" />
+            <span>نسخ احتياطي (JSON)</span>
+          </button>
+
+          <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-200 cursor-pointer">
+            <Upload className="w-3.5 h-3.5 text-slate-500" />
+            <span>استعادة نسخة</span>
+            <input type="file" accept=".json" onChange={onRestoreDatabase} className="hidden" />
+          </label>
+        </div>
+      </div>
+
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+        <div className="relative w-full sm:w-96">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="بحث باسم المريض، رقم التحليل، الهاتف، أو اسم الفحص..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full text-xs bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 transition-all"
+          />
+        </div>
+
+        {/* Status Filter Tabs */}
+        <div className="flex items-center gap-1 overflow-x-auto w-full sm:w-auto text-xs">
+          {[
+            { id: 'all', label: 'الكل' },
+            { id: 'released', label: 'معتمد (Released)' },
+            { id: 'verified', label: 'مُدقق (Verified)' },
+            { id: 'in_progress', label: 'قيد الفحص' },
+            { id: 'draft', label: 'مسودة' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setStatusFilter(tab.id)}
+              className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${
+                statusFilter === tab.id
+                  ? 'bg-rose-900 text-white shadow-xs font-bold'
+                  : 'bg-white text-slate-600 hover:bg-slate-200/60 border border-slate-200'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Reports Table */}
+      <div className="overflow-x-auto border border-slate-200 rounded-xl">
+        <table className="w-full text-right border-collapse text-xs" dir="rtl">
+          <thead>
+            <tr className="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200">
+              <th className="py-3 px-4 text-right">رقم التحليل</th>
+              <th className="py-3 px-4 text-right">اسم المريض</th>
+              <th className="py-3 px-4 text-center">السن / النوع</th>
+              <th className="py-3 px-4 text-right">الفحوصات الطبية</th>
+              <th className="py-3 px-4 text-center">تاريخ السحب</th>
+              <th className="py-3 px-4 text-center">الحالة</th>
+              <th className="py-3 px-4 text-center">إجراءات سريعة</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 bg-white">
+            {filteredReports.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="text-center py-12 text-slate-400">
+                  <Archive className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+                  <p className="font-semibold text-sm">لم يتم العثور على تقارير مطابقة</p>
+                  <p className="text-xs text-slate-400">جرب البحث بكلمة مختلفة أو غير الفلتر</p>
+                </td>
+              </tr>
+            ) : (
+              filteredReports.map(report => {
+                const p = report.patient;
+                const statusStyles = {
+                  released: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+                  verified: 'bg-blue-50 text-blue-800 border-blue-300',
+                  in_progress: 'bg-amber-50 text-amber-800 border-amber-300',
+                  draft: 'bg-slate-100 text-slate-700 border-slate-300'
+                };
+
+                const statusLabel = {
+                  released: 'معتمد رسمياً',
+                  verified: 'مُدقق',
+                  in_progress: 'قيد الفحص',
+                  draft: 'مسودة'
+                }[report.status];
+
+                return (
+                  <tr key={report.id} className="hover:bg-rose-50/20 transition-colors">
+                    {/* Lab Number & Barcode */}
+                    <td className="py-3 px-4">
+                      <div className="font-mono-numbers font-bold text-rose-950 text-sm">
+                        {p.labNumber}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono">
+                        {p.barcode}
+                      </div>
+                    </td>
+
+                    {/* Patient Name & Phone */}
+                    <td className="py-3 px-4">
+                      <div className="font-bold text-slate-900 text-sm">
+                        {p.fullName}
+                      </div>
+                      <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono-numbers">
+                        <Phone className="w-3 h-3 text-emerald-600" />
+                        <span dir="ltr">{p.phone}</span>
+                        {p.referringDoctorName && (
+                          <span className="text-slate-400 mr-2">| د. {p.referringDoctorName}</span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Age / Gender */}
+                    <td className="py-3 px-4 text-center font-mono-numbers text-slate-700">
+                      <div>
+                        {p.age} {p.ageUnit === 'years' ? 'سنة' : p.ageUnit === 'months' ? 'شهر' : 'يوم'}
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {p.gender === 'male' ? 'ذكر' : 'أنثى'}
+                      </div>
+                    </td>
+
+                    {/* Medical Profiles list */}
+                    <td className="py-3 px-4">
+                      <div className="flex flex-wrap gap-1 max-w-xs">
+                        {report.profiles.map(pr => (
+                          <span
+                            key={pr.id}
+                            className="text-[10px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200"
+                          >
+                            {pr.titleEn}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+
+                    {/* Sample Date */}
+                    <td className="py-3 px-4 text-center text-slate-600 font-mono-numbers">
+                      <div>
+                        {new Date(p.sampleDate).toLocaleDateString('en-GB')}
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {new Date(p.sampleDate).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </td>
+
+                    {/* Status Badge */}
+                    <td className="py-3 px-4 text-center">
+                      <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${statusStyles[report.status]}`}>
+                        {statusLabel}
+                      </span>
+                    </td>
+
+                    {/* Actions: Edit, Print, WhatsApp, PPTX, Duplicate, Delete */}
+                    <td className="py-3 px-4 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        {/* Edit / View */}
+                        <button
+                          onClick={() => onSelectReport(report)}
+                          className="p-1.5 text-slate-700 hover:text-rose-900 hover:bg-slate-100 rounded-lg transition-colors"
+                          title="فتح وتعديل التقرير"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+
+                        {/* Automated Print & PDF */}
+                        <button
+                          onClick={() => onPrintReport(report)}
+                          className="p-1.5 text-rose-800 hover:text-rose-950 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="الطباعة الآلية وعرض الـ PDF"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </button>
+
+                        {/* WhatsApp Instant Alert */}
+                        <button
+                          onClick={() => handleWhatsAppClick(report)}
+                          className="p-1.5 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-50 rounded-lg transition-colors"
+                          title="إرسال تنبيه واتساب مباشر للمريض"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </button>
+
+                        {/* PowerPoint (.pptx) Export */}
+                        <button
+                          onClick={() => handlePPTXClick(report)}
+                          className="p-1.5 text-amber-700 hover:text-amber-900 hover:bg-amber-50 rounded-lg transition-colors"
+                          title="تصدير عرض تقديمي بوربوينت PPTX"
+                        >
+                          <FileSpreadsheet className="w-4 h-4" />
+                        </button>
+
+                        {/* Duplicate / New Visit for same patient */}
+                        <button
+                          onClick={() => onDuplicateReport(report)}
+                          className="p-1.5 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="تكرار وإنشاء زيارة متابعة جديدة لنفس المريض"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+
+                        {/* Delete Report */}
+                        <button
+                          onClick={() => {
+                            if (confirm(`هل أنت متأكد من حذف تقرير المريض (${p.fullName}) نهائياً؟`)) {
+                              onDeleteReport(report.id);
+                            }
+                          }}
+                          className="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
+                          title="حذف من الأرشيف"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+        <span>إجمالي التقارير المسجلة بالأرشيف: {reports.length} تقرير</span>
+        <span>معامل RT للتحاليل التشخيصية - نظام إدارة السجلات المعملية المعتمد</span>
+      </div>
+    </div>
+  );
+};
