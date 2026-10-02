@@ -1,0 +1,101 @@
+{
+  "system": "RT Lab Financial & Accounting ERP",
+  "syncedAt": "2026-10-02T14:07:17.637Z",
+  "summary": {
+    "totalRevenue": 1940,
+    "totalExpenses": 51750,
+    "netProfit": -49810,
+    "ceoShare": 0,
+    "labShare": 0,
+    "casesCount": 5
+  },
+  "clearedInvoices": [
+    {
+      "invoiceNumber": "INV-2026-0891",
+      "labNumber": "RT-2026-0891",
+      "barcode": "9827361829",
+      "patientName": "محمود حسن إبراهيم السيد",
+      "phone": "01012345678",
+      "testsCount": 5,
+      "testsList": [
+        "سكر الدم الصائم (FBS)",
+        "سكر بعد الأكل بساعتين (2h PPBS)",
+        "السكر التراكمي (HbA1c)",
+        "دهون الدم الكاملة (Lipid Profile Panel)",
+        "كرياتينين بالدم (Serum Creatinine)"
+      ],
+      "netAmount": 510,
+      "paidAmount": 510,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "INV-2026-0892",
+      "labNumber": "RT-2026-0892",
+      "barcode": "9827361830",
+      "patientName": "سارة عبد الرحمن فاروق",
+      "phone": "01198765432",
+      "testsCount": 3,
+      "testsList": [
+        "صورة دم كاملة (CBC with diff)",
+        "مخزون الحديد (Serum Ferritin)",
+        "هرمون الغدة الدرقية (TSH)"
+      ],
+      "netAmount": 490,
+      "paidAmount": 490,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "INV-2026-0893",
+      "labNumber": "RT-2026-0893",
+      "barcode": "9827361831",
+      "patientName": "خالد عبد السلام النمر",
+      "phone": "01223456789",
+      "testsCount": 3,
+      "testsList": [
+        "فيتامين د (25-OH Vitamin D)",
+        "فيتامين ب 12 (Vitamin B12)",
+        "حمض البوليك (Serum Uric Acid)"
+      ],
+      "netAmount": 630,
+      "paidAmount": 400,
+      "paymentStatus": "partial",
+      "financialClearance": "PAYMENT_PENDING"
+    },
+    {
+      "invoiceNumber": "INV-2026-0894",
+      "labNumber": "RT-2026-0894",
+      "barcode": "9827361832",
+      "patientName": "مريم صبحي إسكندر",
+      "phone": "01004455667",
+      "testsCount": 3,
+      "testsList": [
+        "بروتين الالتهاب التفاعلي (CRP Quant)",
+        "عامل الروماتويد (Rheumatoid Factor)",
+        "سرعة الترسيب (ESR)"
+      ],
+      "netAmount": 240,
+      "paidAmount": 240,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "INV-2026-0895",
+      "labNumber": "RT-2026-0895",
+      "barcode": "9827361833",
+      "patientName": "حسام الدين فؤاد الغزالي",
+      "phone": "01555667788",
+      "testsCount": 3,
+      "testsList": [
+        "دلالات أورام البروستاتا الكلية (Total PSA)",
+        "تحليل بول كامل (Routine Urine)",
+        "كرياتينين بالدم (Serum Creatinine)"
+      ],
+      "netAmount": 300,
+      "paidAmount": 300,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    }
+  ]
+}
