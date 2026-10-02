@@ -1,15 +1,30 @@
 {
   "system": "RT Lab Financial & Accounting ERP",
-  "syncedAt": "2026-10-02T14:07:17.637Z",
+  "syncedAt": "2026-10-02T14:16:58.485Z",
   "summary": {
-    "totalRevenue": 1940,
+    "totalRevenue": 2290,
     "totalExpenses": 51750,
-    "netProfit": -49810,
+    "netProfit": -49460,
     "ceoShare": 0,
     "labShare": 0,
-    "casesCount": 5
+    "casesCount": 6
   },
   "clearedInvoices": [
+    {
+      "invoiceNumber": "INV-2026-0901",
+      "labNumber": "RT-2026-0420",
+      "barcode": "9827361801",
+      "patientName": "محمود حسن إبراهيم السيد",
+      "phone": "01012345678",
+      "testsCount": 1,
+      "testsList": [
+        "تقييم السكر التراكمي والجلوكوز"
+      ],
+      "netAmount": 350,
+      "paidAmount": 350,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
     {
       "invoiceNumber": "INV-2026-0891",
       "labNumber": "RT-2026-0891",
