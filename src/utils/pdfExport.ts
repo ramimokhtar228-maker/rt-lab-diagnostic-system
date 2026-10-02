@@ -42,7 +42,7 @@ export async function downloadReportPDF(
         logging: false,
         backgroundColor: '#ffffff',
         windowWidth: 1200,
-        ignoreElements: (el) => {
+        ignoreElements: (el: any) => {
           return el.classList && el.classList.contains('no-print');
         }
       });

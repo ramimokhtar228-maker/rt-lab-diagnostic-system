@@ -11,7 +11,6 @@ import {
   MapPin, 
   CheckCircle2,
   Award,
-  ShieldCheck,
   Stamp, 
   ShieldCheck, 
   UserCheck, 
@@ -241,7 +240,7 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
     if (staffId === 'custom') return;
     const member = staffMembers.find(s => s.id === staffId);
     if (member) {
-      setActiveChemistSig(member.signatureLabel || );
+      setActiveChemistSig(member.signatureLabel || (member.name + " - " + member.title));
     }
   };
 
@@ -250,7 +249,7 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
     if (staffId === 'custom') return;
     const member = staffMembers.find(s => s.id === staffId);
     if (member) {
-      setActiveVerifierSig(member.signatureLabel || );
+      setActiveVerifierSig(member.signatureLabel || (member.name + " - " + member.title));
     }
   };
 
@@ -259,7 +258,7 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
     if (staffId === 'custom') return;
     const member = staffMembers.find(s => s.id === staffId);
     if (member) {
-      setActivePathologistSig(member.signatureLabel || );
+      setActivePathologistSig(member.signatureLabel || (member.name + " - " + member.title));
     }
   };
 
@@ -358,7 +357,7 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
                   className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
                 >
                   <option value="">-- اختر كيميائي من الطاقم المسجل --</option>
-                  {staffMembers.filter(s => s.role === 'chemist' || s.role === 'technician' || true).map(s => (
+                  {staffMembers.filter(s => (s.role as string) === 'chemist' || (s.role as string) === 'technician' || true).map(s => (
                     <option key={s.id} value={s.id}>{s.name} ({s.specialty})</option>
                   ))}
                   <option value="custom">-- إدخال اسم مخصص يدوياً --</option>
@@ -408,7 +407,7 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
                   className="w-full p-2 bg-white border border-rose-300 rounded-lg text-xs font-bold text-rose-950"
                 >
                   <option value="">-- اختر استشاري الباثولوجيا --</option>
-                  {staffMembers.filter(s => s.role === 'pathologist' || s.role === 'director' || true).map(s => (
+                  {staffMembers.filter(s => (s.role as string) === 'pathologist' || (s.role as string) === 'director' || true).map(s => (
                     <option key={s.id} value={s.id}>{s.name} ({s.specialty})</option>
                   ))}
                   <option value="custom">-- إدخال اسم مخصص يدوياً --</option>

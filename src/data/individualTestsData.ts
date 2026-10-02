@@ -855,7 +855,7 @@ export const INITIAL_INDIVIDUAL_TESTS: IndividualTest[] = [
     fastingInstructions: 'لا يشترط الصيام',
     turnaroundHours: 1,
     price: 60
-  }
+  },
 
   // --- ADDITIONAL CLINICAL & SPECIALIZED TESTS ---
   {
