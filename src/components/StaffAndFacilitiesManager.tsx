@@ -9,7 +9,10 @@ import {
   Phone, 
   Clock, 
   MapPin, 
-  CheckCircle2, 
+  CheckCircle2,
+  Award,
+  ShieldCheck,
+  Stamp, 
   ShieldCheck, 
   UserCheck, 
   X,
@@ -74,6 +77,10 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
 
   // Signatures quick picker state
   const [activeChemistSig, setActiveChemistSig] = useState(defaultSignatures.labChemist);
+  const [selectedChemistId, setSelectedChemistId] = useState('');
+  const [selectedVerifierId, setSelectedVerifierId] = useState('');
+  const [selectedPathologistId, setSelectedPathologistId] = useState('');
+  const [includeOfficialSeal, setIncludeOfficialSeal] = useState(true);
   const [activeVerifierSig, setActiveVerifierSig] = useState(defaultSignatures.verifiedBy);
   const [activePathologistSig, setActivePathologistSig] = useState(defaultSignatures.pathologist);
   const [saveSigToast, setSaveSigToast] = useState(false);
@@ -229,6 +236,33 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
     });
   };
 
+    const handleChemistSelect = (staffId: string) => {
+    setSelectedChemistId(staffId);
+    if (staffId === 'custom') return;
+    const member = staffMembers.find(s => s.id === staffId);
+    if (member) {
+      setActiveChemistSig(member.signatureLabel || );
+    }
+  };
+
+  const handleVerifierSelect = (staffId: string) => {
+    setSelectedVerifierId(staffId);
+    if (staffId === 'custom') return;
+    const member = staffMembers.find(s => s.id === staffId);
+    if (member) {
+      setActiveVerifierSig(member.signatureLabel || );
+    }
+  };
+
+  const handlePathologistSelect = (staffId: string) => {
+    setSelectedPathologistId(staffId);
+    if (staffId === 'custom') return;
+    const member = staffMembers.find(s => s.id === staffId);
+    if (member) {
+      setActivePathologistSig(member.signatureLabel || );
+    }
+  };
+
   const handleSaveSignatures = () => {
     onUpdateDefaultSignatures({
       labChemist: activeChemistSig,
@@ -313,34 +347,116 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700 block">1. Lab CHEMIST (كيميائي المعمل):</label>
+              {/* Chemist Selector */}
+              <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-slate-800 block">1. Lab CHEMIST (كيميائي الفحص):</label>
+                </div>
+                <select
+                  value={selectedChemistId}
+                  onChange={e => handleChemistSelect(e.target.value)}
+                  className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                >
+                  <option value="">-- اختر كيميائي من الطاقم المسجل --</option>
+                  {staffMembers.filter(s => s.role === 'chemist' || s.role === 'technician' || true).map(s => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.specialty})</option>
+                  ))}
+                  <option value="custom">-- إدخال اسم مخصص يدوياً --</option>
+                </select>
                 <input
                   type="text"
                   value={activeChemistSig}
                   onChange={(e) => setActiveChemistSig(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg font-semibold"
+                  placeholder="صيغة الاسم في التقرير..."
+                  className="w-full p-2 bg-white border border-slate-300 rounded-lg font-semibold text-slate-900 text-xs"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700 block">2. Verify By (المراجعة الإكلينيكية):</label>
+              {/* Verifier Selector */}
+              <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-slate-800 block">2. Verify By (مراجع النتائج والاعتماد):</label>
+                </div>
+                <select
+                  value={selectedVerifierId}
+                  onChange={e => handleVerifierSelect(e.target.value)}
+                  className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
+                >
+                  <option value="">-- اختر مراجع تحاليل معتمد --</option>
+                  {staffMembers.map(s => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.title})</option>
+                  ))}
+                  <option value="custom">-- إدخال اسم مخصص يدوياً --</option>
+                </select>
                 <input
                   type="text"
                   value={activeVerifierSig}
                   onChange={(e) => setActiveVerifierSig(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg font-semibold"
+                  placeholder="صيغة اسم المراجع..."
+                  className="w-full p-2 bg-white border border-slate-300 rounded-lg font-semibold text-slate-900 text-xs"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="font-bold text-rose-950 block">3. Pathologist (استشاري الباثولوجيا):</label>
+              {/* Pathologist Selector */}
+              <div className="space-y-1.5 p-3 rounded-xl bg-rose-50/60 border border-rose-200">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-rose-950 block">3. Consultant Pathologist (المدير الطبي):</label>
+                </div>
+                <select
+                  value={selectedPathologistId}
+                  onChange={e => handlePathologistSelect(e.target.value)}
+                  className="w-full p-2 bg-white border border-rose-300 rounded-lg text-xs font-bold text-rose-950"
+                >
+                  <option value="">-- اختر استشاري الباثولوجيا --</option>
+                  {staffMembers.filter(s => s.role === 'pathologist' || s.role === 'director' || true).map(s => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.specialty})</option>
+                  ))}
+                  <option value="custom">-- إدخال اسم مخصص يدوياً --</option>
+                </select>
                 <input
                   type="text"
                   value={activePathologistSig}
                   onChange={(e) => setActivePathologistSig(e.target.value)}
-                  className="w-full p-2.5 bg-rose-50/70 border border-rose-300 rounded-lg font-bold text-rose-950"
+                  placeholder="صيغة اسم الاستشاري..."
+                  className="w-full p-2 bg-white border border-rose-300 rounded-lg font-bold text-rose-950 text-xs"
                 />
+              </div>
+            </div>
+
+            {/* Official Digital Stamp & Signature Footer Live Preview */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-slate-900 to-rose-950 text-white space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span className="font-bold text-xs text-rose-200">معاينة شريط التوقيعات وخاتم الاعتماد كما سيظهر على تقارير A4 المطبوعة</span>
+                </div>
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                  اعتماد إلكتروني نشط
+                </span>
+              </div>
+
+              <div className="bg-white rounded-lg p-3 text-slate-900 grid grid-cols-3 gap-3 text-center border border-slate-200 text-xs shadow-inner">
+                <div className="border-l border-slate-200 pl-2">
+                  <div className="text-[10px] font-bold text-slate-500 uppercase">Lab CHEMIST</div>
+                  <div className="font-serif italic font-bold text-slate-700 py-1">Approved</div>
+                  <div className="font-bold text-[11px] text-slate-900 truncate">{activeChemistSig || 'كيميائي المعمل'}</div>
+                </div>
+
+                <div className="border-l border-slate-200 pl-2">
+                  <div className="text-[10px] font-bold text-slate-500 uppercase">Verified By</div>
+                  <div className="font-serif italic font-bold text-slate-700 py-1">Quality Audit</div>
+                  <div className="font-bold text-[11px] text-slate-900 truncate">{activeVerifierSig || 'مراجع الجودة المخبرية'}</div>
+                </div>
+
+                <div className="pr-2">
+                  <div className="text-[10px] font-bold text-rose-900 uppercase">Consultant Pathologist</div>
+                  <div className="py-1">
+                    <span className="inline-block px-2 py-0.5 rounded border border-rose-800 bg-rose-50 text-rose-900 font-serif italic font-black text-[11px]">
+                      Dr. Rami Mokhtar
+                    </span>
+                  </div>
+                  <div className="font-bold text-[11px] text-rose-950 truncate">{activePathologistSig || 'استشاري الباثولوجيا'}</div>
+                </div>
               </div>
             </div>
           </div>

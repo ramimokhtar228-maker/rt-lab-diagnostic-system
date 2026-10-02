@@ -119,11 +119,62 @@ export function formatReferenceDisplay(param: TestParameter): string {
 /**
  * Helper to extract numeric value from parameter by search patterns
  */
+export function cleanParamName(str: string): string {
+  return str.toLowerCase().replace(/[^a-z0-9؀-ۿ]/gi, '');
+}
+
+export function matchesParameter(paramName: string, matcher: string): boolean {
+  const cleanName = cleanParamName(paramName);
+  const cleanMatcher = cleanParamName(matcher);
+  
+  if (cleanMatcher === 'mch') {
+    if (cleanName.includes('mchc')) return false;
+    return cleanName === 'mch' || cleanName.includes('meancorpuscularhemoglobin') && !cleanName.includes('conc');
+  }
+  if (cleanMatcher === 'mchc') {
+    return cleanName.includes('mchc') || (cleanName.includes('meancorpuscularhemoglobin') && cleanName.includes('conc'));
+  }
+  if (cleanMatcher === 'mcv') {
+    return cleanName.includes('mcv') || cleanName.includes('meancorpuscularvol');
+  }
+  if (cleanMatcher === 'rbc') {
+    return cleanName.includes('rbc') || cleanName.includes('redblood') || cleanName.includes('حمراء');
+  }
+  if (cleanMatcher === 'hb' || cleanMatcher === 'hgb' || cleanMatcher === 'hemoglobin') {
+    if (cleanName.includes('hba1c') || cleanName.includes('a1c') || cleanName.includes('تراكمي')) return false;
+    return cleanName.includes('hemoglobin') || cleanName.includes('haemoglobin') || cleanName.includes('hgb') || cleanName.includes('hb') || cleanName.includes('هيموجلوبين');
+  }
+  if (cleanMatcher === 'pcv' || cleanMatcher === 'hct' || cleanMatcher === 'hematocrit') {
+    return cleanName.includes('hematocrit') || cleanName.includes('haematocrit') || cleanName.includes('hct') || cleanName.includes('pcv') || cleanName.includes('هيماتوكريت');
+  }
+  if (cleanMatcher === 'wbc' || cleanMatcher === 'tlc') {
+    return cleanName.includes('wbc') || cleanName.includes('tlc') || cleanName.includes('leucocytic') || cleanName.includes('leukocyte') || cleanName.includes('whiteblood');
+  }
+  if (cleanMatcher === 'neutrophil' || cleanMatcher === 'neut') {
+    if (cleanName.includes('absolute') || cleanName.includes('anc')) return false;
+    return cleanName.includes('neutrophil') || cleanName.includes('segmented') || cleanName.includes('neut');
+  }
+  if (cleanMatcher === 'lymphocyte' || cleanMatcher === 'lymph') {
+    if (cleanName.includes('absolute') || cleanName.includes('alc')) return false;
+    return cleanName.includes('lymphocyte') || cleanName.includes('lymph');
+  }
+  
+  if (cleanName.includes(cleanMatcher)) return true;
+  return paramName.toLowerCase().includes(matcher.toLowerCase());
+}
+
+export function calculateBloodIndices(rbc: number, hgb: number, hct?: number) {
+  const calculatedHct = hct !== undefined && hct > 0 ? hct : Number((hgb * 3).toFixed(1));
+  const mcv = rbc > 0 ? Number(((calculatedHct * 10) / rbc).toFixed(1)) : 0;
+  const mch = rbc > 0 ? Number(((hgb * 10) / rbc).toFixed(1)) : 0;
+  const mchc = calculatedHct > 0 ? Number(((hgb * 100) / calculatedHct).toFixed(1)) : 0;
+  return { hct: calculatedHct, mcv, mch, mchc };
+}
+
 function getVal(params: TestParameter[], matchers: string[]): number | null {
   for (const p of params) {
-    const nameLower = p.name.toLowerCase();
     for (const m of matchers) {
-      if (nameLower.includes(m.toLowerCase())) {
+      if (matchesParameter(p.name, m)) {
         const val = parseFloat(p.result);
         if (!isNaN(val)) return val;
       }
@@ -143,10 +194,9 @@ function setVal(
 ): boolean {
   for (let i = 0; i < params.length; i++) {
     const p = params[i];
-    const nameLower = p.name.toLowerCase();
     for (const m of matchers) {
-      if (nameLower.includes(m.toLowerCase())) {
-        const resStr = typeof calculatedVal === 'number' ? calculatedVal.toFixed(1).replace(/\.0$/, '') : calculatedVal;
+      if (matchesParameter(p.name, m)) {
+        const resStr = typeof calculatedVal === 'number' ? calculatedVal.toFixed(1).replace(/\.0$/, '') : String(calculatedVal);
         params[i] = {
           ...p,
           result: resStr,
@@ -183,10 +233,10 @@ export function runAutomaticCalculations(
   // ==========================================
   // 1. CBC CALCULATIONS
   // ==========================================
-  const rbc = getVal(paramsCopy, ['rbc', 'red blood cell']);
-  const hgb = getVal(paramsCopy, ['hemoglobin', 'haemoglobin', 'hgb', 'hb ']);
-  let hct = getVal(paramsCopy, ['hematocrit', 'haematocrit', 'hct', 'p.c.v', 'pcv']);
-  const wbc = getVal(paramsCopy, ['wbc', 'white blood cell', 'total leucocytic', 'tlc']);
+  const rbc = getVal(paramsCopy, ['rbc', 'r.b.c', 'red blood cell', 'كرات الدم الحمراء']);
+  const hgb = getVal(paramsCopy, ['hemoglobin', 'haemoglobin', 'hgb', 'hb', 'الهيموجلوبين']);
+  let hct = getVal(paramsCopy, ['hematocrit', 'haematocrit', 'hct', 'p.c.v', 'pcv', 'الهيماتوكريت']);
+  const wbc = getVal(paramsCopy, ['wbc', 'white blood cell', 'total leucocytic', 'tlc', 'كرات الدم البيضاء']);
 
   // If HCT is missing but RBC and MCV exist, or if HCT is missing and HGB exists (Rule of three: HCT ~= HGB * 3)
   if (hct === null && hgb !== null) {

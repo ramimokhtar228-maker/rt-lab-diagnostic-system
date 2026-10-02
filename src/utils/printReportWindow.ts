@@ -252,7 +252,7 @@ export function openPrintReportWindow(report: LabReport): void {
 
           <div style="display:flex; justify-content:space-between; font-size:9.5px; color:#64748b; border-top:1px solid #f1f5f9; padding-top:4px;">
             <div>RT LAB Diagnostic System | Kasr Al Ainy Faculty of Medicine</div>
-            <div style="font-family:monospace;">Report ID: ${report.reportNumber} | Page ${pageNum} of ${totalPages}</div>
+            <div style="font-family:monospace;">Report ID: ${report.reportNumber} | Page ${pageNum} of ${totalPages}</div></div><div style="text-align:center; font-size:8.5px; color:#475569; margin-top:3px; padding-top:2px; border-top:1px dashed #e2e8f0;">معامل RT للتشخيص الطبي | الخط الساخن: <strong>01001234567 / 02-23658900</strong> | فروع: القاهرة (المنيل وقصر العيني) · الجيزة (الدقي) · الإسكندرية (سموحة)
           </div>
         </div>
       </div>
