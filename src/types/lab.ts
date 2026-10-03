@@ -26,6 +26,22 @@ export interface Patient {
   assignedPackageId?: string;
   totalCost?: number;
   discountApplied?: number;
+  bookingType?: 'branch' | 'home_visit';
+  branchAddress?: string;
+  homeAddress?: string;
+  deliveryNotes?: string;
+  appointmentDate?: string;
+  appointmentTime?: string;
+  paymentMethod?: 'cash' | 'card' | 'wallet' | 'instapay';
+  discountType?: 'percentage' | 'daily_fixed' | 'package_bundle' | 'dynamic_lab' | 'coupon' | 'none';
+  couponCode?: string;
+  sampleCollected?: boolean;
+  sampleCollectedAt?: string;
+  sampleNotes?: string;
+  loyaltyCardIssued?: boolean;
+  loyaltyCardNumber?: string;
+  rating?: number;
+  reviewComment?: string;
 }
 
 export interface TestParameter {
