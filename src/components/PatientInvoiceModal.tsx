@@ -67,9 +67,11 @@ export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
     };
   });
 
-  const subtotal = report.packageApplied?.packagePrice 
-    || p.totalCost 
-    || items.reduce((sum, item) => sum + item.price, 0);
+  const visitFee = (p as any).visitFee || 0;
+  const testsSubtotal = report.packageApplied?.packagePrice 
+    || (p as any).testsSubtotal 
+    || (p.totalCost ? Math.max(0, p.totalCost - visitFee) : items.reduce((sum, item) => sum + item.price, 0));
+  const subtotal = testsSubtotal + visitFee;
 
   const [activePercent, setActivePercent] = useState<number | null>(
     p.discountType === 'percentage' && p.discountApplied
