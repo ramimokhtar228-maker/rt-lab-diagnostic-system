@@ -21,7 +21,8 @@ import {
   Phone,
   Layers,
   Zap,
-  RefreshCw
+  RefreshCw,
+  Receipt
 } from 'lucide-react';
 
 interface ArchiveTableProps {
@@ -36,6 +37,8 @@ interface ArchiveTableProps {
   onRestoreDatabase: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSyncClick?: () => void;
   isSyncing?: boolean;
+  onNewPatientClick?: () => void;
+  onOpenInvoice?: (report: LabReport) => void;
 }
 
 export const ArchiveTable: React.FC<ArchiveTableProps> = ({
@@ -49,7 +52,9 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
   onBackupDatabase,
   onRestoreDatabase,
   onSyncClick,
-  isSyncing
+  isSyncing,
+  onNewPatientClick,
+  onOpenInvoice
 }) => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
@@ -189,15 +194,52 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
           <tbody className="divide-y divide-slate-100 bg-white">
             {filteredReports.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-12 text-slate-400">
-                  <Archive className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-                  <p className="font-semibold text-sm">لم يتم العثور على تقارير مطابقة</p>
-                  <p className="text-xs text-slate-400">جرب البحث بكلمة مختلفة أو غير الفلتر</p>
+                <td colSpan={7} className="text-center py-16 text-slate-500">
+                  <div className="max-w-md mx-auto space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-100 shadow-sm">
+                      <Archive className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-base text-slate-800">
+                        {reports.length === 0 ? 'سجل المرضى والتقارير فارغ حالياً' : 'لم يتم العثور على تقارير مطابقة للبحث'}
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {reports.length === 0 
+                          ? 'يمكنك البدء مباشرة بتسجيل مريض وفحص جديد، أو استيراد الطلبات الفورية من منظومة الحسابات.' 
+                          : 'جرّب كتابة كلمة بحث مختلفة، أو تغيير تصنيف الفلترة أعلاه.'}
+                      </p>
+                    </div>
+                    {reports.length === 0 && (
+                      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                        {onNewPatientClick && (
+                          <button
+                            type="button"
+                            onClick={onNewPatientClick}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-900 to-rose-700 hover:from-red-950 hover:to-rose-800 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all"
+                          >
+                            <User className="w-4 h-4" />
+                            <span>➕ تسجيل مريض وفحص جديد الآن</span>
+                          </button>
+                        )}
+                        {onSyncClick && (
+                          <button
+                            type="button"
+                            onClick={onSyncClick}
+                            disabled={isSyncing}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-slate-200 rounded-xl text-xs font-bold shadow-sm transition-all"
+                          >
+                            <Zap className="w-4 h-4 text-amber-400" />
+                            <span>{isSyncing ? 'جارٍ التسميع...' : '⚡ استيراد طلبات الفحص من الحسابات'}</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </td>
               </tr>
             ) : (
               filteredReports.map(report => {
-                const p = report.patient;
+                const p = report?.patient || {} as any;
                 const statusStyles = {
                   released: 'bg-emerald-50 text-emerald-800 border-emerald-300',
                   verified: 'bg-blue-50 text-blue-800 border-blue-300',
@@ -304,10 +346,21 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
                         <button
                           onClick={() => onPrintReport(report)}
                           className="p-1.5 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
-                          title="طباعة التقرير"
+                          title="طباعة التقرير الطبي A4"
                         >
                           <Printer className="w-4 h-4" />
                         </button>
+
+                        {/* Invoice & Receipt Button */}
+                        {onOpenInvoice && (
+                          <button
+                            onClick={() => onOpenInvoice(report)}
+                            className="p-1.5 text-amber-700 hover:text-amber-900 hover:bg-amber-50 rounded-lg transition-colors"
+                            title="عرض وطباعة الفاتورة المالية وإيصال السداد"
+                          >
+                            <Receipt className="w-4 h-4" />
+                          </button>
+                        )}
 
                         {/* WhatsApp Button */}
                         <button

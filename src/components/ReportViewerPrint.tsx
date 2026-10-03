@@ -18,17 +18,20 @@ import {
   PhoneCall,
   MapPin,
   Download,
-  Loader2
+  Loader2,
+  Receipt
 } from 'lucide-react';
 
 interface ReportViewerPrintProps {
   report: LabReport;
   onBackToEdit: () => void;
+  onOpenInvoice?: () => void;
 }
 
 export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
   report,
-  onBackToEdit
+  onBackToEdit,
+  onOpenInvoice
 }) => {
   const p = report.patient;
   const totalPages = report.profiles.length;
@@ -106,6 +109,18 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
             <span>تصدير PowerPoint</span>
           </button>
 
+          {/* Invoice Button */}
+          {onOpenInvoice && (
+            <button
+              onClick={onOpenInvoice}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-bold rounded-lg shadow-sm transition-all"
+              title="عرض وطباعة فاتورة الفحص وإيصال السداد المالي"
+            >
+              <Receipt className="w-3.5 h-3.5 text-amber-400" />
+              <span>الفاتورة المالية</span>
+            </button>
+          )}
+
           {/* Paper Print */}
           <button
             onClick={handlePrint}
@@ -148,6 +163,7 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
           return (
             <div
               key={profile.id}
+              style={{ backgroundColor: '#ffffff' }}
               className="report-page-container bg-white text-slate-900 border border-slate-300 shadow-md rounded-xl max-w-4xl mx-auto p-8 relative print:border-none print:shadow-none print:rounded-none print:p-0 page-break-after-profile min-h-[297mm] flex flex-col justify-between"
             >
               {/* Top Section: Header & Patient Info */}

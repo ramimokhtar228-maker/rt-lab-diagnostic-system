@@ -15,12 +15,13 @@ export const PatientTrendChart: React.FC<PatientTrendChartProps> = ({
   const uniquePatients = useMemo(() => {
     const map = new Map<string, { id: string; name: string; labNumber: string; phone: string }>();
     reports.forEach(r => {
+      if (!r || !r.patient || !r.patient.id) return;
       if (!map.has(r.patient.id)) {
         map.set(r.patient.id, {
           id: r.patient.id,
-          name: r.patient.fullName,
-          labNumber: r.patient.labNumber,
-          phone: r.patient.phone
+          name: r.patient.fullName || 'مريض غير مسمى',
+          labNumber: r.patient.labNumber || '',
+          phone: r.patient.phone || ''
         });
       }
     });
@@ -34,8 +35,8 @@ export const PatientTrendChart: React.FC<PatientTrendChartProps> = ({
   // All visits for selected patient, sorted chronologically ascending
   const patientVisits = useMemo(() => {
     return reports
-      .filter(r => r.patient.id === selectedPatientId)
-      .sort((a, b) => new Date(a.patient.sampleDate).getTime() - new Date(b.patient.sampleDate).getTime());
+      .filter(r => r && r.patient && r.patient.id === selectedPatientId)
+      .sort((a, b) => new Date(a.patient?.sampleDate || 0).getTime() - new Date(b.patient?.sampleDate || 0).getTime());
   }, [reports, selectedPatientId]);
 
   // Extract all unique test parameter names for this patient

@@ -25,7 +25,8 @@ import {
   Sparkles,
   UserCheck,
   Calculator,
-  AlertCircle
+  AlertCircle,
+  Receipt
 } from 'lucide-react';
 
 interface ReportEditorProps {
@@ -37,6 +38,7 @@ interface ReportEditorProps {
   onExportPPTX: () => void;
   onOpenCatalog: () => void;
   onOpenManualTest: () => void;
+  onOpenInvoice?: () => void;
 }
 
 export const ReportEditor: React.FC<ReportEditorProps> = ({
@@ -47,7 +49,8 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
   onSendWhatsApp,
   onExportPPTX,
   onOpenCatalog,
-  onOpenManualTest
+  onOpenManualTest,
+  onOpenInvoice
 }) => {
   const [activeProfileTab, setActiveProfileTab] = useState<string>(report.profiles[0]?.id || '');
   const [modalParamToEdit, setModalParamToEdit] = useState<TestParameter | null>(null);
@@ -277,6 +280,19 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>PowerPoint</span>
           </button>
+
+          {/* Invoice & Receipt Button */}
+          {onOpenInvoice && (
+            <button
+              type="button"
+              onClick={onOpenInvoice}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-bold rounded-lg transition-all shadow-xs"
+              title="طباعة وتحميل فاتورة الفحص وإيصال السداد المالي"
+            >
+              <Receipt className="w-3.5 h-3.5 text-amber-400" />
+              <span>فاتورة وإيصال مالي</span>
+            </button>
+          )}
 
           {/* Print Preview */}
           <button

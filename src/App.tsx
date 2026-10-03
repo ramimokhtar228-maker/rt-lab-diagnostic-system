@@ -34,10 +34,11 @@ import { PatientCardsAndPoints } from './components/PatientCardsAndPoints';
 import { StaffAndFacilitiesManager } from './components/StaffAndFacilitiesManager';
 import { TestCatalogModal } from './components/TestCatalogModal';
 import { ManualTestModal } from './components/ManualTestModal';
+import { PatientInvoiceModal } from './components/PatientInvoiceModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { formatWhatsAppMessage, openWhatsApp } from './utils/whatsapp';
 import { exportReportToPPTX } from './utils/pptxExport';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, FlaskConical } from 'lucide-react';
 
 const STORAGE_KEY = 'rt_lab_reports_v2';
 const STAFF_STORAGE_KEY = 'rt_lab_staff_v2';
@@ -158,6 +159,7 @@ export default function App() {
   // Modals
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [isManualTestModalOpen, setIsManualTestModalOpen] = useState(false);
+  const [invoiceModalReport, setInvoiceModalReport] = useState<LabReport | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Sync to local storage
@@ -274,16 +276,16 @@ export default function App() {
             const incomingReport = event.data.report || (incomingOrder ? convertOrderToLabReport(incomingOrder) : null);
             if (incomingReport) {
               setReports(prev => {
-                const bcode = incomingReport.patient.barcode;
-                const lnum = incomingReport.patient.labNumber || incomingReport.reportNumber;
-                const exists = prev.some(r => (bcode && r.patient.barcode === bcode) || (lnum && r.reportNumber === lnum));
+                const bcode = incomingReport.patient?.barcode;
+                const lnum = incomingReport.patient?.labNumber || incomingReport.reportNumber;
+                const exists = prev.some(r => (bcode && r.patient?.barcode === bcode) || (lnum && r.reportNumber === lnum));
                 if (exists) {
-                  return prev.map(r => ((bcode && r.patient.barcode === bcode) || (lnum && r.reportNumber === lnum)) ? incomingReport : r);
+                  return prev.map(r => ((bcode && r.patient?.barcode === bcode) || (lnum && r.reportNumber === lnum)) ? incomingReport : r);
                 }
                 return [incomingReport, ...prev];
               });
               setCurrentReportId(incomingReport.id);
-              showToast("⚡ تم استلام وتسميع طلب فحص فوري للمريض: " + incomingReport.patient.fullName);
+              showToast("⚡ تم استلام وتسميع طلب فحص فوري للمريض: " + (incomingReport.patient?.fullName || 'مريض'));
             }
           }
         };
@@ -324,8 +326,8 @@ export default function App() {
           if (cloudRes.newReports && cloudRes.newReports.length > 0) {
             setReports(prev => {
               const reallyNew = cloudRes.newReports.filter((cr: LabReport) =>
-                !prev.some(p => (cr.patient.barcode && p.patient.barcode === cr.patient.barcode) ||
-                                (cr.reportNumber && (p.reportNumber === cr.reportNumber || p.patient.labNumber === cr.reportNumber)))
+                !prev.some(p => (cr.patient?.barcode && p.patient?.barcode === cr.patient?.barcode) ||
+                                (cr.reportNumber && (p.reportNumber === cr.reportNumber || p.patient?.labNumber === cr.reportNumber)))
               );
               if (reallyNew.length > 0) {
                 showToast("⚡ تم استلام وتسميع " + reallyNew.length + " فحص مالي سحابي من منظومة الفواتير!");
@@ -506,7 +508,7 @@ export default function App() {
 
   // Save current report
   const handleSaveToArchive = () => {
-    if (!currentReport.patient.fullName.trim()) {
+    if (!currentReport || !currentReport.patient?.fullName?.trim()) {
       alert('برجاء كتابة اسم المريض قبل الحفظ بالأرشيف.');
       return;
     }
@@ -848,6 +850,7 @@ export default function App() {
           <ReportViewerPrint
             report={currentReport}
             onBackToEdit={() => setViewMode('editor')}
+            onOpenInvoice={() => setInvoiceModalReport(currentReport)}
           />
         ) : (
           <>
@@ -872,56 +875,78 @@ export default function App() {
                 onRestoreDatabase={handleRestoreDatabase}
                 onSyncClick={handleManualSync}
                 isSyncing={isSyncingFinancial}
+                onNewPatientClick={() => createNewReport()}
+                onOpenInvoice={(r) => setInvoiceModalReport(r)}
               />
             )}
 
             {/* TAB 2: PATIENT ENTRY & REPORT EDITOR */}
-            {activeTab === 'new-patient' && currentReport && (
-              <div className="space-y-6">
-                {/* Active Package Banner (if applied) */}
-                {currentReport.packageApplied && (
-                  <div className="p-3.5 bg-gradient-to-r from-red-950 via-rose-900 to-slate-900 text-white rounded-xl shadow-md flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="font-mono bg-red-800/80 px-2 py-0.5 rounded font-bold">
-                        {currentReport.packageApplied.code}
-                      </span>
-                      <span>الباقة المطبقة حالياً: <strong>{currentReport.packageApplied.titleAr}</strong></span>
+            {activeTab === 'new-patient' && (
+              currentReport ? (
+                <div className="space-y-6">
+                  {/* Active Package Banner (if applied) */}
+                  {currentReport.packageApplied && (
+                    <div className="p-3.5 bg-gradient-to-r from-red-950 via-rose-900 to-slate-900 text-white rounded-xl shadow-md flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="font-mono bg-red-800/80 px-2 py-0.5 rounded font-bold">
+                          {currentReport.packageApplied.code}
+                        </span>
+                        <span>الباقة المطبقة حالياً: <strong>{currentReport.packageApplied.titleAr}</strong></span>
+                      </div>
+                      <div className="text-xs font-black text-rose-200 font-mono">
+                        السعر الإجمالي للباقة: {currentReport.packageApplied.packagePrice} ج.م
+                      </div>
                     </div>
-                    <div className="text-xs font-black text-rose-200 font-mono">
-                      السعر الإجمالي للباقة: {currentReport.packageApplied.packagePrice} ج.م
-                    </div>
+                  )}
+
+                  {/* Patient Demographics */}
+                  <PatientForm
+                    patient={currentReport.patient}
+                    onChange={(updatedPatient) => {
+                      handleUpdateCurrentReport({
+                        ...currentReport,
+                        patient: updatedPatient,
+                        updatedAt: new Date().toISOString()
+                      });
+                    }}
+                  />
+
+                  {/* Report Clinical Editor */}
+                  <ReportEditor
+                    report={currentReport}
+                    onUpdateReport={handleUpdateCurrentReport}
+                    onSaveToArchive={handleSaveToArchive}
+                    onPrintPreview={() => setViewMode('print')}
+                    onSendWhatsApp={() => {
+                      const msg = formatWhatsAppMessage(currentReport);
+                      openWhatsApp(currentReport.patient.phone, msg);
+                    }}
+                    onExportPPTX={async () => {
+                      await exportReportToPPTX(currentReport);
+                    }}
+                    onOpenCatalog={() => setIsCatalogModalOpen(true)}
+                    onOpenManualTest={() => setIsManualTestModalOpen(true)}
+                    onOpenInvoice={() => setInvoiceModalReport(currentReport)}
+                  />
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl p-10 border border-slate-200 text-center shadow-sm max-w-xl mx-auto my-8">
+                  <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-4 border border-rose-100 shadow-sm">
+                    <FlaskConical className="w-8 h-8" />
                   </div>
-                )}
-
-                {/* Patient Demographics */}
-                <PatientForm
-                  patient={currentReport.patient}
-                  onChange={(updatedPatient) => {
-                    handleUpdateCurrentReport({
-                      ...currentReport,
-                      patient: updatedPatient,
-                      updatedAt: new Date().toISOString()
-                    });
-                  }}
-                />
-
-                {/* Report Clinical Editor */}
-                <ReportEditor
-                  report={currentReport}
-                  onUpdateReport={handleUpdateCurrentReport}
-                  onSaveToArchive={handleSaveToArchive}
-                  onPrintPreview={() => setViewMode('print')}
-                  onSendWhatsApp={() => {
-                    const msg = formatWhatsAppMessage(currentReport);
-                    openWhatsApp(currentReport.patient.phone, msg);
-                  }}
-                  onExportPPTX={async () => {
-                    await exportReportToPPTX(currentReport);
-                  }}
-                  onOpenCatalog={() => setIsCatalogModalOpen(true)}
-                  onOpenManualTest={() => setIsManualTestModalOpen(true)}
-                />
-              </div>
+                  <h3 className="text-lg font-bold text-slate-800">لا يوجد تقرير فحص مفتوح حالياً</h3>
+                  <p className="text-xs text-slate-500 mt-2 mb-6 leading-relaxed">
+                    سجل الفحوصات لا يحتوي على تقرير نشط أو تم تفريغه. يمكنك فتح استمارة تسجيل مريض جديد وفحوصات فوراً بضغطة زر.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => createNewReport()}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-900 to-rose-700 hover:from-red-950 hover:to-rose-800 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all"
+                  >
+                    <span>➕ فتح استمارة تسجيل مريض جديد</span>
+                  </button>
+                </div>
+              )
             )}
 
             {/* TAB 3: PACKAGES MANAGER */}
@@ -1013,6 +1038,15 @@ export default function App() {
           onClose={() => setIsManualTestModalOpen(false)}
           profiles={currentReport.profiles}
           onAddManualTest={handleAddManualTest}
+        />
+      )}
+
+      {/* Patient Financial Invoice & Receipt Modal */}
+      {invoiceModalReport && (
+        <PatientInvoiceModal
+          isOpen={!!invoiceModalReport}
+          onClose={() => setInvoiceModalReport(null)}
+          report={invoiceModalReport}
         />
       )}
 

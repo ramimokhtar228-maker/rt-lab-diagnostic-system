@@ -85,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-lg">
+    <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-lg no-print">
       {/* Top Notification / Hotline Banner */}
       <div className="bg-rose-950/70 border-b border-rose-900/40 px-4 py-1.5 text-[11px] font-medium text-rose-200">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">

@@ -251,6 +251,123 @@ export const PatientCardsAndPoints: React.FC<PatientCardsAndPointsProps> = ({
     setNewCardCondition('');
   };
 
+  // Pure white background isolated card print method (no app background)
+  const handlePrintCard = () => {
+    if (!activeProfile) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('يرجى السماح بالنوافذ المنبثقة لطباعة الكرت.');
+      return;
+    }
+    const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>كرت المريض الذكي - ${activeProfile.patientName}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      font-family: 'Cairo', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .no-print {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #0f172a;
+      color: white;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+    .card-wrap {
+      width: 85.6mm;
+      height: 53.98mm;
+      border-radius: 3.5mm;
+      overflow: hidden;
+      margin: 12px auto;
+      page-break-inside: avoid;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border: 1px solid #cbd5e1;
+      position: relative;
+    }
+    @media print {
+      body { min-height: auto !important; background: #ffffff !important; }
+      .no-print { display: none !important; }
+      .card-wrap { box-shadow: none !important; margin: 15mm auto !important; }
+      @page { size: A4 portrait; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <div style="font-weight:bold; font-size:13px;">طباعة كرت المريض الطبي الذكي (CR80)</div>
+    <div style="display:flex; gap:10px;">
+      <button onclick="window.print()" style="background:#800000; color:white; border:none; padding:8px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🖨️ طباعة الآن</button>
+      <button onclick="window.close()" style="background:#334155; color:white; border:none; padding:8px 14px; border-radius:6px; cursor:pointer;">إغلاق ✕</button>
+    </div>
+  </div>
+
+  <div style="padding-top: 60px; text-align: center;">
+    <div style="font-size:12px; font-weight:bold; color:#475569; margin-bottom:6px;">الوجه الأمامي للكرت:</div>
+    <div class="card-wrap" style="background: linear-gradient(135deg, #4c0519, #881337, #0f172a); color: white; padding: 4mm 5mm; display: flex; flex-direction: column; justify-content: space-between; text-align: right;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div style="font-weight: 900; font-size: 13px; color: #ffffff;">معامل RT</div>
+        <div style="font-size: 8px; font-weight: bold; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.4);">${tierInfo.titleAr}</div>
+      </div>
+      <div>
+        <div style="font-size: 8px; color: #fecdd3;">اسم المريض:</div>
+        <div style="font-size: 11px; font-weight: 900; color: #ffffff;">${activeProfile.patientName}</div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; font-family: 'JetBrains Mono', monospace; font-size: 8.5px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 2px;">
+        <div>BARCODE: ${activeProfile.barcode}</div>
+        <div style="color: #fde047;">${activeProfile.totalPoints} PTS</div>
+      </div>
+    </div>
+
+    <div style="font-size:12px; font-weight:bold; color:#475569; margin-top:16px; margin-bottom:6px;">الوجه الخلفي للكرت:</div>
+    <div class="card-wrap" style="background: linear-gradient(135deg, #0f172a, #1e293b, #334155); color: white; padding: 4mm 5mm; display: flex; flex-direction: column; justify-content: space-between; text-align: right;">
+      <div style="font-size: 8px; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 2px;">
+        معامل RT للتشخيص الطبي - د. رامي مختار
+      </div>
+      <div style="font-size: 7.5px; line-height: 1.4; color: #e2e8f0;">
+        • يمنح هذا الكرت خصماً فورياً على كافة الفحوصات الطبية.<br>
+        • كل زيارة تمنح المريض نقاط ولاء يمكن استبدالها.<br>
+        • طوارئ 24/7: 01001234567
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; color: #94a3b8; font-family: 'JetBrains Mono', monospace;">
+        <div>BARCODE: ||| ${activeProfile.barcode}</div>
+        <div>طب قصر العيني</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => { window.print(); }, 400);
+    });
+  </script>
+</body>
+</html>`;
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
       {/* Top Banner & Context */}
@@ -404,7 +521,7 @@ export const PatientCardsAndPoints: React.FC<PatientCardsAndPointsProps> = ({
                     <span>قلب الكرت ({cardSide === 'front' ? 'الوجه الخلفي' : 'الوجه الأمامي'})</span>
                   </button>
                   <button
-                    onClick={() => window.print()}
+                    onClick={handlePrintCard}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-900 hover:bg-rose-800 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
                   >
                     <Printer className="w-3.5 h-3.5" />

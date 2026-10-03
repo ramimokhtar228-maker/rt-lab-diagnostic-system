@@ -239,37 +239,62 @@ export function getLocalFinancialPendingReports(existingReports: LabReport[]): L
   return newReports;
 }
 
-// Fetch Cloud cases from GitHub repository
+// Fetch Cloud cases from GitHub repository (with raw fallback and graceful error handling)
 export async function fetchCloudOrdersFromGitHub(existingReports: LabReport[]): Promise<{ newReports: LabReport[]; message: string }> {
   const newReports: LabReport[] = [];
 
   try {
-    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/public/rt-cases-sync.json`;
-    const res = await fetch(apiUrl, {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        Accept: 'application/vnd.github.v3+json'
+    let parsed: any = null;
+
+    // 1. Try public raw file first (fastest, requires no auth token, never hits token revocation)
+    try {
+      const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/public/rt-cases-sync.json?t=${Date.now()}`;
+      const rawRes = await fetch(rawUrl, { cache: 'no-store' });
+      if (rawRes.ok) {
+        parsed = await rawRes.json();
       }
-    });
+    } catch {
+      // Raw fetch fallback
+    }
 
-    if (res.ok) {
-      const data = await res.json();
-      const content = decodeBase64Utf8(data.content);
-      const parsed = JSON.parse(content);
-
-      if (Array.isArray(parsed)) {
-        for (const order of parsed) {
-          const barcode = order.barcode || (order.patient && order.patient.barcode);
-          const labNum = order.reportNumber || order.labNumber || (order.patient && order.patient.labNumber);
-
-          const alreadyExists = existingReports.some(r => 
-            (barcode && r.patient.barcode === barcode) ||
-            (labNum && (r.reportNumber === labNum || r.patient.labNumber === labNum))
-          );
-
-          if (!alreadyExists) {
-            newReports.push(convertOrderToLabReport(order));
+    // 2. If raw didn't return data, try GitHub REST API
+    if (!parsed) {
+      try {
+        const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/public/rt-cases-sync.json`;
+        const headers: Record<string, string> = {
+          Accept: 'application/vnd.github.v3+json'
+        };
+        if (GITHUB_TOKEN) {
+          headers.Authorization = `token ${GITHUB_TOKEN}`;
+        }
+        const res = await fetch(apiUrl, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.content) {
+            const content = decodeBase64Utf8(data.content);
+            if (content) {
+              parsed = JSON.parse(content);
+            }
           }
+        }
+      } catch {
+        // API fallback
+      }
+    }
+
+    if (Array.isArray(parsed)) {
+      for (const order of parsed) {
+        if (!order) continue;
+        const barcode = order.barcode || (order.patient && order.patient.barcode);
+        const labNum = order.reportNumber || order.labNumber || (order.patient && order.patient.labNumber);
+
+        const alreadyExists = existingReports.some(r => 
+          (barcode && r.patient?.barcode === barcode) ||
+          (labNum && (r.reportNumber === labNum || r.patient?.labNumber === labNum))
+        );
+
+        if (!alreadyExists) {
+          newReports.push(convertOrderToLabReport(order));
         }
       }
     }
@@ -283,17 +308,23 @@ export async function fetchCloudOrdersFromGitHub(existingReports: LabReport[]): 
   } catch (err) {
     return {
       newReports: [],
-      message: `تعذر الاتصال بـ GitHub: ${(err as Error).message}`
+      message: `تعذر التسميع: ${(err as Error).message}`
     };
   }
 }
 
 // UTF-8 base64 helper
 function decodeBase64Utf8(base64: string): string {
-  const binaryString = atob(base64.replace(/\s/g, ''));
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
+  try {
+    const clean = (base64 || '').replace(/\s/g, '');
+    if (!clean) return '';
+    const binaryString = atob(clean);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return new TextDecoder('utf-8').decode(bytes);
+  } catch {
+    return '';
   }
-  return new TextDecoder('utf-8').decode(bytes);
 }

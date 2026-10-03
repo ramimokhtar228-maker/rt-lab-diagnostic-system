@@ -36,16 +36,35 @@ export async function downloadReportPDF(
     for (let i = 0; i < pageNodes.length; i++) {
       const node = pageNodes[i] as HTMLElement;
 
-      const canvas = await html2canvas(node, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        windowWidth: 1200,
-        ignoreElements: (el: any) => {
-          return el.classList && el.classList.contains('no-print');
-        }
-      });
+      // Temporarily strip rounded corners, border, and shadows so NO background leaks
+      const origRadius = node.style.borderRadius;
+      const origShadow = node.style.boxShadow;
+      const origBorder = node.style.border;
+      const origBg = node.style.backgroundColor;
+
+      node.style.borderRadius = '0px';
+      node.style.boxShadow = 'none';
+      node.style.border = 'none';
+      node.style.backgroundColor = '#ffffff';
+
+      let canvas;
+      try {
+        canvas = await html2canvas(node, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          windowWidth: 1200,
+          ignoreElements: (el: any) => {
+            return el.classList && el.classList.contains('no-print');
+          }
+        });
+      } finally {
+        node.style.borderRadius = origRadius;
+        node.style.boxShadow = origShadow;
+        node.style.border = origBorder;
+        node.style.backgroundColor = origBg;
+      }
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
 

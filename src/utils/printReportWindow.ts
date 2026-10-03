@@ -272,7 +272,8 @@ export function openPrintReportWindow(report: LabReport): void {
     body {
       margin: 0;
       padding: 0;
-      background: #475569;
+      background: #ffffff;
+      background-color: #ffffff;
       font-family: 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       color: #0f172a;
       -webkit-print-color-adjust: exact !important;
@@ -291,7 +292,7 @@ export function openPrintReportWindow(report: LabReport): void {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       z-index: 9999;
     }
 
@@ -325,12 +326,14 @@ export function openPrintReportWindow(report: LabReport): void {
     /* Each Profile on a Separate Page (كل بروفايل في صفحة) */
     .report-page {
       background: #ffffff;
+      background-color: #ffffff;
       width: 210mm;
       min-height: 297mm;
-      margin: 20px auto;
+      margin: 0 auto;
       padding: 14mm 16mm 14mm 16mm;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-      border-radius: 4px;
+      box-shadow: none;
+      border: none;
+      border-radius: 0;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -339,8 +342,11 @@ export function openPrintReportWindow(report: LabReport): void {
     }
 
     @media print {
-      body {
+      html, body {
         background: #ffffff !important;
+        background-color: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       .no-print-toolbar {
         display: none !important;
@@ -349,11 +355,14 @@ export function openPrintReportWindow(report: LabReport): void {
         margin: 0 !important;
         padding: 8mm 12mm 10mm 12mm !important;
         box-shadow: none !important;
+        border: none !important;
         border-radius: 0 !important;
         width: 100% !important;
         min-height: 297mm !important;
         page-break-after: always !important;
         break-after: page !important;
+        background: #ffffff !important;
+        background-color: #ffffff !important;
       }
       @page {
         size: A4 portrait;
