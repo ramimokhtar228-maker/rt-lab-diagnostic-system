@@ -47,6 +47,20 @@ const STAFF_MEMBERS_STORAGE_KEY = 'rt_lab_staff_members_v2';
 const FACILITIES_STORAGE_KEY = 'rt_lab_facilities_v2';
 const LOYALTY_STORAGE_KEY = 'rt_lab_loyalty_profiles_v2';
 
+// Clean old demo patients/branches/chemists on first load of this clean version
+if (typeof window !== "undefined" && !localStorage.getItem("rt_lab_clean_v3_oct")) {
+  try {
+    localStorage.removeItem("rt_lab_reports_v2");
+    localStorage.removeItem("rt_lab_reports_v1");
+    localStorage.removeItem("rt_lab_cases_sync_v1");
+    localStorage.removeItem("rt_lab_incoming_orders_queue");
+    localStorage.removeItem("rt_lab_facilities_v2");
+    localStorage.removeItem("rt_lab_staff_members_v2");
+    localStorage.removeItem("rt_lab_staff_v2");
+    localStorage.setItem("rt_lab_clean_v3_oct", "true");
+  } catch {}
+}
+
 export default function App() {
   // 1. Staff Default Signatures
   const [defaultStaff, setDefaultStaff] = useState<LabStaffSignatures>(() => {
@@ -78,11 +92,17 @@ export default function App() {
     }
   });
 
-  // 4. Individual Tests Catalog
+  // 4. Individual Tests Catalog (165 tests from financial system)
   const [individualTests, setIndividualTests] = useState<IndividualTest[]>(() => {
     try {
       const saved = localStorage.getItem(INDIVIDUAL_TESTS_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : INITIAL_INDIVIDUAL_TESTS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= INITIAL_INDIVIDUAL_TESTS.length) {
+          return parsed;
+        }
+      }
+      return INITIAL_INDIVIDUAL_TESTS;
     } catch {
       return INITIAL_INDIVIDUAL_TESTS;
     }
