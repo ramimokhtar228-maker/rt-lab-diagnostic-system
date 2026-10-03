@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "id": "rep-inc-1791034010282",
+    "reportNumber": "RT-2026-0896",
+    "invoiceNumber": "INV-2026-0896",
+    "barcode": "9827361834",
+    "patientName": "مارى مكرم",
+    "age": 39,
+    "gender": "female",
+    "phone": "01060116368",
+    "referringDoctor": "Prof.Dr",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-28",
+        "code": "FERRITIN",
+        "nameAr": "مخزون الحديد بالفيريتين (Serum Ferritin)",
+        "nameEn": "Serum Ferritin Level",
+        "price": 388,
+        "category": "Iron Profile",
+        "cost": 40,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      }
+    ],
+    "netAmount": 524,
+    "paidAmount": 524,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-03T13:26:50.282Z"
+  }
+]
