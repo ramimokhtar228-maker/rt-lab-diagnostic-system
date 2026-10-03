@@ -209,6 +209,102 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  const [isSyncingFinancial, setIsSyncingFinancial] = useState(false);
+
+  // Manual trigger to pull latest orders from Accounts/Finance (Local + Cloud)
+  const handleManualSync = async () => {
+    setIsSyncingFinancial(true);
+    try {
+      const pendingLocal = getLocalFinancialPendingReports(reports);
+      const { newReports } = await fetchCloudOrdersFromGitHub([...pendingLocal, ...reports]);
+      const allNew = [...pendingLocal, ...newReports];
+      if (allNew.length > 0) {
+        setReports(prev => {
+          const combined = [...allNew, ...prev];
+          const seen = new Set();
+          return combined.filter(item => {
+            const key = item.patient.barcode || item.reportNumber;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+        });
+        setCurrentReportId(allNew[0].id);
+        showToast("⚡ تم استيراد وتسميع " + allNew.length + " طلب فحص من منظومة الحسابات بنجاح!");
+      } else {
+        showToast("كافة طلبات الفحص مسمّعة ومحدثة بالفعل مع الحسابات ✓");
+      }
+    } catch (err) {
+      showToast("فشل التسميع: " + err.message);
+    } finally {
+      setIsSyncingFinancial(false);
+    }
+  };
+
+  // Real-time synchronization listeners (BroadcastChannel, storage event, interval)
+  useEffect(() => {
+    let channel = null;
+    try {
+      if ("BroadcastChannel" in window) {
+        channel = new BroadcastChannel("rt_lab_sync_channel");
+        channel.onmessage = (event) => {
+          if (event.data && (event.data.type === "NEW_PATIENT_ORDER" || event.data.type === "NEW_ORDER_SYNC")) {
+            const incomingOrder = event.data.order || event.data.invoice;
+            const incomingReport = event.data.report || (incomingOrder ? convertOrderToLabReport(incomingOrder) : null);
+            if (incomingReport) {
+              setReports(prev => {
+                const bcode = incomingReport.patient.barcode;
+                const lnum = incomingReport.patient.labNumber || incomingReport.reportNumber;
+                const exists = prev.some(r => (bcode && r.patient.barcode === bcode) || (lnum && r.reportNumber === lnum));
+                if (exists) {
+                  return prev.map(r => ((bcode && r.patient.barcode === bcode) || (lnum && r.reportNumber === lnum)) ? incomingReport : r);
+                }
+                return [incomingReport, ...prev];
+              });
+              setCurrentReportId(incomingReport.id);
+              showToast("⚡ تم استلام وتسميع طلب فحص فوري للمريض: " + incomingReport.patient.fullName);
+            }
+          }
+        };
+      }
+    } catch (err) {
+      console.warn("BroadcastChannel error:", err);
+    }
+
+    const handleStorage = (e) => {
+      if (e.key === "rt_lab_reports_v1" || e.key === "rt_lab_sync_trigger" || e.key === "rt_lab_cases_sync_v1") {
+        setReports(prev => {
+          const pending = getLocalFinancialPendingReports(prev);
+          if (pending.length > 0) {
+            showToast("⚡ تم استلام وتسميع " + pending.length + " طلب فحص من الحسابات!");
+            return [...pending, ...prev];
+          }
+          return prev;
+        });
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
+    const checkSync = async () => {
+      try {
+        setReports(prev => {
+          const pendingLocal = getLocalFinancialPendingReports(prev);
+          return pendingLocal.length > 0 ? [...pendingLocal, ...prev] : prev;
+        });
+      } catch {}
+    };
+
+    window.addEventListener("focus", checkSync);
+    const timer = setInterval(checkSync, 15000);
+
+    return () => {
+      if (channel) channel.close();
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", checkSync);
+      clearInterval(timer);
+    };
+  }, []);
+
   const handleResetCatalog = () => {
     if (confirm('هل أنت متأكد من استعادة كافة التحاليل والمعدلات الافتراضية للكتالوج؟')) {
       setCatalog(LAB_CATALOG);
@@ -693,6 +789,8 @@ export default function App() {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         onNewPatientClick={() => createNewReport()}
+        onSyncClick={handleManualSync}
+        isSyncing={isSyncingFinancial}
       />
 
       {/* Main Content Area */}
@@ -724,6 +822,8 @@ export default function App() {
                 onDuplicateReport={handleDuplicateReport}
                 onBackupDatabase={handleBackupDatabase}
                 onRestoreDatabase={handleRestoreDatabase}
+                onSyncClick={handleManualSync}
+                isSyncing={isSyncingFinancial}
               />
             )}
 

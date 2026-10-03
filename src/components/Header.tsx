@@ -14,7 +14,8 @@ import {
   Archive,
   Package,
   CreditCard,
-  Building
+  Building,
+  Zap
 } from 'lucide-react';
 
 export type MainNavTab = 
@@ -32,6 +33,8 @@ interface HeaderProps {
   searchTerm: string;
   setSearchTerm: (s: string) => void;
   onNewPatientClick: () => void;
+  onSyncClick?: () => void;
+  isSyncing?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -39,7 +42,9 @@ export const Header: React.FC<HeaderProps> = ({
   setActiveTab,
   searchTerm,
   setSearchTerm,
-  onNewPatientClick
+  onNewPatientClick,
+  onSyncClick,
+  isSyncing
 }) => {
   const [isBranchesModalOpen, setIsBranchesModalOpen] = React.useState(false);
   const [contactInfo, setContactInfo] = React.useState(() => {
@@ -58,64 +63,50 @@ export const Header: React.FC<HeaderProps> = ({
   });
 
   const [editHotline, setEditHotline] = React.useState(contactInfo.hotline);
-  const [editBranches, setEditBranches] = React.useState(contactInfo.branchesSummary);
+  const [editEmergency, setEditEmergency] = React.useState(contactInfo.emergencyPhone);
+  const [editBranchesSummary, setEditBranchesSummary] = React.useState(contactInfo.branchesSummary);
   const [editCairo, setEditCairo] = React.useState(contactInfo.cairoAddress);
   const [editGiza, setEditGiza] = React.useState(contactInfo.gizaAddress);
   const [editAlex, setEditAlex] = React.useState(contactInfo.alexAddress);
 
-  const handleSaveContacts = (e: React.FormEvent) => {
+  const handleSaveContactInfo = (e: React.FormEvent) => {
     e.preventDefault();
     const updated = {
       hotline: editHotline,
-      emergencyPhone: editHotline.split('/')[0]?.trim() || editHotline,
-      branchesSummary: editBranches,
+      emergencyPhone: editEmergency,
+      branchesSummary: editBranchesSummary,
       cairoAddress: editCairo,
       gizaAddress: editGiza,
       alexAddress: editAlex
     };
     setContactInfo(updated);
-    try {
-      localStorage.setItem('rt_lab_contacts', JSON.stringify(updated));
-      window.dispatchEvent(new Event('rt-lab-contacts-updated'));
-    } catch {}
+    localStorage.setItem('rt_lab_contacts', JSON.stringify(updated));
     setIsBranchesModalOpen(false);
   };
 
   return (
-    <header className="bg-slate-900 text-white shadow-xl border-b border-rose-950/40 no-print sticky top-0 z-40">
-      {/* Top Credentials Ribbon */}
-      <div className="bg-gradient-to-r from-[#630606] via-[#850b0b] to-[#0f172a] text-xs py-1.5 px-4 sm:px-8 border-b border-red-900/40">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-rose-100">
-          <div className="flex items-center gap-3">
-            <span className="font-black tracking-wide text-white">معامل RT للتحاليل التشخيصية</span>
-            <span className="text-rose-300/60 hidden sm:inline">|</span>
-            <span className="hidden sm:inline">معامل رامي مختار</span>
-            <span className="text-rose-300/60 hidden sm:inline">|</span>
-            <span className="font-semibold text-rose-200">أطباء الباثولوجيا الإكلينيكية والكيميائية - كلية طب قصر العيني</span>
-          </div>
-          <div className="flex items-center gap-3 text-xs flex-wrap">
-            <span className="flex items-center gap-1.5 text-rose-100 font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              الخط الساخن: {contactInfo.hotline}
+    <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-lg">
+      {/* Top Notification / Hotline Banner */}
+      <div className="bg-rose-950/70 border-b border-rose-900/40 px-4 py-1.5 text-[11px] font-medium text-rose-200">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-rose-600/30 text-rose-300 font-bold border border-rose-500/40 text-[10px]">
+              طوارئ 24/7
             </span>
-            <span className="text-rose-300/60 hidden sm:inline">|</span>
-            <span className="text-rose-200 font-medium hidden sm:inline">{contactInfo.branchesSummary}</span>
+            <span>الخط الساخن: <strong className="font-mono-numbers text-white">{contactInfo.hotline}</strong></span>
+          </div>
+
+          <div className="flex items-center gap-3">
             <button
-              type="button"
-              onClick={() => {
-                setEditHotline(contactInfo.hotline);
-                setEditBranches(contactInfo.branchesSummary);
-                setEditCairo(contactInfo.cairoAddress);
-                setEditGiza(contactInfo.gizaAddress);
-                setEditAlex(contactInfo.alexAddress);
-                setIsBranchesModalOpen(true);
-              }}
-              className="px-2 py-0.5 bg-rose-950/60 hover:bg-rose-900 text-rose-200 hover:text-white rounded border border-rose-800 text-[10px] font-bold flex items-center gap-1 transition-all"
-              title="تعديل وحفظ الخط الساخن وفروع القاهرة / الجيزة / الإسكندرية"
+              onClick={() => setIsBranchesModalOpen(true)}
+              className="hover:text-white flex items-center gap-1 transition-colors text-rose-300 underline underline-offset-2 decoration-rose-500/50"
             >
-              <Edit3 className="w-3 h-3" />
-              <span>تعديل الفروع والخط الساخن</span>
+              <Building2 className="w-3.5 h-3.5" />
+              <span>فروع المعمل: {contactInfo.branchesSummary}</span>
+              <Edit3 className="w-3 h-3 text-rose-400 opacity-60 ml-0.5" />
             </button>
+            <span className="hidden sm:inline text-rose-500">|</span>
+            <span className="hidden sm:inline text-rose-300">أطباء كلية طب قصر العيني</span>
           </div>
         </div>
       </div>
@@ -142,8 +133,20 @@ export const Header: React.FC<HeaderProps> = ({
           />
         </div>
 
-        {/* Quick Actions & PWA Install */}
+        {/* Quick Actions & PWA Install & Financial Sync */}
         <div className="flex items-center gap-2">
+          {onSyncClick && (
+            <button
+              onClick={onSyncClick}
+              disabled={isSyncing}
+              className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 font-bold text-xs rounded-xl shadow-sm transition-all"
+              title="تسميع فوري لطلبات الفحص الواردة من منظومة الحسابات والمالية"
+            >
+              <Zap className={`w-3.5 h-3.5 ${isSyncing ? 'animate-bounce text-amber-300' : 'text-emerald-400'}`} />
+              <span>{isSyncing ? 'جاري التسميع...' : 'تسميع الحسابات ⚡'}</span>
+            </button>
+          )}
+
           <PWAInstallButton />
           
           <button
@@ -180,10 +183,9 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <FlaskConical className="w-4 h-4 text-rose-400" />
-            <span>إدخال النتائج والفحوصات</span>
+            <span>إدخال وتعديل التقرير</span>
           </button>
 
-          {/* NEW: Comprehensive Packages */}
           <button
             onClick={() => setActiveTab('packages')}
             className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
@@ -193,10 +195,9 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Package className="w-4 h-4 text-rose-400" />
-            <span>باقات الفحص الشامل</span>
+            <span>باقات الفحص الشاملة</span>
           </button>
 
-          {/* UPDATED: Catalog Browser (Single & Profiles) */}
           <button
             onClick={() => setActiveTab('catalog')}
             className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
@@ -206,10 +207,9 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <BookOpen className="w-4 h-4 text-rose-400" />
-            <span>كتالوج التحاليل (المنفردة والبروفايل)</span>
+            <span>دليل التحاليل والقوالب</span>
           </button>
 
-          {/* NEW: Patient Cards and Loyalty Points */}
           <button
             onClick={() => setActiveTab('patient-cards')}
             className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
@@ -219,7 +219,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <CreditCard className="w-4 h-4 text-rose-400" />
-            <span>كروت المرضى ونقاط الولاء</span>
+            <span>كروت وخصومات المرضى</span>
           </button>
 
           <button
@@ -231,10 +231,9 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <TrendingUp className="w-4 h-4 text-rose-400" />
-            <span>التطور البياني للمريض</span>
+            <span>متابعة منحنى المريض</span>
           </button>
 
-          {/* UPDATED: Staff & Facilities with Add/Edit/Delete */}
           <button
             onClick={() => setActiveTab('staff-facilities')}
             className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
@@ -243,104 +242,104 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
             }`}
           >
-            <Building2 className="w-4 h-4 text-rose-400" />
-            <span>الطاقم والإنشاءات والفروع</span>
+            <Building className="w-4 h-4 text-rose-400" />
+            <span>الأطباء والفروع</span>
           </button>
         </nav>
       </div>
-      {/* MODAL: EDIT HOTLINE & BRANCHES */}
+
+      {/* Branches & Contact Info Modal */}
       {isBranchesModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-rose-950 text-rose-400 border border-rose-800 flex items-center justify-center font-bold">
-                  <PhoneCall className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-white">تعديل وحفظ الخط الساخن وفروع المعمل</h3>
-                  <p className="text-[11px] text-slate-400">القاهرة / الجيزة / الإسكندرية - تظهر مباشرة في الشريط العلوي والتقارير</p>
-                </div>
-              </div>
-              <button type="button" onClick={() => setIsBranchesModalOpen(false)} className="text-slate-400 hover:text-white text-sm">✕</button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 text-slate-800 shadow-2xl border border-slate-200">
+            <h3 className="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-rose-600" />
+              <span>تعديل بيانات الاتصال والفروع بمعامل RT</span>
+            </h3>
 
-            <form onSubmit={handleSaveContacts} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveContactInfo} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-300 font-bold mb-1">أرقام الخط الساخن وطوارئ المعمل *</label>
+                <label className="block text-slate-600 font-semibold mb-1">الخط الساخن وتليفونات الاستقبال:</label>
                 <input
                   type="text"
-                  required
                   value={editHotline}
-                  onChange={e => setEditHotline(e.target.value)}
-                  placeholder="مثال: 01001234567 / 02-23658900"
-                  className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-xl text-rose-200 font-mono font-bold"
+                  onChange={(e) => setEditHotline(e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg text-slate-800 font-mono"
+                  placeholder="01001234567 / 02-23658900"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 font-bold mb-1">نص ملخص الفروع (في الشريط العلوي)</label>
+                <label className="block text-slate-600 font-semibold mb-1">هاتف الطوارئ والواتساب:</label>
                 <input
                   type="text"
-                  value={editBranches}
-                  onChange={e => setEditBranches(e.target.value)}
-                  placeholder="القاهرة · الجيزة · الإسكندرية"
-                  className="w-full p-2 bg-slate-800 border border-slate-700 rounded-xl text-white font-medium"
+                  value={editEmergency}
+                  onChange={(e) => setEditEmergency(e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg text-slate-800 font-mono"
+                  placeholder="01001234567"
                 />
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-slate-800">
-                <div>
-                  <label className="block text-slate-400 font-bold mb-0.5">فرع القاهرة (العنوان والتليفون):</label>
-                  <input
-                    type="text"
-                    value={editCairo}
-                    onChange={e => setEditCairo(e.target.value)}
-                    className="w-full p-2 bg-slate-800/90 border border-slate-700 rounded-lg text-slate-200"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 font-bold mb-0.5">فرع الجيزة (العنوان والتليفون):</label>
-                  <input
-                    type="text"
-                    value={editGiza}
-                    onChange={e => setEditGiza(e.target.value)}
-                    className="w-full p-2 bg-slate-800/90 border border-slate-700 rounded-lg text-slate-200"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 font-bold mb-0.5">فرع الإسكندرية (العنوان والتليفون):</label>
-                  <input
-                    type="text"
-                    value={editAlex}
-                    onChange={e => setEditAlex(e.target.value)}
-                    className="w-full p-2 bg-slate-800/90 border border-slate-700 rounded-lg text-slate-200"
-                  />
-                </div>
+              <div>
+                <label className="block text-slate-600 font-semibold mb-1">ملخص الفروع (في الشريط العلوي):</label>
+                <input
+                  type="text"
+                  value={editBranchesSummary}
+                  onChange={(e) => setEditBranchesSummary(e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg text-slate-800"
+                  placeholder="القاهرة · الجيزة · الإسكندرية"
+                />
               </div>
 
-              <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+              <div>
+                <label className="block text-slate-600 font-semibold mb-1">عنوان فرع القاهرة (قصر العيني):</label>
+                <input
+                  type="text"
+                  value={editCairo}
+                  onChange={(e) => setEditCairo(e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-600 font-semibold mb-1">عنوان فرع الجيزة (الدقي):</label>
+                <input
+                  type="text"
+                  value={editGiza}
+                  onChange={(e) => setEditGiza(e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-600 font-semibold mb-1">عنوان فرع الإسكندرية (سموحة):</label>
+                <input
+                  type="text"
+                  value={editAlex}
+                  onChange={(e) => setEditAlex(e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg text-slate-800"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsBranchesModalOpen(false)}
-                  className="px-4 py-2 border border-slate-700 text-slate-300 rounded-xl hover:bg-slate-800 font-bold transition-all"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition-colors"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-rose-800 hover:bg-rose-700 text-white rounded-xl font-bold shadow-md transition-all"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg transition-colors"
                 >
-                  حفظ وتطبيق التغييرات
+                  حفظ البيانات
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-
     </header>
   );
 };

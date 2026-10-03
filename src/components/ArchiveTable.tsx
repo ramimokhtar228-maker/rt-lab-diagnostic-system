@@ -19,7 +19,9 @@ import {
   Download, 
   Upload,
   Phone,
-  Layers
+  Layers,
+  Zap,
+  RefreshCw
 } from 'lucide-react';
 
 interface ArchiveTableProps {
@@ -32,6 +34,8 @@ interface ArchiveTableProps {
   onDuplicateReport: (report: LabReport) => void;
   onBackupDatabase: () => void;
   onRestoreDatabase: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSyncClick?: () => void;
+  isSyncing?: boolean;
 }
 
 export const ArchiveTable: React.FC<ArchiveTableProps> = ({
@@ -43,7 +47,9 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
   onDeleteReport,
   onDuplicateReport,
   onBackupDatabase,
-  onRestoreDatabase
+  onRestoreDatabase,
+  onSyncClick,
+  isSyncing
 }) => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
@@ -59,7 +65,6 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
       r.profiles.some(p => p.titleEn.toLowerCase().includes(term) || p.titleAr.includes(term));
 
     const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
-
     return matchesSearch && matchesStatus;
   });
 
@@ -90,8 +95,20 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
           </div>
         </div>
 
-        {/* Database Backup & Restore */}
-        <div className="flex items-center gap-2">
+        {/* Database Backup & Restore & Sync with Accounts */}
+        <div className="flex flex-wrap items-center gap-2">
+          {onSyncClick && (
+            <button
+              onClick={onSyncClick}
+              disabled={isSyncing}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg shadow-sm transition-all"
+              title="تسميع واستيراد طلبات الفحص الواردة من الحسابات والمالية فوراً"
+            >
+              <Zap className={`w-3.5 h-3.5 ${isSyncing ? 'animate-bounce text-amber-300' : 'text-emerald-300'}`} />
+              <span>{isSyncing ? 'جاري التسميع...' : 'تسميع طلبات الحسابات ⚡'}</span>
+            </button>
+          )}
+
           <button
             onClick={onBackupDatabase}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-200"
@@ -100,7 +117,7 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
             <Download className="w-3.5 h-3.5 text-slate-500" />
             <span>نسخ احتياطي (JSON)</span>
           </button>
-
+          
           <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-200 cursor-pointer">
             <Upload className="w-3.5 h-3.5 text-slate-500" />
             <span>استعادة نسخة</span>
@@ -110,12 +127,13 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
-        <div className="relative w-full sm:w-96">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Search */}
+        <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="بحث باسم المريض، رقم التحليل، الهاتف، أو اسم الفحص..."
+            placeholder="بحث برقم التحليل، المريض، الهاتف، الفحص..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full text-xs bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 transition-all"
@@ -178,13 +196,14 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
                   in_progress: 'bg-amber-50 text-amber-800 border-amber-300',
                   draft: 'bg-slate-100 text-slate-700 border-slate-300'
                 };
-
-                const statusLabel = {
-                  released: 'معتمد رسمياً',
-                  verified: 'مُدقق',
+                const statusLabels = {
+                  released: 'معتمد وخالص',
+                  verified: 'مُراجع ومعتمد',
                   in_progress: 'قيد الفحص',
-                  draft: 'مسودة'
-                }[report.status];
+                  draft: 'مسودة / انتظار'
+                };
+
+                const isFinancialSync = p.clinicalHistory?.includes('فاتورة') || report.generalComment?.includes('فاتورة');
 
                 return (
                   <tr key={report.id} className="hover:bg-rose-50/20 transition-colors">
@@ -200,8 +219,16 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
 
                     {/* Patient Name & Phone */}
                     <td className="py-3 px-4">
-                      <div className="font-bold text-slate-900 text-sm">
-                        {p.fullName}
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-slate-900 text-sm">
+                          {p.fullName}
+                        </span>
+                        {isFinancialSync && (
+                          <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-bold rounded flex items-center gap-0.5">
+                            <Zap className="w-2.5 h-2.5 text-emerald-600" />
+                            <span>مسمّع مالي</span>
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono-numbers">
                         <Phone className="w-3 h-3 text-emerald-600" />
@@ -228,88 +255,75 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
                         {report.profiles.map(pr => (
                           <span
                             key={pr.id}
-                            className="text-[10px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200"
+                            className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-800 border border-slate-200"
                           >
-                            {pr.titleEn}
+                            {pr.titleAr || pr.titleEn}
                           </span>
                         ))}
                       </div>
                     </td>
 
                     {/* Sample Date */}
-                    <td className="py-3 px-4 text-center text-slate-600 font-mono-numbers">
-                      <div>
-                        {new Date(p.sampleDate).toLocaleDateString('en-GB')}
-                      </div>
-                      <div className="text-[10px] text-slate-400">
-                        {new Date(p.sampleDate).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                      </div>
+                    <td className="py-3 px-4 text-center text-slate-600 font-mono-numbers text-[11px]">
+                      <div>{p.sampleDate?.substring(0, 10)}</div>
+                      <div className="text-[10px] text-slate-400">{p.sampleDate?.substring(11, 16)}</div>
                     </td>
 
                     {/* Status Badge */}
                     <td className="py-3 px-4 text-center">
-                      <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${statusStyles[report.status]}`}>
-                        {statusLabel}
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                          statusStyles[report.status]
+                        }`}
+                      >
+                        {statusLabels[report.status]}
                       </span>
                     </td>
 
-                    {/* Actions: Edit, Print, WhatsApp, PPTX, Duplicate, Delete */}
+                    {/* Quick Actions */}
                     <td className="py-3 px-4 text-center">
                       <div className="flex items-center justify-center gap-1">
-                        {/* Edit / View */}
+                        {/* Edit Button */}
                         <button
                           onClick={() => onSelectReport(report)}
-                          className="p-1.5 text-slate-700 hover:text-rose-900 hover:bg-slate-100 rounded-lg transition-colors"
-                          title="فتح وتعديل التقرير"
+                          className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="تعديل التقرير والنتائج"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
 
-                        {/* Automated Print & PDF */}
+                        {/* Print Button */}
                         <button
                           onClick={() => onPrintReport(report)}
-                          className="p-1.5 text-rose-800 hover:text-rose-950 hover:bg-rose-50 rounded-lg transition-colors"
-                          title="الطباعة الآلية وعرض الـ PDF"
+                          className="p-1.5 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                          title="طباعة التقرير"
                         >
                           <Printer className="w-4 h-4" />
                         </button>
 
-                        {/* WhatsApp Instant Alert */}
+                        {/* WhatsApp Button */}
                         <button
                           onClick={() => handleWhatsAppClick(report)}
-                          className="p-1.5 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-50 rounded-lg transition-colors"
-                          title="إرسال تنبيه واتساب مباشر للمريض"
+                          className="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition-colors"
+                          title="إرسال عبر واتساب"
                         >
                           <Share2 className="w-4 h-4" />
                         </button>
 
-                        {/* PowerPoint (.pptx) Export */}
-                        <button
-                          onClick={() => handlePPTXClick(report)}
-                          className="p-1.5 text-amber-700 hover:text-amber-900 hover:bg-amber-50 rounded-lg transition-colors"
-                          title="تصدير عرض تقديمي بوربوينت PPTX"
-                        >
-                          <FileSpreadsheet className="w-4 h-4" />
-                        </button>
-
-                        {/* Duplicate / New Visit for same patient */}
+                        {/* Duplicate Button */}
                         <button
                           onClick={() => onDuplicateReport(report)}
-                          className="p-1.5 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="تكرار وإنشاء زيارة متابعة جديدة لنفس المريض"
+                          className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors"
+                          title="تكرار الحالة لمريض جديد"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
 
-                        {/* Delete Report */}
+                        {/* Delete Button */}
                         <button
-                          onClick={() => {
-                            if (confirm(`هل أنت متأكد من حذف تقرير المريض (${p.fullName}) نهائياً؟`)) {
-                              onDeleteReport(report.id);
-                            }
-                          }}
-                          className="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
-                          title="حذف من الأرشيف"
+                          onClick={() => onDeleteReport(report.id)}
+                          className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="حذف التقرير"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -321,11 +335,6 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
             )}
           </tbody>
         </table>
-      </div>
-
-      <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
-        <span>إجمالي التقارير المسجلة بالأرشيف: {reports.length} تقرير</span>
-        <span>معامل RT للتحاليل التشخيصية - نظام إدارة السجلات المعملية المعتمد</span>
       </div>
     </div>
   );
