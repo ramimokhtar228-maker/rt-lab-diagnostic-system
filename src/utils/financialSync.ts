@@ -170,6 +170,30 @@ export function convertOrderToLabReport(order: IncomingFinancialOrder): LabRepor
 // Check local storage for cases pushed by Financial System
 export function getLocalFinancialPendingReports(existingReports: LabReport[]): LabReport[] {
   const newReports: LabReport[] = [];
+  if (typeof window === "undefined") return newReports;
+
+  try {
+    // 0. Dedicated incoming orders inbox queue from Financial system
+    const incomingQueueStr = localStorage.getItem("rt_lab_incoming_orders_queue");
+    if (incomingQueueStr) {
+      try {
+        const incomingQueue = JSON.parse(incomingQueueStr);
+        if (Array.isArray(incomingQueue)) {
+          for (const order of incomingQueue) {
+            const barcode = order.barcode || (order.patient && order.patient.barcode);
+            const labNum = order.reportNumber || order.labNumber || (order.patient && order.patient.labNumber);
+            if (!existingReports.some(r => (barcode && r.patient.barcode === barcode) || (labNum && r.reportNumber === labNum))) {
+              if (!newReports.some(r => (barcode && r.patient.barcode === barcode) || (labNum && r.reportNumber === labNum))) {
+                newReports.push(order.profiles ? order : convertOrderToLabReport(order));
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Error parsing incoming orders queue:", err);
+      }
+    }
+  const newReports: LabReport[] = [];
   if (typeof window === 'undefined') return newReports;
 
   try {
