@@ -1,45 +1,13 @@
 {
   "system": "RT Lab Financial & Accounting ERP",
-  "syncedAt": "2026-10-03T21:01:03.233Z",
+  "syncedAt": "2026-10-03T21:55:00.000Z",
   "summary": {
-    "totalRevenue": 723,
+    "totalRevenue": 0,
     "totalExpenses": 0,
-    "netProfit": 723,
-    "ceoShare": 325.35,
-    "labShare": 325.35,
-    "casesCount": 2
+    "netProfit": 0,
+    "ceoShare": 0,
+    "labShare": 0,
+    "casesCount": 0
   },
-  "clearedInvoices": [
-    {
-      "invoiceNumber": "INV-2026-0897",
-      "labNumber": "RT-2026-0897",
-      "barcode": "9827361835",
-      "patientName": "علا عصام سعيد",
-      "phone": "01553337585",
-      "testsCount": 1,
-      "testsList": [
-        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)"
-      ],
-      "netAmount": 199,
-      "paidAmount": 199,
-      "paymentStatus": "paid",
-      "financialClearance": "CLEARED_FOR_RELEASE"
-    },
-    {
-      "invoiceNumber": "INV-2026-0896",
-      "labNumber": "RT-2026-0896",
-      "barcode": "9827361834",
-      "patientName": "مارى مكرم",
-      "phone": "01060116368",
-      "testsCount": 2,
-      "testsList": [
-        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
-        "مخزون الحديد بالفيريتين (Serum Ferritin)"
-      ],
-      "netAmount": 524,
-      "paidAmount": 524,
-      "paymentStatus": "paid",
-      "financialClearance": "CLEARED_FOR_RELEASE"
-    }
-  ]
+  "clearedInvoices": []
 }

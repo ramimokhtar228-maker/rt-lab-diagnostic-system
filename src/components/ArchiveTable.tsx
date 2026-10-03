@@ -39,6 +39,7 @@ interface ArchiveTableProps {
   isSyncing?: boolean;
   onNewPatientClick?: () => void;
   onOpenInvoice?: (report: LabReport) => void;
+  onClearPatients?: () => void;
 }
 
 export const ArchiveTable: React.FC<ArchiveTableProps> = ({
@@ -54,7 +55,8 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
   onSyncClick,
   isSyncing,
   onNewPatientClick,
-  onOpenInvoice
+  onOpenInvoice,
+  onClearPatients
 }) => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
@@ -136,6 +138,16 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
             <span>استعادة نسخة</span>
             <input type="file" accept=".json" onChange={onRestoreDatabase} className="hidden" />
           </label>
+          {onClearPatients && reports.length > 0 && (
+            <button
+              onClick={onClearPatients}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg transition-colors border border-rose-200"
+              title="تصفير سجل المرضى والبدء بسجل نظيف مع الحفاظ على الكتالوج والفروع"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+              <span>تصفير سجل المرضى</span>
+            </button>
+          )}
         </div>
       </div>
 

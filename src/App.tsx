@@ -50,16 +50,14 @@ const FACILITIES_STORAGE_KEY = 'rt_lab_facilities_v2';
 const LOYALTY_STORAGE_KEY = 'rt_lab_loyalty_profiles_v2';
 
 // Clean old demo patients/branches/chemists on first load of this clean version
-if (typeof window !== "undefined" && !localStorage.getItem("rt_lab_clean_v3_oct")) {
+if (typeof window !== "undefined" && !localStorage.getItem("rt_lab_clean_v5_prod")) {
   try {
     localStorage.removeItem("rt_lab_reports_v2");
     localStorage.removeItem("rt_lab_reports_v1");
     localStorage.removeItem("rt_lab_cases_sync_v1");
     localStorage.removeItem("rt_lab_incoming_orders_queue");
-    localStorage.removeItem("rt_lab_facilities_v2");
-    localStorage.removeItem("rt_lab_staff_members_v2");
-    localStorage.removeItem("rt_lab_staff_v2");
-    localStorage.setItem("rt_lab_clean_v3_oct", "true");
+    localStorage.removeItem("rt_lab_loyalty_profiles_v2");
+    localStorage.setItem("rt_lab_clean_v5_prod", "true");
   } catch {}
 }
 
@@ -760,6 +758,20 @@ export default function App() {
     showToast(`تمت إضافة الفحص اليدوي (${testParam.name}) بنجاح`);
   };
 
+  // Clear patient reports only (clean production start)
+  const handleClearPatientReportsOnly = () => {
+    if (confirm('هل أنت متأكد من تصفير وحذف جميع تقارير وحالات المرضى للبدء بسجل نظيف؟ سيتم الاحتفاظ بالكتالوج، الباقات، الفروع، وبيانات الطاقم والتوقيعات بالكامل.')) {
+      setReports([]);
+      setLoyaltyProfiles([]);
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(LOYALTY_STORAGE_KEY);
+      localStorage.removeItem('rt_lab_cases_sync_v1');
+      localStorage.removeItem('rt_lab_incoming_orders_queue');
+      setCurrentReportId('');
+      showToast('تم تصفير سجل المرضى وتجهيز المنظومة للعمل الفعلي بنجاح!');
+    }
+  };
+
   // Backup JSON database
   const handleBackupDatabase = () => {
     const fullBackup = {
@@ -877,6 +889,7 @@ export default function App() {
                 isSyncing={isSyncingFinancial}
                 onNewPatientClick={() => createNewReport()}
                 onOpenInvoice={(r) => setInvoiceModalReport(r)}
+                onClearPatients={handleClearPatientReportsOnly}
               />
             )}
 
