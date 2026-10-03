@@ -424,7 +424,7 @@ export const PatientCardsAndPoints: React.FC<PatientCardsAndPointsProps> = ({
 
                     {/* Card Top: Logo & Tier */}
                     <div className="relative z-10 flex items-start justify-between">
-                      <RTLogo size="sm" showSlogan={false} theme="dark" />
+                      <RTLogo size="sm" showSlogan={false}  />
                       <div className="text-right">
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase border shadow-sm ${tierInfo.badgeBg}`}>
                           {tierInfo.titleAr}

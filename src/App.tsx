@@ -1,3 +1,4 @@
+import { getLocalFinancialPendingReports, fetchCloudOrdersFromGitHub, convertOrderToLabReport } from "./utils/financialSync";
 import React, { useState, useEffect } from 'react';
 import { 
   LabReport, 
@@ -255,7 +256,7 @@ export default function App() {
         showToast("كافة طلبات الفحص مسمّعة ومحدثة بالفعل مع الحسابات ✓");
       }
     } catch (err) {
-      showToast("فشل التسميع: " + err.message);
+      showToast("فشل التسميع: " + (err as Error).message);
     } finally {
       setIsSyncingFinancial(false);
     }
@@ -291,7 +292,7 @@ export default function App() {
       console.warn("BroadcastChannel error:", err);
     }
 
-    const handleStorage = (e) => {
+    const handleStorage = (e: StorageEvent) => {
       if (e.key === "rt_lab_reports_v1" || e.key === "rt_lab_sync_trigger" || e.key === "rt_lab_cases_sync_v1") {
         setReports(prev => {
           const pending = getLocalFinancialPendingReports(prev);
@@ -322,7 +323,7 @@ export default function App() {
           const cloudRes = await fetchCloudOrdersFromGitHub(reports);
           if (cloudRes.newReports && cloudRes.newReports.length > 0) {
             setReports(prev => {
-              const reallyNew = cloudRes.newReports.filter(cr =>
+              const reallyNew = cloudRes.newReports.filter((cr: LabReport) =>
                 !prev.some(p => (cr.patient.barcode && p.patient.barcode === cr.patient.barcode) ||
                                 (cr.reportNumber && (p.reportNumber === cr.reportNumber || p.patient.labNumber === cr.reportNumber)))
               );
@@ -496,7 +497,7 @@ export default function App() {
   };
 
   // Get current active report object
-  const currentReport = reports.find(r => r.id === currentReportId) || reports[0];
+  const currentReport = reports.find(r => r.id === currentReportId) || reports[0] || null;
 
   // Update current report
   const handleUpdateCurrentReport = (updated: LabReport) => {

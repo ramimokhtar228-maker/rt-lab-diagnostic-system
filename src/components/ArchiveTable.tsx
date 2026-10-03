@@ -54,17 +54,25 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const filteredReports = reports.filter(r => {
-    const term = searchTerm.toLowerCase().trim();
+    if (!r || !r.patient) return false;
+    const term = (searchTerm || "").toLowerCase().trim();
+    const p = r.patient;
+    const fullName = (p.fullName || "").toLowerCase();
+    const labNum = (p.labNumber || "").toLowerCase();
+    const phone = p.phone || "";
+    const barcode = p.barcode || "";
+    const doctor = (p.referringDoctorName || (p as any).referringDoctor || "").toLowerCase();
+    const profiles = Array.isArray(r.profiles) ? r.profiles : [];
+
     const matchesSearch =
       !term ||
-      r.patient.fullName.toLowerCase().includes(term) ||
-      r.patient.labNumber.toLowerCase().includes(term) ||
-      r.patient.phone.includes(term) ||
-      r.patient.barcode.includes(term) ||
-      r.patient.referringDoctorName.toLowerCase().includes(term) ||
-      r.profiles.some(p => p.titleEn.toLowerCase().includes(term) || p.titleAr.includes(term));
-
-    const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
+      fullName.includes(term) ||
+      labNum.includes(term) ||
+      phone.includes(term) ||
+      barcode.includes(term) ||
+      doctor.includes(term) ||
+      profiles.some(pr => (pr?.titleEn && pr.titleEn.toLowerCase().includes(term)) || (pr?.titleAr && pr.titleAr.includes(term)));
+    const matchesStatus = statusFilter === "all" || r.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 

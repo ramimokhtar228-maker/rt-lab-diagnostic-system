@@ -88,7 +88,7 @@ export function convertOrderToLabReport(order: IncomingFinancialOrder): LabRepor
         titleAr: catalogMatch.titleAr,
         category: catalogMatch.category,
         sampleType: catalogMatch.sampleType,
-        defaultInterpretation: catalogMatch.defaultInterpretation,
+        interpretation: catalogMatch.defaultInterpretation || "",
         parameters: catalogMatch.parameters.map((p, pIdx) => ({
           ...p,
           id: `p-${Date.now()}-${idx}-${pIdx}`,
@@ -103,8 +103,8 @@ export function convertOrderToLabReport(order: IncomingFinancialOrder): LabRepor
         profileCode: testCode || 'INDIVIDUAL',
         titleEn: nameEn,
         titleAr: nameAr,
-        category: test.category || 'تحاليل تشخيصية',
-        sampleType: test.sampleType || 'Serum',
+        category: (test as any).category || 'تحاليل تشخيصية',
+        sampleType: (test as any).sampleType || 'Serum',
         parameters: [
           {
             id: `p-${Date.now()}-${idx}`,
@@ -182,8 +182,8 @@ export function getLocalFinancialPendingReports(existingReports: LabReport[]): L
           for (const order of incomingQueue) {
             const barcode = order.barcode || (order.patient && order.patient.barcode);
             const labNum = order.reportNumber || order.labNumber || (order.patient && order.patient.labNumber);
-            if (!existingReports.some(r => (barcode && r.patient.barcode === barcode) || (labNum && r.reportNumber === labNum))) {
-              if (!newReports.some(r => (barcode && r.patient.barcode === barcode) || (labNum && r.reportNumber === labNum))) {
+            if (!existingReports.some(r => (barcode && r.patient?.barcode === barcode) || (labNum && r.reportNumber === labNum))) {
+              if (!newReports.some(r => (barcode && r.patient?.barcode === barcode) || (labNum && r.reportNumber === labNum))) {
                 newReports.push(order.profiles ? order : convertOrderToLabReport(order));
               }
             }
@@ -193,39 +193,42 @@ export function getLocalFinancialPendingReports(existingReports: LabReport[]): L
         console.warn("Error parsing incoming orders queue:", err);
       }
     }
-  const newReports: LabReport[] = [];
-  if (typeof window === 'undefined') return newReports;
 
-  try {
     // 1. Check direct shared reports key
-    const rawReports = localStorage.getItem('rt_lab_reports_v2') || localStorage.getItem('rt_lab_reports_v1');
+    const rawReports = localStorage.getItem("rt_lab_reports_v2") || localStorage.getItem("rt_lab_reports_v1");
     if (rawReports) {
-      const parsed = JSON.parse(rawReports);
-      if (Array.isArray(parsed)) {
-        for (const rep of parsed) {
-          if (!existingReports.some(r => r.patient.barcode === rep.patient?.barcode || r.reportNumber === rep.reportNumber)) {
-            newReports.push(rep);
-          }
-        }
-      }
-    }
-
-    // 2. Check pending sync queue
-    const syncQueue = localStorage.getItem('rt_lab_cases_sync_v1');
-    if (syncQueue) {
-      const parsedQueue = JSON.parse(syncQueue);
-      if (Array.isArray(parsedQueue)) {
-        for (const order of parsedQueue) {
-          if (!existingReports.some(r => r.patient.barcode === order.barcode || r.reportNumber === order.labNumber)) {
-            if (!newReports.some(r => r.patient.barcode === order.barcode || r.reportNumber === order.labNumber)) {
-              newReports.push(convertOrderToLabReport(order));
+      try {
+        const parsed = JSON.parse(rawReports);
+        if (Array.isArray(parsed)) {
+          for (const rep of parsed) {
+            if (!existingReports.some(r => r.patient?.barcode === rep.patient?.barcode || r.reportNumber === rep.reportNumber)) {
+              if (!newReports.some(r => r.patient?.barcode === rep.patient?.barcode || r.reportNumber === rep.reportNumber)) {
+                newReports.push(rep);
+              }
             }
           }
         }
-      }
+      } catch {}
+    }
+
+    // 2. Check pending sync queue
+    const syncQueue = localStorage.getItem("rt_lab_cases_sync_v1");
+    if (syncQueue) {
+      try {
+        const parsedQueue = JSON.parse(syncQueue);
+        if (Array.isArray(parsedQueue)) {
+          for (const order of parsedQueue) {
+            if (!existingReports.some(r => r.patient?.barcode === order.barcode || r.reportNumber === order.labNumber)) {
+              if (!newReports.some(r => r.patient?.barcode === order.barcode || r.reportNumber === order.labNumber)) {
+                newReports.push(convertOrderToLabReport(order));
+              }
+            }
+          }
+        }
+      } catch {}
     }
   } catch (err) {
-    console.warn('Error reading local sync:', err);
+    console.warn("Error reading local sync:", err);
   }
 
   return newReports;
