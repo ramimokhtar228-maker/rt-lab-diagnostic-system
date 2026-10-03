@@ -109,6 +109,7 @@ export function openPrintReportWindow(report: LabReport): void {
               <h2 style="margin:2px 0 0 0; font-size:13px; font-weight:700; color:#0f172a;">معامل رامي مختار</h2>
               <p style="margin:2px 0 0 0; font-size:11px; font-weight:600; color:#800000;">أطباء الباثولوجيا الإكلينيكية والكيميائية</p>
               <p style="margin:2px 0 0 0; font-size:11px; color:#475569;">كلية طب قصر العيني - جامعة القاهرة</p>
+   <p style="margin:2px 0 0 0; font-size:9.5px; color:#64748b; font-weight:bold;">📍 المقر الرئيسي: ميدان بهتيم برج صيدلية العزبي الدور الثالث امام الأسانسير شبرا الخيمة | هاتف: 01012345678</p>
             </div>
 
             <!-- Central 3D Brand Logo -->
@@ -251,7 +252,7 @@ export function openPrintReportWindow(report: LabReport): void {
           </div>
 
           <div style="display:flex; justify-content:space-between; font-size:9.5px; color:#64748b; border-top:1px solid #f1f5f9; padding-top:4px;">
-            <div>RT LAB Diagnostic System | Kasr Al Ainy Faculty of Medicine</div>
+            <div>RT LAB Diagnostic System | Kasr Al Ainy | الفرع الرئيسي: ميدان بهتيم برج صيدلية العزبي (01012345678)</div>
             <div style="font-family:monospace;">Report ID: ${report.reportNumber} | Page ${pageNum} of ${totalPages}</div></div><div style="text-align:center; font-size:8.5px; color:#475569; margin-top:3px; padding-top:2px; border-top:1px dashed #e2e8f0;">معامل RT للتشخيص الطبي | الخط الساخن: <strong>01001234567 / 02-23658900</strong> | فروع: القاهرة (المنيل وقصر العيني) · الجيزة (الدقي) · الإسكندرية (سموحة)
           </div>
         </div>

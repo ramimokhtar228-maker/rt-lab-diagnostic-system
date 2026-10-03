@@ -42,6 +42,9 @@ export interface Patient {
   loyaltyCardNumber?: string;
   rating?: number;
   reviewComment?: string;
+  visitFee?: number;
+  visitSpecialist?: string;
+  testsSubtotal?: number;
 }
 
 export interface TestParameter {
@@ -77,7 +80,8 @@ export interface LabStaffSignatures {
   pathologist: string; // Pathologist (استشاري الباثولوجيا الإكلينيكية والكيميائية)
 }
 
-export type StaffRole = 'chemist' | 'verifier' | 'pathologist' | 'phlebotomist' | 'receptionist';
+export type StaffRole = 'admin' | 'accountant' | 'receptionist' | 'chemist' | 'pathologist' | 'phlebotomist' | 'verifier';
+export type StaffDepartment = 'administration' | 'accounts' | 'reception' | 'chemists' | 'pathologists' | 'phlebotomists';
 
 export interface StaffMember {
   id: string;
@@ -90,6 +94,9 @@ export interface StaffMember {
   branchId: string; // الفرع التابع له
   signatureLabel: string; // الصيغة المعتمدة في تقرير التحليل
   isActive: boolean;
+  department?: StaffDepartment;
+  branchName?: string;
+  nationalId?: string;
 }
 
 export interface LabFacility {
@@ -198,4 +205,20 @@ export interface CatalogProfileTemplate {
   defaultInterpretation?: string;
   parameters: Omit<TestParameter, 'id' | 'result' | 'flag'>[];
   profilePrice?: number;
+}
+
+export interface LabInfo {
+  labNameAr: string;
+  labNameEn: string;
+  sloganAr: string;
+  sloganEn: string;
+  supervisionAr: string;
+  supervisionEn: string;
+  accreditation: string;
+  hotline: string;
+  phone: string;
+  whatsapp: string;
+  mainAddress: string;
+  instapay: string;
+  vodafoneCash: string;
 }

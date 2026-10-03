@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StaffMember, LabFacility, LabStaffSignatures, StaffRole } from '../types/lab';
+import { StaffMember, LabFacility, LabStaffSignatures, StaffRole, StaffDepartment, LabInfo } from '../types/lab';
+import { INITIAL_LAB_INFO } from '../data/staffAndFacilitiesData';
 import { 
   Building2, 
   Users, 
@@ -28,6 +29,8 @@ interface StaffAndFacilitiesManagerProps {
   onUpdateFacilities: (facilities: LabFacility[]) => void;
   defaultSignatures: LabStaffSignatures;
   onUpdateDefaultSignatures: (sigs: LabStaffSignatures) => void;
+  labInfo?: LabInfo;
+  onUpdateLabInfo?: (info: LabInfo) => void;
 }
 
 export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps> = ({
@@ -36,9 +39,14 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
   facilities,
   onUpdateFacilities,
   defaultSignatures,
-  onUpdateDefaultSignatures
+  onUpdateDefaultSignatures,
+  labInfo = INITIAL_LAB_INFO,
+  onUpdateLabInfo
 }) => {
-  const [activeTab, setActiveTab] = useState<'staff' | 'facilities'>('staff');
+  const [activeTab, setActiveTab] = useState<'info' | 'staff' | 'facilities'>('staff');
+  const [labInfoForm, setLabInfoForm] = useState<LabInfo>(labInfo);
+  const [infoSavedAlert, setInfoSavedAlert] = useState(false);
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState<string>('all');
 
   // Staff Modal State
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
@@ -314,6 +322,145 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
         </div>
       </div>
 
+
+      {/* TAB 0: LAB INFO & GENERAL MANAGEMENT */}
+      {activeTab === 'info' && (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+          <div className="border-b border-slate-100 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <h3 className="text-base font-bold text-slate-900">بيانات المعمل والإدارة الطبية العامة</h3>
+              <p className="text-xs text-slate-500">
+                يتم تطبيق هذه البيانات فوراً على ترويسة التقارير، الفواتير، ورسائل الحجز
+              </p>
+            </div>
+            {infoSavedAlert && (
+              <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+                ✓ تم حفظ بيانات المعمل وتحديث التقارير بنجاح!
+              </span>
+            )}
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (onUpdateLabInfo) onUpdateLabInfo(labInfoForm);
+              try {
+                localStorage.setItem('rt_lab_info_v1', JSON.stringify(labInfoForm));
+              } catch {}
+              setInfoSavedAlert(true);
+              setTimeout(() => setInfoSavedAlert(false), 3000);
+            }}
+            className="space-y-4 text-xs"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">اسم المعمل (عربي) *</label>
+                <input
+                  type="text"
+                  value={labInfoForm.labNameAr}
+                  onChange={e => setLabInfoForm({ ...labInfoForm, labNameAr: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg font-bold"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">اسم المعمل (إنجليزي)</label>
+                <input
+                  type="text"
+                  value={labInfoForm.labNameEn}
+                  onChange={e => setLabInfoForm({ ...labInfoForm, labNameEn: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg"
+                  dir="ltr"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">الإشراف الطبي والاستشاري</label>
+                <input
+                  type="text"
+                  value={labInfoForm.supervisionAr}
+                  onChange={e => setLabInfoForm({ ...labInfoForm, supervisionAr: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg font-semibold text-rose-950"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">الشعار (Slogan)</label>
+                <input
+                  type="text"
+                  value={labInfoForm.sloganAr}
+                  onChange={e => setLabInfoForm({ ...labInfoForm, sloganAr: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-slate-700 font-bold mb-1">العنوان والمقر الرئيسي للمعمل</label>
+                <input
+                  type="text"
+                  value={labInfoForm.mainAddress}
+                  onChange={e => setLabInfoForm({ ...labInfoForm, mainAddress: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">الخط الساخن / الهاتف الموحد</label>
+                <input
+                  type="text"
+                  value={labInfoForm.hotline}
+                  onChange={e => setLabInfoForm({ ...labInfoForm, hotline: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg font-mono font-bold"
+                  dir="ltr"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">رقم الواتساب الرسمي</label>
+                <input
+                  type="text"
+                  value={labInfoForm.whatsapp}
+                  onChange={e => setLabInfoForm({ ...labInfoForm, whatsapp: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg font-mono font-bold text-emerald-800"
+                  dir="ltr"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">شهادة الاعتماد الدولية</label>
+                <input
+                  type="text"
+                  value={labInfoForm.accreditation}
+                  onChange={e => setLabInfoForm({ ...labInfoForm, accreditation: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">معرف إنستاباي للدفع (InstaPay)</label>
+                <input
+                  type="text"
+                  value={labInfoForm.instapay}
+                  onChange={e => setLabInfoForm({ ...labInfoForm, instapay: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg font-mono text-indigo-700 font-bold"
+                  dir="ltr"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t flex justify-end">
+              <button
+                type="submit"
+                className="px-6 py-2.5 bg-rose-900 hover:bg-rose-950 text-white font-bold rounded-xl shadow transition-all"
+              >
+                حفظ بيانات المعمل والاعتماد
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {/* TAB 1: STAFF MANAGEMENT */}
       {activeTab === 'staff' && (
         <div className="space-y-6">
@@ -477,7 +624,7 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {staffMembers.map((staff) => {
+              {staffMembers.filter(s => selectedDeptFilter === 'all' || s.department === selectedDeptFilter).map((staff) => {
                 const assignedBranch = facilities.find(f => f.id === staff.branchId);
 
                 return (

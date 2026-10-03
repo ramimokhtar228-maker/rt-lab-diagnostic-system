@@ -91,7 +91,7 @@ export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
   const handleApplyPercentage = (pct: number) => {
     setActivePercent(pct);
     setCustomPercent(pct);
-    const disc = Math.round((subtotal * pct) / 100);
+    const disc = Math.round((testsSubtotal * pct) / 100);
     setDiscountAmount(disc);
     if (onUpdateReport) {
       onUpdateReport({
@@ -108,7 +108,7 @@ export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
   const handleCustomPercentChange = (pct: number) => {
     setActivePercent(pct);
     setCustomPercent(pct);
-    const disc = Math.round((subtotal * pct) / 100);
+    const disc = Math.round((testsSubtotal * pct) / 100);
     setDiscountAmount(disc);
     if (onUpdateReport) {
       onUpdateReport({
@@ -275,7 +275,7 @@ export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
           <h1 style="margin: 0; font-size: 19px; font-weight: 900; color: #800000;">معامل RT للتحاليل التشخيصية</h1>
           <h2 style="margin: 2px 0 0 0; font-size: 13px; font-weight: 700; color: #0f172a;">معامل د. رامي مختار</h2>
           <p style="margin: 2px 0 0 0; font-size: 11px; font-weight: 600; color: #800000;">أطباء الباثولوجيا الإكلينيكية والكيميائية - طب قصر العيني</p>
-          <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;">الخط الساخن: 01001234567 | فروع: قصر العيني · الدقي · سموحة</p>
+          <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;">المقر الرئيسي: ميدان بهتيم برج صيدلية العزبي الدور الثالث امام الأسانسير شبرا الخيمة | هاتف: 01012345678</p>
         </div>
 
         <div style="text-align: center; padding: 0 16px;">
@@ -369,15 +369,21 @@ export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
         </div>
 
         <!-- Totals Table -->
-        <div style="width: 280px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 12px 14px; font-size: 12px;">
+        <div style="width: 290px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 12px 14px; font-size: 12px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-            <span style="color: #64748b;">إجمالي الفحوصات:</span>
-            <span style="font-family: monospace; font-weight: bold;">${subtotal.toFixed(2)} ج.م</span>
+            <span style="color: #64748b;">إجمالي التحاليل:</span>
+            <span style="font-family: monospace; font-weight: bold;">${testsSubtotal.toFixed(2)} ج.م</span>
           </div>
           ${discount > 0 ? `
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #059669;">
-              <span>خصم مطبق:</span>
+              <span>خصم مطبق (تحاليل):</span>
               <span style="font-family: monospace; font-weight: bold;">- ${discount.toFixed(2)} ج.م</span>
+            </div>
+          ` : ''}
+          ${visitFee > 0 ? `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #4338ca; font-weight: bold;">
+              <span>رسوم الزيارة (ثابتة):</span>
+              <span style="font-family: monospace;">+ ${visitFee.toFixed(2)} ج.م</span>
             </div>
           ` : ''}
           <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1.5px solid #cbd5e1; font-size: 13px; font-weight: 900; color: #800000; margin-bottom: 6px;">

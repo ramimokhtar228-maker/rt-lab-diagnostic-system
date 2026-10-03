@@ -185,6 +185,9 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
                       <p className="text-xs text-slate-600 font-medium">
                         كلية طب قصر العيني - جامعة القاهرة
                       </p>
+                      <p className="text-[10px] text-slate-500 font-bold mt-1">
+                        📍 المقر الرئيسي: ميدان بهتيم برج صيدلية العزبي الدور الثالث شبرا الخيمة | هاتف: 01012345678
+                      </p>
                     </div>
 
                     {/* Laboratory Central 3D Logo matching uploaded brand images */}
@@ -511,7 +514,9 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
                     <span>·</span>
                     <span>Kasr Al Ainy Faculty of Medicine</span>
                     <span>·</span>
-                    <span>Tel: +20 100 000 0000</span>
+                    <span>المقر: ميدان بهتيم برج العزبي</span>
+                    <span>·</span>
+                    <span>Tel: 01012345678 / 0244667788</span>
                   </div>
 
                   <div className="font-mono font-bold text-slate-600">
