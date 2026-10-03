@@ -1,5 +1,34 @@
 [
   {
+    "id": "rep-inc-1791035376105",
+    "reportNumber": "RT-2026-0897",
+    "invoiceNumber": "INV-2026-0897",
+    "barcode": "9827361835",
+    "patientName": "علا عصام سعيد",
+    "age": 34,
+    "gender": "female",
+    "phone": "01553337585",
+    "referringDoctor": "Prof.Dr",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      }
+    ],
+    "netAmount": 199,
+    "paidAmount": 199,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-03T13:49:36.105Z"
+  },
+  {
     "id": "rep-inc-1791034010282",
     "reportNumber": "RT-2026-0896",
     "invoiceNumber": "INV-2026-0896",
