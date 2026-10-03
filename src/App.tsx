@@ -1047,6 +1047,10 @@ export default function App() {
           isOpen={!!invoiceModalReport}
           onClose={() => setInvoiceModalReport(null)}
           report={invoiceModalReport}
+          onUpdateReport={(updated) => {
+            handleUpdateCurrentReport(updated);
+            setInvoiceModalReport(updated);
+          }}
         />
       )}
 

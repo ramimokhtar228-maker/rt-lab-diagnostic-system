@@ -15,7 +15,8 @@ import {
   CreditCard,
   Building2,
   PhoneCall,
-  Loader2
+  Loader2,
+  Percent
 } from 'lucide-react';
 import { formatWhatsAppMessage, openWhatsApp } from '../utils/whatsapp';
 
@@ -23,12 +24,14 @@ interface PatientInvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
   report: LabReport;
+  onUpdateReport?: (updatedReport: LabReport) => void;
 }
 
 export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
   isOpen,
   onClose,
-  report
+  report,
+  onUpdateReport
 }) => {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const invoiceContainerRef = useRef<HTMLDivElement>(null);
@@ -68,8 +71,88 @@ export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
     || p.totalCost 
     || items.reduce((sum, item) => sum + item.price, 0);
 
-  const discount = p.discountApplied || 0;
+  const [activePercent, setActivePercent] = useState<number | null>(
+    p.discountType === 'percentage' && p.discountApplied
+      ? Math.round((p.discountApplied / subtotal) * 100)
+      : null
+  );
+  const [customPercent, setCustomPercent] = useState<number>(activePercent || 15);
+  const [customFlatDiscount, setCustomFlatDiscount] = useState<number>(0);
+  const [discountAmount, setDiscountAmount] = useState<number>(p.discountApplied || 0);
+
+  // Sync if report changes
+  React.useEffect(() => {
+    setDiscountAmount(p.discountApplied || 0);
+  }, [p.discountApplied]);
+
+  const discount = discountAmount;
   const netTotal = Math.max(0, subtotal - discount);
+
+  const handleApplyPercentage = (pct: number) => {
+    setActivePercent(pct);
+    setCustomPercent(pct);
+    const disc = Math.round((subtotal * pct) / 100);
+    setDiscountAmount(disc);
+    if (onUpdateReport) {
+      onUpdateReport({
+        ...report,
+        patient: {
+          ...p,
+          discountType: 'percentage',
+          discountApplied: disc
+        }
+      });
+    }
+  };
+
+  const handleCustomPercentChange = (pct: number) => {
+    setActivePercent(pct);
+    setCustomPercent(pct);
+    const disc = Math.round((subtotal * pct) / 100);
+    setDiscountAmount(disc);
+    if (onUpdateReport) {
+      onUpdateReport({
+        ...report,
+        patient: {
+          ...p,
+          discountType: 'percentage',
+          discountApplied: disc
+        }
+      });
+    }
+  };
+
+  const handleFlatDiscountChange = (flat: number) => {
+    setActivePercent(null);
+    setCustomFlatDiscount(flat);
+    const disc = Math.min(subtotal, flat);
+    setDiscountAmount(disc);
+    if (onUpdateReport) {
+      onUpdateReport({
+        ...report,
+        patient: {
+          ...p,
+          discountType: 'daily_fixed',
+          discountApplied: disc
+        }
+      });
+    }
+  };
+
+  const handleResetDiscount = () => {
+    setActivePercent(null);
+    setDiscountAmount(0);
+    if (onUpdateReport) {
+      onUpdateReport({
+        ...report,
+        patient: {
+          ...p,
+          discountType: 'none',
+          discountApplied: 0
+        }
+      });
+    }
+  };
   const isPaid = !p.clinicalHistory?.includes('متبقي');
   const paidAmount = isPaid ? netTotal : Math.round(netTotal * 0.5);
   const remainingAmount = netTotal - paidAmount;
@@ -499,6 +582,65 @@ ${discount > 0 ? `- الخصم: ${discount} ج.م\n` : ''}- الصافي الم�
               title="إغلاق"
             >
               <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+                {/* Interactive Discount Bar in Invoice Dialog (User Requested) */}
+        <div className="bg-slate-800/95 border-b border-slate-700/80 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs text-white">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-bold flex items-center gap-1 text-rose-300 ml-1">
+              <Percent className="w-3.5 h-3.5 text-rose-400" />
+              <span>نسب الخصم:</span>
+            </span>
+            {[5, 10, 15, 20, 25, 30, 35, 40, 50].map((pct) => (
+              <button
+                key={pct}
+                type="button"
+                onClick={() => handleApplyPercentage(pct)}
+                className={`px-2 py-1 rounded-md font-mono font-bold text-xs cursor-pointer transition-all ${
+                  activePercent === pct
+                    ? 'bg-rose-600 text-white shadow-xs scale-105'
+                    : 'bg-slate-700 text-slate-200 hover:bg-slate-600'
+                }`}
+              >
+                {pct}%
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-300 text-[11px]">نسبة مخصصة (%):</span>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={customPercent}
+                onChange={(e) => handleCustomPercentChange(Number(e.target.value) || 0)}
+                className="w-16 px-2 py-1 bg-slate-900 border border-slate-600 rounded text-center font-bold font-mono text-rose-300 text-xs"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-300 text-[11px]">خصم مباشر (ج.م):</span>
+              <input
+                type="number"
+                min="0"
+                max={subtotal}
+                value={customFlatDiscount || ''}
+                onChange={(e) => handleFlatDiscountChange(Number(e.target.value) || 0)}
+                placeholder="0"
+                className="w-20 px-2 py-1 bg-slate-900 border border-slate-600 rounded text-center font-bold font-mono text-emerald-400 text-xs"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleResetDiscount}
+              className="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded text-[11px] font-bold cursor-pointer transition-colors"
+            >
+              إلغاء الخصم
             </button>
           </div>
         </div>

@@ -50,6 +50,42 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
   const [newDate, setNewDate] = useState(patient.appointmentDate || new Date().toISOString().split('T')[0]);
   const [newTime, setNewTime] = useState(patient.appointmentTime || '10:00 ص');
 
+    const bookingType = patient.bookingType || 'branch';
+  const effectiveHomeFee = bookingType === 'home_visit' ? customHomeFee : 0;
+  const baseSubtotal = (patient.totalCost || 250) + effectiveHomeFee;
+
+  const syncDiscount = (
+    newType: Patient['discountType'],
+    pct: number,
+    flat: number,
+    coupon: string | null = null,
+    costOverride?: number,
+    feeOverride?: number
+  ) => {
+    const cost = costOverride !== undefined ? costOverride : (patient.totalCost || 250);
+    const fee = bookingType === 'home_visit' ? (feeOverride !== undefined ? feeOverride : customHomeFee) : 0;
+    const currentBase = cost + fee;
+
+    let disc = 0;
+    if (coupon === 'RTLAB10') disc = Math.round(currentBase * 0.1);
+    else if (coupon === 'BEHTEEM25') disc = Math.min(currentBase, 50);
+    else if (coupon === 'HEALTH20') disc = Math.round(currentBase * 0.2);
+    else if (coupon === 'VIP2026') disc = Math.round(currentBase * 0.25);
+    else if (newType === 'percentage') disc = Math.round((currentBase * pct) / 100);
+    else if (newType === 'daily_fixed') disc = Math.min(currentBase, flat > 0 ? flat : 60);
+    else if (newType === 'package_bundle') disc = Math.min(currentBase, flat > 0 ? flat : 100);
+    else if (newType === 'dynamic_lab') disc = Math.round((currentBase * (pct || 18)) / 100);
+    else if (newType === 'none') disc = 0;
+
+    onChange({
+      ...patient,
+      discountType: newType,
+      discountApplied: disc,
+      couponCode: coupon || undefined,
+      ...(costOverride !== undefined ? { totalCost: costOverride } : {})
+    });
+  };
+
   const updateField = <K extends keyof Patient>(key: K, value: Patient[K]) => {
     onChange({
       ...patient,
@@ -57,14 +93,9 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
     });
   };
 
-  const bookingType = patient.bookingType || 'branch';
-  const effectiveHomeFee = bookingType === 'home_visit' ? customHomeFee : 0;
-  const baseSubtotal = (patient.totalCost || 250) + effectiveHomeFee;
-
-  // Calculate discount amount
-  let discountAmount = patient.discountApplied || 0;
+  // Calculate discount amount for display
+  let discountAmount = patient.discountApplied !== undefined ? patient.discountApplied : 0;
   let discountLabel = 'بدون خصم';
-
   if (appliedCoupon === 'RTLAB10') {
     discountAmount = Math.round(baseSubtotal * 0.1);
     discountLabel = 'كوبون خصم 10% (RTLAB10)';
@@ -89,6 +120,9 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
   } else if (patient.discountType === 'dynamic_lab') {
     discountAmount = Math.round((baseSubtotal * (customPercent || 18)) / 100);
     discountLabel = `عرض معمل متغير (${customPercent || 18}%)`;
+  } else if (patient.discountType === 'none') {
+    discountAmount = 0;
+    discountLabel = 'بدون خصم';
   }
 
   const netAmount = Math.max(0, baseSubtotal - discountAmount);
@@ -320,7 +354,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button
             type="button"
-            onClick={() => updateField('bookingType', 'branch')}
+            onClick={() => { updateField('bookingType', 'branch'); syncDiscount(patient.discountType || 'percentage', customPercent, customFlatDiscount, appliedCoupon, undefined, 0); }}
             className={`p-3 rounded-xl border text-right transition-all flex items-start gap-2.5 cursor-pointer ${
               bookingType === 'branch' ? 'bg-rose-50 border-rose-700 ring-1 ring-rose-700' : 'bg-white border-slate-200'
             }`}
@@ -334,7 +368,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
 
           <button
             type="button"
-            onClick={() => updateField('bookingType', 'home_visit')}
+            onClick={() => { updateField('bookingType', 'home_visit'); syncDiscount(patient.discountType || 'percentage', customPercent, customFlatDiscount, appliedCoupon, undefined, customHomeFee); }}
             className={`p-3 rounded-xl border text-right transition-all flex items-start gap-2.5 cursor-pointer ${
               bookingType === 'home_visit' ? 'bg-rose-50 border-rose-700 ring-1 ring-rose-700' : 'bg-white border-slate-200'
             }`}
@@ -373,7 +407,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
                   type="number"
                   min="0"
                   value={customHomeFee}
-                  onChange={(e) => setCustomHomeFee(Number(e.target.value) || 0)}
+                  onChange={(e) => { const fee = Number(e.target.value) || 0; setCustomHomeFee(fee); syncDiscount(patient.discountType || 'percentage', customPercent, customFlatDiscount, appliedCoupon, undefined, fee); }}
                   className="w-full px-2.5 py-1.5 border border-slate-300 rounded-md font-bold font-mono text-rose-800"
                 />
               </div>
@@ -432,19 +466,24 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
 
         {/* Percentage Selection Buttons (User requested) */}
         <div>
-          <label className="block text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-            <Percent className="w-3.5 h-3.5 text-rose-700" />
-            <span>اختر نسبة الخصم المئوية (%):</span>
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
+              <Percent className="w-3.5 h-3.5 text-rose-700" />
+              <span>اختر نسبة الخصم المئوية (%):</span>
+            </label>
+            <span className="text-[10px] text-slate-500 font-mono">
+              النسبة الفعالة: {patient.discountType === 'percentage' ? `${customPercent}%` : 'مخصصة'}
+            </span>
+          </div>
           <div className="flex items-center gap-1.5 flex-wrap">
             {[5, 10, 15, 20, 25, 30, 35, 40, 50].map((pct) => (
               <button
                 key={pct}
                 type="button"
                 onClick={() => {
-                  updateField('discountType', 'percentage');
                   setCustomPercent(pct);
                   setAppliedCoupon(null);
+                  syncDiscount('percentage', pct, customFlatDiscount, null);
                 }}
                 className={`px-2.5 py-1.5 rounded-lg font-bold font-mono text-xs cursor-pointer transition-all ${
                   patient.discountType === 'percentage' && customPercent === pct && !appliedCoupon
@@ -471,9 +510,10 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
                 max="100"
                 value={customPercent}
                 onChange={(e) => {
-                  setCustomPercent(Number(e.target.value) || 0);
-                  updateField('discountType', 'percentage');
+                  const val = Number(e.target.value) || 0;
+                  setCustomPercent(val);
                   setAppliedCoupon(null);
+                  syncDiscount('percentage', val, customFlatDiscount, null);
                 }}
                 placeholder="مثال: 18%"
                 className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg font-mono font-bold text-rose-900 text-xs"
@@ -493,9 +533,10 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
                 max={baseSubtotal}
                 value={customFlatDiscount || ''}
                 onChange={(e) => {
-                  setCustomFlatDiscount(Number(e.target.value) || 0);
-                  updateField('discountType', 'daily_fixed');
+                  const val = Number(e.target.value) || 0;
+                  setCustomFlatDiscount(val);
                   setAppliedCoupon(null);
+                  syncDiscount('daily_fixed', customPercent, val, null);
                 }}
                 placeholder="مثال: 60 ج.م"
                 className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg font-mono font-bold text-emerald-800 text-xs"
@@ -509,7 +550,11 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
           <button
             type="button"
-            onClick={() => { updateField('discountType', 'none'); setAppliedCoupon(null); setCustomFlatDiscount(0); }}
+            onClick={() => {
+              setAppliedCoupon(null);
+              setCustomFlatDiscount(0);
+              syncDiscount('none', customPercent, 0, null);
+            }}
             className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
               patient.discountType === 'none' && !appliedCoupon ? 'bg-rose-900 text-white' : 'bg-white border-slate-200'
             }`}
@@ -518,7 +563,11 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
           </button>
           <button
             type="button"
-            onClick={() => { updateField('discountType', 'daily_fixed'); setCustomFlatDiscount(60); setAppliedCoupon(null); }}
+            onClick={() => {
+              setCustomFlatDiscount(60);
+              setAppliedCoupon(null);
+              syncDiscount('daily_fixed', customPercent, 60, null);
+            }}
             className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
               patient.discountType === 'daily_fixed' ? 'bg-rose-900 text-white' : 'bg-white border-slate-200'
             }`}
@@ -527,7 +576,11 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
           </button>
           <button
             type="button"
-            onClick={() => { updateField('discountType', 'package_bundle'); setCustomFlatDiscount(100); setAppliedCoupon(null); }}
+            onClick={() => {
+              setCustomFlatDiscount(100);
+              setAppliedCoupon(null);
+              syncDiscount('package_bundle', customPercent, 100, null);
+            }}
             className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
               patient.discountType === 'package_bundle' ? 'bg-rose-900 text-white' : 'bg-white border-slate-200'
             }`}
@@ -536,7 +589,11 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
           </button>
           <button
             type="button"
-            onClick={() => { updateField('discountType', 'dynamic_lab'); setCustomPercent(18); setAppliedCoupon(null); }}
+            onClick={() => {
+              setCustomPercent(18);
+              setAppliedCoupon(null);
+              syncDiscount('dynamic_lab', 18, customFlatDiscount, null);
+            }}
             className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
               patient.discountType === 'dynamic_lab' ? 'bg-rose-900 text-white' : 'bg-white border-slate-200'
             }`}
@@ -614,7 +671,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
               type="number"
               min="0"
               value={patient.totalCost || 250}
-              onChange={(e) => updateField('totalCost', Number(e.target.value) || 0)}
+              onChange={(e) => { const val = Number(e.target.value) || 0; syncDiscount(patient.discountType || 'percentage', customPercent, customFlatDiscount, appliedCoupon, val); }}
               className="w-24 text-center mx-auto px-1 py-0.5 border border-slate-300 rounded font-bold font-mono text-sm"
             />
           </div>
