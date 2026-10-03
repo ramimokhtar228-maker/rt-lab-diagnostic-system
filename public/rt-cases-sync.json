@@ -1,5 +1,100 @@
 [
   {
+    "id": "rep-inc-1791061852569",
+    "reportNumber": "RT-BK-7512",
+    "invoiceNumber": "RT-BK-7512",
+    "barcode": "26864914",
+    "patientName": "حبيبة مجدي",
+    "age": 30,
+    "gender": "female",
+    "phone": "01148879943",
+    "referringDoctor": "زيارة منزلية",
+    "tests": [
+      {
+        "id": "t-11",
+        "code": "CBC",
+        "nameAr": "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "nameEn": "Complete Blood Picture",
+        "price": 410,
+        "category": "Hematology",
+        "cost": 25,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-28",
+        "code": "FERRITIN",
+        "nameAr": "مخزون الحديد بالفيريتين (Serum Ferritin)",
+        "nameEn": "Serum Ferritin Level",
+        "price": 388,
+        "category": "Iron Profile",
+        "cost": 40,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-26",
+        "code": "SERUM_IRON",
+        "nameAr": "الحديد بالدم (Serum Iron)",
+        "nameEn": "Serum Iron",
+        "price": 390,
+        "category": "Iron Profile",
+        "cost": 20,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-27",
+        "code": "TIBC",
+        "nameAr": "السعة الكلية لربط الحديد (TIBC)",
+        "nameEn": "Total Iron Binding Capacity",
+        "price": 366,
+        "category": "Iron Profile",
+        "cost": 22,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-84",
+        "code": "VIT_D",
+        "nameAr": "فيتامين د النشط بالدم (Vitamin D 25-OH Total)",
+        "nameEn": "25-Hydroxy Vitamin D",
+        "price": 900,
+        "category": "Vitamins",
+        "cost": 75,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-42",
+        "code": "MAGNESIUM",
+        "nameAr": "الماغنيسيوم بالدم (Serum Magnesium)",
+        "nameEn": "Serum Magnesium",
+        "price": 412,
+        "category": "Kidney Function",
+        "cost": 18,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-39",
+        "code": "CALCIUM_TOTAL",
+        "nameAr": "الكالسيوم الكلي (Total Serum Calcium)",
+        "nameEn": "Total Calcium",
+        "price": 288,
+        "category": "Kidney Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 1036,
+    "paidAmount": 1035,
+    "paymentStatus": "partial",
+    "financialClearance": "PAYMENT_PENDING",
+    "createdAt": "2026-10-03T21:10:52.569Z"
+  },
+  {
     "id": "rep-inc-1791061556961",
     "reportNumber": "RT-BK-7783",
     "invoiceNumber": "RT-BK-7783",
