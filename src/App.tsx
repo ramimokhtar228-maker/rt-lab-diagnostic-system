@@ -287,15 +287,42 @@ export default function App() {
 
     const checkSync = async () => {
       try {
+        // 1. Check local pending queue
         setReports(prev => {
           const pendingLocal = getLocalFinancialPendingReports(prev);
-          return pendingLocal.length > 0 ? [...pendingLocal, ...prev] : prev;
+          if (pendingLocal.length > 0) {
+            showToast("⚡ تم استلام وتسميع " + pendingLocal.length + " طلب فحص جديد من الحسابات!");
+            return [...pendingLocal, ...prev];
+          }
+          return prev;
         });
-      } catch {}
+
+        // 2. Automatically poll GitHub Cloud for cases pushed from financial system
+        try {
+          const cloudRes = await fetchCloudOrdersFromGitHub(reports);
+          if (cloudRes.newReports && cloudRes.newReports.length > 0) {
+            setReports(prev => {
+              const reallyNew = cloudRes.newReports.filter(cr =>
+                !prev.some(p => (cr.patient.barcode && p.patient.barcode === cr.patient.barcode) ||
+                                (cr.reportNumber && (p.reportNumber === cr.reportNumber || p.patient.labNumber === cr.reportNumber)))
+              );
+              if (reallyNew.length > 0) {
+                showToast("⚡ تم استلام وتسميع " + reallyNew.length + " فحص مالي سحابي من منظومة الفواتير!");
+                return [...reallyNew, ...prev];
+              }
+              return prev;
+            });
+          }
+        } catch {}
+      } catch (err) {
+        console.warn("Sync error:", err);
+      }
     };
 
+    // Run immediately on component mount
+    checkSync();
     window.addEventListener("focus", checkSync);
-    const timer = setInterval(checkSync, 15000);
+    const timer = setInterval(checkSync, 8000);
 
     return () => {
       if (channel) channel.close();
