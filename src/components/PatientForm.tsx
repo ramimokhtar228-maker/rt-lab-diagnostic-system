@@ -22,7 +22,8 @@ import {
   CheckCircle2,
   Coins,
   Smartphone,
-  Percent
+  Percent,
+  Edit2
 } from 'lucide-react';
 import { 
   BRANCH_MAIN_ADDRESS, 
@@ -42,9 +43,9 @@ interface PatientFormProps {
 export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) => {
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(patient.couponCode || null);
-  const [showRatingModal, setShowRatingModal] = useState(false);
-  const [ratingScore, setRatingScore] = useState(5);
-  const [ratingComment, setRatingComment] = useState('');
+  const [customPercent, setCustomPercent] = useState<number>(15);
+  const [customFlatDiscount, setCustomFlatDiscount] = useState<number>(0);
+  const [customHomeFee, setCustomHomeFee] = useState<number>(70);
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
   const [newDate, setNewDate] = useState(patient.appointmentDate || new Date().toISOString().split('T')[0]);
   const [newTime, setNewTime] = useState(patient.appointmentTime || '10:00 ص');
@@ -57,8 +58,8 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
   };
 
   const bookingType = patient.bookingType || 'branch';
-  const homeFee = bookingType === 'home_visit' ? 70 : 0;
-  const baseSubtotal = (patient.totalCost || 250) + homeFee;
+  const effectiveHomeFee = bookingType === 'home_visit' ? customHomeFee : 0;
+  const baseSubtotal = (patient.totalCost || 250) + effectiveHomeFee;
 
   // Calculate discount amount
   let discountAmount = patient.discountApplied || 0;
@@ -77,17 +78,17 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
     discountAmount = Math.round(baseSubtotal * 0.25);
     discountLabel = 'كوبون VIP خصم 25%';
   } else if (patient.discountType === 'percentage') {
-    discountAmount = Math.round(baseSubtotal * 0.15);
-    discountLabel = 'خصم مئوي 15%';
+    discountAmount = Math.round((baseSubtotal * customPercent) / 100);
+    discountLabel = `خصم مئوي ${customPercent}%`;
   } else if (patient.discountType === 'daily_fixed') {
-    discountAmount = Math.min(baseSubtotal, 60);
-    discountLabel = 'خصم يومي عرض ثابت (60 ج)';
+    discountAmount = Math.min(baseSubtotal, customFlatDiscount > 0 ? customFlatDiscount : 60);
+    discountLabel = `خصم نقدي (${discountAmount} ج)`;
   } else if (patient.discountType === 'package_bundle') {
-    discountAmount = Math.min(baseSubtotal, 100);
-    discountLabel = 'خصم باقة ثابتة (100 ج)';
+    discountAmount = Math.min(baseSubtotal, customFlatDiscount > 0 ? customFlatDiscount : 100);
+    discountLabel = `خصم باقة ثابتة (${discountAmount} ج)`;
   } else if (patient.discountType === 'dynamic_lab') {
-    discountAmount = Math.round(baseSubtotal * 0.18);
-    discountLabel = 'عرض معمل متغير (18%)';
+    discountAmount = Math.round((baseSubtotal * (customPercent || 18)) / 100);
+    discountLabel = `عرض معمل متغير (${customPercent || 18}%)`;
   }
 
   const netAmount = Math.max(0, baseSubtotal - discountAmount);
@@ -138,7 +139,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
       patientName: patient.fullName,
       patientPhone: patient.phone,
       tier: 'Gold VIP',
-      discountPercentage: 15,
+      discountPercentage: customPercent || 15,
       points: Math.floor(netAmount / 2)
     });
 
@@ -149,7 +150,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
       notes: patient.sampleNotes || 'تم سحب العينات بنجاح وأمان كامل',
       expectedTime: 'اليوم خلال 4 إلى 6 ساعات بإذن الله',
       loyaltyCardCode: cardCode,
-      discountPercentage: 15
+      discountPercentage: customPercent || 15
     });
     openWhatsApp(patient.phone, msg);
 
@@ -166,7 +167,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
           </div>
           <div>
             <h2 className="text-base font-bold text-slate-900">بيانات المريض وحجز الموعد</h2>
-            <p className="text-xs text-slate-500">حجز الفرع الرئيسي أو الزيارة المنزلية، التسعير، الخصومات والدفع</p>
+            <p className="text-xs text-slate-500">حجز الفرع الرئيسي أو الزيارة المنزلية، التسعير، الخصومات المتعددة والدفع</p>
           </div>
         </div>
 
@@ -309,7 +310,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
         <div className="flex items-center justify-between border-b border-slate-200 pb-2">
           <h3 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
             <Building2 className="w-4 h-4 text-rose-800" />
-            <span>نوع الحجز ومقر سحب العينات:</span>
+            <span>نوع الحجز ومقر سحب العينات (قابل للتعديل):</span>
           </h3>
           <span className="text-[11px] font-semibold text-slate-500">
             {bookingType === 'branch' ? 'حضور بالفرع الرئيسي' : 'زيارة منزلية خاصة'}
@@ -340,7 +341,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
           >
             <Home className={`w-5 h-5 mt-0.5 ${bookingType === 'home_visit' ? 'text-rose-700' : 'text-slate-400'}`} />
             <div>
-              <strong className="text-slate-900 block text-xs">زيارة منزلية خاصة (+70 ج.م)</strong>
+              <strong className="text-slate-900 block text-xs">زيارة منزلية خاصة (+{customHomeFee} ج.م)</strong>
               <span className="text-[11px] text-slate-500">أخصائي سحب معقم يصل لمنزلك</span>
             </div>
           </button>
@@ -355,15 +356,27 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
           </div>
         ) : (
           <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-2 text-xs">
-            <div>
-              <label className="block font-bold text-slate-700 mb-1">العنوان بالتفصيل (الشارع، رقم العقار، الدور، الشقة)</label>
-              <input
-                type="text"
-                value={patient.homeAddress || ''}
-                onChange={(e) => updateField('homeAddress', e.target.value)}
-                placeholder="مثال: شارع 15 مايو المتفرع من بهتيم، عمارة 12، الدور الرابع، شقة 8"
-                className="w-full px-2.5 py-1.5 border border-slate-300 rounded-md"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="sm:col-span-2">
+                <label className="block font-bold text-slate-700 mb-1">العنوان بالتفصيل (الشارع، رقم العقار، الدور، الشقة)</label>
+                <input
+                  type="text"
+                  value={patient.homeAddress || ''}
+                  onChange={(e) => updateField('homeAddress', e.target.value)}
+                  placeholder="مثال: شارع 15 مايو المتفرع من بهتيم، عمارة 12، الدور الرابع، شقة 8"
+                  className="w-full px-2.5 py-1.5 border border-slate-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">رسوم الانتقال (ج.م) [قابل للتعديل]</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={customHomeFee}
+                  onChange={(e) => setCustomHomeFee(Number(e.target.value) || 0)}
+                  className="w-full px-2.5 py-1.5 border border-slate-300 rounded-md font-bold font-mono text-rose-800"
+                />
+              </div>
             </div>
             <div>
               <label className="block font-bold text-slate-700 mb-1">ملاحظات إضافية حول التوصيل والمنطقة وحالة المريض</label>
@@ -414,77 +427,140 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
       <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
         <h3 className="font-bold text-xs text-slate-900 flex items-center gap-1.5 border-b border-slate-200 pb-2">
           <CreditCard className="w-4 h-4 text-rose-800" />
-          <span>التسعير، الخصومات المتعددة، وطرق الدفع:</span>
+          <span>اختيار نسب الخصم وإمكانية الإضافة والتعديل:</span>
         </h3>
 
-        {/* Discount Scheme selection */}
+        {/* Percentage Selection Buttons (User requested) */}
         <div>
-          <label className="block text-[11px] font-bold text-slate-700 mb-1.5">اختر نوع الخصم المطلوب:</label>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => { updateField('discountType', 'none'); setAppliedCoupon(null); }}
-              className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
-                patient.discountType === 'none' && !appliedCoupon ? 'bg-rose-900 text-white border-rose-950' : 'bg-white border-slate-200'
-              }`}
-            >
-              بدون خصم
-            </button>
-            <button
-              type="button"
-              onClick={() => { updateField('discountType', 'percentage'); setAppliedCoupon(null); }}
-              className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
-                patient.discountType === 'percentage' ? 'bg-rose-900 text-white border-rose-950' : 'bg-white border-slate-200'
-              }`}
-            >
-              خصم مئوي (%15)
-            </button>
-            <button
-              type="button"
-              onClick={() => { updateField('discountType', 'daily_fixed'); setAppliedCoupon(null); }}
-              className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
-                patient.discountType === 'daily_fixed' ? 'bg-rose-900 text-white border-rose-950' : 'bg-white border-slate-200'
-              }`}
-            >
-              عرض اليوم (60 ج)
-            </button>
-            <button
-              type="button"
-              onClick={() => { updateField('discountType', 'package_bundle'); setAppliedCoupon(null); }}
-              className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
-                patient.discountType === 'package_bundle' ? 'bg-rose-900 text-white border-rose-950' : 'bg-white border-slate-200'
-              }`}
-            >
-              باقة ثابتة (100 ج)
-            </button>
-            <button
-              type="button"
-              onClick={() => { updateField('discountType', 'dynamic_lab'); setAppliedCoupon(null); }}
-              className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
-                patient.discountType === 'dynamic_lab' ? 'bg-rose-900 text-white border-rose-950' : 'bg-white border-slate-200'
-              }`}
-            >
-              عرض معمل (18%)
-            </button>
+          <label className="block text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+            <Percent className="w-3.5 h-3.5 text-rose-700" />
+            <span>اختر نسبة الخصم المئوية (%):</span>
+          </label>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {[5, 10, 15, 20, 25, 30, 35, 40, 50].map((pct) => (
+              <button
+                key={pct}
+                type="button"
+                onClick={() => {
+                  updateField('discountType', 'percentage');
+                  setCustomPercent(pct);
+                  setAppliedCoupon(null);
+                }}
+                className={`px-2.5 py-1.5 rounded-lg font-bold font-mono text-xs cursor-pointer transition-all ${
+                  patient.discountType === 'percentage' && customPercent === pct && !appliedCoupon
+                    ? 'bg-rose-900 text-white shadow-xs scale-105'
+                    : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                {pct}%
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Editable percentage & editable flat discount amount */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200">
+          <div>
+            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              إدخال / تعديل نسبة الخصم يدوياً (%):
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={customPercent}
+                onChange={(e) => {
+                  setCustomPercent(Number(e.target.value) || 0);
+                  updateField('discountType', 'percentage');
+                  setAppliedCoupon(null);
+                }}
+                placeholder="مثال: 18%"
+                className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg font-mono font-bold text-rose-900 text-xs"
+              />
+              <span className="absolute left-3 top-1.5 text-slate-400 font-bold">%</span>
+            </div>
           </div>
 
-          {/* Coupon Code Input */}
-          <div className="flex gap-2 mt-2">
-            <input
-              type="text"
-              value={couponInput}
-              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-              placeholder="كود الكوبون مثل RTLAB10 أو BEHTEEM25 أو VIP2026"
-              className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-mono uppercase"
-            />
-            <button
-              type="button"
-              onClick={handleApplyCoupon}
-              className="px-4 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg cursor-pointer hover:bg-slate-800"
-            >
-              تفعيل الكوبون
-            </button>
+          <div>
+            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              أو إدخال خصم نقدي مباشر بالجنيه (ج.م):
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                min="0"
+                max={baseSubtotal}
+                value={customFlatDiscount || ''}
+                onChange={(e) => {
+                  setCustomFlatDiscount(Number(e.target.value) || 0);
+                  updateField('discountType', 'daily_fixed');
+                  setAppliedCoupon(null);
+                }}
+                placeholder="مثال: 60 ج.م"
+                className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg font-mono font-bold text-emerald-800 text-xs"
+              />
+              <span className="absolute left-3 top-1.5 text-slate-400 text-xs">ج.م</span>
+            </div>
           </div>
+        </div>
+
+        {/* Preset modes */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <button
+            type="button"
+            onClick={() => { updateField('discountType', 'none'); setAppliedCoupon(null); setCustomFlatDiscount(0); }}
+            className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
+              patient.discountType === 'none' && !appliedCoupon ? 'bg-rose-900 text-white' : 'bg-white border-slate-200'
+            }`}
+          >
+            بدون خصم
+          </button>
+          <button
+            type="button"
+            onClick={() => { updateField('discountType', 'daily_fixed'); setCustomFlatDiscount(60); setAppliedCoupon(null); }}
+            className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
+              patient.discountType === 'daily_fixed' ? 'bg-rose-900 text-white' : 'bg-white border-slate-200'
+            }`}
+          >
+            عرض اليوم (60 ج)
+          </button>
+          <button
+            type="button"
+            onClick={() => { updateField('discountType', 'package_bundle'); setCustomFlatDiscount(100); setAppliedCoupon(null); }}
+            className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
+              patient.discountType === 'package_bundle' ? 'bg-rose-900 text-white' : 'bg-white border-slate-200'
+            }`}
+          >
+            باقة ثابتة (100 ج)
+          </button>
+          <button
+            type="button"
+            onClick={() => { updateField('discountType', 'dynamic_lab'); setCustomPercent(18); setAppliedCoupon(null); }}
+            className={`p-2 rounded-lg border text-center font-bold cursor-pointer ${
+              patient.discountType === 'dynamic_lab' ? 'bg-rose-900 text-white' : 'bg-white border-slate-200'
+            }`}
+          >
+            عرض معمل (18%)
+          </button>
+        </div>
+
+        {/* Coupon Code Input */}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={couponInput}
+            onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+            placeholder="كود الكوبون مثل RTLAB10 أو BEHTEEM25 أو VIP2026"
+            className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-mono uppercase"
+          />
+          <button
+            type="button"
+            onClick={handleApplyCoupon}
+            className="px-4 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg cursor-pointer hover:bg-slate-800"
+          >
+            تفعيل الكوبون
+          </button>
         </div>
 
         {/* Payment Methods */}
@@ -530,11 +606,17 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
           </div>
         </div>
 
-        {/* Pricing Summary Card */}
+        {/* Pricing Summary Card (Fully editable base) */}
         <div className="bg-white p-3.5 rounded-xl border border-slate-200 grid grid-cols-3 gap-3 text-center text-xs">
           <div>
-            <span className="text-slate-500 block">الإجمالي قبل الخصم:</span>
-            <strong className="text-sm font-black font-mono text-slate-900">{baseSubtotal} ج.م</strong>
+            <label className="text-slate-500 block">تكلفة الفحوصات (ج.م) [تعديل]:</label>
+            <input
+              type="number"
+              min="0"
+              value={patient.totalCost || 250}
+              onChange={(e) => updateField('totalCost', Number(e.target.value) || 0)}
+              className="w-24 text-center mx-auto px-1 py-0.5 border border-slate-300 rounded font-bold font-mono text-sm"
+            />
           </div>
           <div>
             <span className="text-slate-500 block">الخصم المطبق:</span>
@@ -638,7 +720,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
                   onChange={(e) => setNewTime(e.target.value)}
                   className="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg font-bold"
                 >
-                  {['09:00 ص', '10:00 ص', '11:30 ص', '05:00 م', '07:00 م', '08:30 م'].map(s => (
+                  {['08:30 ص', '09:00 ص', '10:00 ص', '11:30 ص', '05:00 م', '07:00 م', '08:30 م'].map(s => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
