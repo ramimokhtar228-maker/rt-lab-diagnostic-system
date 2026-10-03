@@ -55,10 +55,10 @@ export const Header: React.FC<HeaderProps> = ({
     return {
       hotline: '01001234567 / 02-23658900',
       emergencyPhone: '01001234567',
-      branchesSummary: 'القاهرة · الجيزة · الإسكندرية',
-      cairoAddress: 'شارع المنيل الرئيسي، تقاطع قصر العيني، القاهرة (02-23658900)',
-      gizaAddress: 'شارع التحرير، ميدان الدقي والجيزة (02-37612345)',
-      alexAddress: 'شارع فوزي معاذ، ميدان فيكتور عمانويل، سموحة، الإسكندرية (03-4209800)'
+      branchesSummary: 'الفرع الرئيسي',
+      cairoAddress: 'المقر الرئيسي للمعمل',
+      gizaAddress: '',
+      alexAddress: ''
     };
   });
 

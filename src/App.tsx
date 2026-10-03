@@ -38,14 +38,14 @@ import { formatWhatsAppMessage, openWhatsApp } from './utils/whatsapp';
 import { exportReportToPPTX } from './utils/pptxExport';
 import { CheckCircle2 } from 'lucide-react';
 
-const STORAGE_KEY = 'rt_lab_reports_v1';
-const STAFF_STORAGE_KEY = 'rt_lab_staff_v1';
+const STORAGE_KEY = 'rt_lab_reports_v2';
+const STAFF_STORAGE_KEY = 'rt_lab_staff_v2';
 const CATALOG_STORAGE_KEY = 'rt_lab_custom_catalog_v2';
 const PACKAGES_STORAGE_KEY = 'rt_lab_packages_v1';
-const INDIVIDUAL_TESTS_STORAGE_KEY = 'rt_lab_individual_tests_v1';
-const STAFF_MEMBERS_STORAGE_KEY = 'rt_lab_staff_members_v1';
-const FACILITIES_STORAGE_KEY = 'rt_lab_facilities_v1';
-const LOYALTY_STORAGE_KEY = 'rt_lab_loyalty_profiles_v1';
+const INDIVIDUAL_TESTS_STORAGE_KEY = 'rt_lab_individual_tests_v2';
+const STAFF_MEMBERS_STORAGE_KEY = 'rt_lab_staff_members_v2';
+const FACILITIES_STORAGE_KEY = 'rt_lab_facilities_v2';
+const LOYALTY_STORAGE_KEY = 'rt_lab_loyalty_profiles_v2';
 
 export default function App() {
   // 1. Staff Default Signatures

@@ -174,7 +174,7 @@ export function getLocalFinancialPendingReports(existingReports: LabReport[]): L
 
   try {
     // 1. Check direct shared reports key
-    const rawReports = localStorage.getItem('rt_lab_reports_v1');
+    const rawReports = localStorage.getItem('rt_lab_reports_v2') || localStorage.getItem('rt_lab_reports_v1');
     if (rawReports) {
       const parsed = JSON.parse(rawReports);
       if (Array.isArray(parsed)) {
