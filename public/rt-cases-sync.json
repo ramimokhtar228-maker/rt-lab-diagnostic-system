@@ -1,1 +1,152 @@
-[]
+[
+  {
+    "id": "rep-inc-1791123384421",
+    "reportNumber": "RT-BK-8097",
+    "invoiceNumber": "RT-BK-8097",
+    "barcode": "26299360",
+    "patientName": "امانى محمد ابراهيم",
+    "age": 54,
+    "gender": "female",
+    "phone": "01277634220",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-1",
+        "code": "GLU_F",
+        "nameAr": "سكر الدم الصائم (FBS)",
+        "nameEn": "Fasting Blood Sugar",
+        "price": 88,
+        "category": "Diabetes",
+        "cost": 12,
+        "sampleType": "Fluoride Plasma",
+        "turnaroundTime": "فوري (ساعة)"
+      },
+      {
+        "id": "t-60",
+        "code": "TSH",
+        "nameAr": "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)",
+        "nameEn": "Thyroid Stimulating Hormone",
+        "price": 411,
+        "category": "Endocrinology",
+        "cost": 30,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-62",
+        "code": "FREE_T4",
+        "nameAr": "هرمون الغدة الدرقية الحر (Free T4)",
+        "nameEn": "Free Thyroxine FT4",
+        "price": 377,
+        "category": "Endocrinology",
+        "cost": 30,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-43",
+        "code": "ALT_SGPT",
+        "nameAr": "إنزيم كبد ALT / SGPT",
+        "nameEn": "Alanine Aminotransferase SGPT",
+        "price": 188,
+        "category": "Liver Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-44",
+        "code": "AST_SGOT",
+        "nameAr": "إنزيم كبد AST / SGOT",
+        "nameEn": "Aspartate Aminotransferase SGOT",
+        "price": 188,
+        "category": "Liver Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-31",
+        "code": "CREAT",
+        "nameAr": "كرياتينين بالدم (Serum Creatinine)",
+        "nameEn": "Serum Creatinine",
+        "price": 188,
+        "category": "Kidney Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-32",
+        "code": "UREA",
+        "nameAr": "بولينا بالدم (Blood Urea / BUN)",
+        "nameEn": "Blood Urea Nitrogen",
+        "price": 188,
+        "category": "Kidney Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-33",
+        "code": "URIC",
+        "nameAr": "حمض البوليك / يوريك أسيد (Serum Uric Acid)",
+        "nameEn": "Serum Uric Acid",
+        "price": 188,
+        "category": "Kidney Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-55",
+        "code": "LIPID_PROFILE",
+        "nameAr": "دهون الدم الكاملة (Lipid Profile Panel)",
+        "nameEn": "Complete Lipid Profile",
+        "price": 900,
+        "category": "Lipids",
+        "cost": 45,
+        "sampleType": "Serum (12h Fasting)",
+        "turnaroundTime": "3 ساعات"
+      },
+      {
+        "id": "t-4",
+        "code": "HBA1C",
+        "nameAr": "السكر التراكمي (HbA1c HPLC)",
+        "nameEn": "Glycated Hemoglobin HbA1c",
+        "price": 400,
+        "category": "Diabetes",
+        "cost": 35,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-11",
+        "code": "CBC",
+        "nameAr": "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "nameEn": "Complete Blood Picture",
+        "price": 410,
+        "category": "Hematology",
+        "cost": 25,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-84",
+        "code": "VIT_D",
+        "nameAr": "فيتامين د النشط بالدم (Vitamin D 25-OH Total)",
+        "nameEn": "25-Hydroxy Vitamin D",
+        "price": 900,
+        "category": "Vitamins",
+        "cost": 75,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      }
+    ],
+    "netAmount": 575,
+    "paidAmount": 553,
+    "paymentStatus": "partial",
+    "financialClearance": "PAYMENT_PENDING",
+    "createdAt": "2026-10-04T14:16:24.421Z"
+  }
+]
