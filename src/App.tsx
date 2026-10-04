@@ -225,6 +225,80 @@ export default function App() {
     }
   }, [loyaltyProfiles]);
 
+  // Auto-sync & upgrade any existing registered cases/reports to have active loyalty cards & points
+  useEffect(() => {
+    if (reports && reports.length > 0) {
+      let needsReportUpdate = false;
+      const updatedReports = reports.map((rep, idx) => {
+        if (!rep.patient.loyaltyCardIssued || !rep.patient.loyaltyCardNumber) {
+          needsReportUpdate = true;
+          return {
+            ...rep,
+            patient: {
+              ...rep.patient,
+              loyaltyCardIssued: true,
+              loyaltyCardNumber: rep.patient.loyaltyCardNumber || `RT-2026-${String(idx + 1).padStart(4, '0')}`
+            }
+          };
+        }
+        return rep;
+      });
+
+      if (needsReportUpdate) {
+        setReports(updatedReports);
+      }
+
+      setLoyaltyProfiles(prevProfiles => {
+        let currentList = [...prevProfiles];
+        let hasChanges = false;
+
+        updatedReports.forEach(rep => {
+          const p = rep.patient;
+          const phone = (p.phone || '').trim();
+          const name = (p.fullName || '').trim();
+          if (!name && !phone) return;
+
+          const exists = currentList.some(prof => 
+            (phone && prof.phone === phone) || (name && prof.patientName === name)
+          );
+
+          if (!exists) {
+            hasChanges = true;
+            let repPoints = 150;
+            if (rep.packageApplied?.packagePrice) {
+              repPoints = Math.round(rep.packageApplied.packagePrice);
+            }
+            const code = p.loyaltyCardNumber || `RT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+            currentList.push({
+              patientId: p.id || `pt-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+              patientName: name,
+              phone: phone || '01000000000',
+              cardNumber: code,
+              barcode: code,
+              tier: repPoints >= 500 ? 'Gold' : 'Silver',
+              totalPoints: repPoints,
+              lifetimeSpent: repPoints,
+              issueDate: (rep.createdAt || new Date().toISOString()).substring(0, 10),
+              bloodGroup: 'O+',
+              transactions: [
+                {
+                  id: `tx-init-${rep.id}`,
+                  date: (rep.createdAt || new Date().toISOString()).substring(0, 10),
+                  type: 'earn',
+                  points: repPoints,
+                  description: `تفعيل تلقائي لنقاط فحص سابق #${p.labNumber || '2026'}`
+                }
+              ]
+            });
+          }
+        });
+
+        return hasChanges ? currentList : prevProfiles;
+      });
+    }
+  }, [reports.length]);
+
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
