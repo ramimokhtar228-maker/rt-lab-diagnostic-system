@@ -1,5 +1,45 @@
 [
   {
+    "id": "rep-inc-1791123722634",
+    "reportNumber": "RT-BK-5873",
+    "invoiceNumber": "RT-BK-5873",
+    "barcode": "26202971",
+    "patientName": "منال محمود بكر",
+    "age": 52,
+    "gender": "female",
+    "phone": "01127452964",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-4",
+        "code": "HBA1C",
+        "nameAr": "السكر التراكمي (HbA1c HPLC)",
+        "nameEn": "Glycated Hemoglobin HbA1c",
+        "price": 400,
+        "category": "Diabetes",
+        "cost": 35,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 198,
+    "paidAmount": 198,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:22:02.634Z"
+  },
+  {
     "id": "rep-inc-1791123384421",
     "reportNumber": "RT-BK-8097",
     "invoiceNumber": "RT-BK-8097",
