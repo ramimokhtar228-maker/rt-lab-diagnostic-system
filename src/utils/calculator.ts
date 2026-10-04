@@ -317,6 +317,26 @@ export function runAutomaticCalculations(
     }
   }
 
+  // Mentzer Index: MCV / RBC
+  const effMcv = getVal(paramsCopy, ['mcv', 'm.c.v', 'mean corpuscular volume']);
+  if (effMcv !== null && rbc !== null && rbc > 0) {
+    const mentzer = Number((effMcv / rbc).toFixed(1));
+    const mentzerNote = mentzer < 13 ? 'Mentzer < 13: Suggestive of Beta Thalassemia Trait' : 'Mentzer > 13: Suggestive of Iron Deficiency Anemia';
+    if (setVal(paramsCopy, ['mentzer index', 'mentzer'], mentzer, mentzerNote)) {
+      applied.push(`Mentzer (${mentzer})`);
+    }
+  }
+
+  // Plateletcrit (PCT)
+  const plt = getVal(paramsCopy, ['platelet', 'plt', 'platelets count']);
+  const mpv = getVal(paramsCopy, ['mpv', 'mean platelet volume']);
+  if (plt !== null && mpv !== null && mpv > 0) {
+    const pct = Number(((plt * mpv) / 10000).toFixed(3));
+    if (setVal(paramsCopy, ['pct', 'plateletcrit'], pct, 'Calculated: (PLT × MPV) / 10,000')) {
+      applied.push(`PCT (${pct}%)`);
+    }
+  }
+
   // ==========================================
   // 2. DIABETES, HbA1c, HOMA-IR & GLUCOSE
   // ==========================================

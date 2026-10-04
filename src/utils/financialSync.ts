@@ -1,5 +1,5 @@
 import { LabReport, TestProfile, TestParameter } from '../types/lab';
-import { LAB_CATALOG, DEFAULT_STAFF } from '../data/labCatalog';
+import { LAB_CATALOG, DEFAULT_STAFF, INITIAL_INDIVIDUAL_TESTS } from '../data/labCatalog';
 
 const getGitHubToken = (): string => {
   if (typeof window !== "undefined" && localStorage.getItem("rt_lab_github_token")) {
@@ -102,22 +102,35 @@ export function convertOrderToLabReport(order: IncomingFinancialOrder): LabRepor
         }))
       });
     } else {
-      // Create individual profile for this test
+      // Look up in INITIAL_INDIVIDUAL_TESTS to get unit, minNormal, maxNormal, method, textReference
+      const indMatch = INITIAL_INDIVIDUAL_TESTS.find(t => 
+        t.code.toUpperCase() === testCode ||
+        t.nameAr === nameAr ||
+        t.nameEn.toLowerCase() === nameEn.toLowerCase() ||
+        nameAr.includes(t.nameAr) ||
+        t.nameAr.includes(nameAr)
+      );
+
       profiles.push({
         id: `prof-${Date.now()}-${idx + 1}`,
         profileCode: testCode || 'INDIVIDUAL',
         titleEn: nameEn,
         titleAr: nameAr,
-        category: (test as any).category || 'تحاليل تشخيصية',
-        sampleType: (test as any).sampleType || 'Serum',
+        category: indMatch?.category || (test as any).category || 'تحاليل تشخيصية',
+        sampleType: indMatch?.sampleType || (test as any).sampleType || 'Serum',
         parameters: [
           {
             id: `p-${Date.now()}-${idx}`,
-            name: `${nameAr} (${nameEn})`,
+            name: indMatch ? `${indMatch.nameAr} (${indMatch.nameEn})` : `${nameAr} (${nameEn})`,
             result: '',
-            unit: '',
-            flag: '',
-            textReference: 'قيد الفحص المخبري'
+            unit: indMatch?.unit || (test as any).unit || '',
+            minNormal: indMatch?.minNormal,
+            maxNormal: indMatch?.maxNormal,
+            panicLow: indMatch?.panicLow,
+            panicHigh: indMatch?.panicHigh,
+            textReference: indMatch?.textReference || (test as any).textReference || (indMatch?.minNormal !== undefined ? `${indMatch.minNormal} - ${indMatch.maxNormal} ${indMatch.unit}` : 'Negative'),
+            method: indMatch?.method || 'Automated Clinical Analyzer',
+            flag: ''
           }
         ]
       });

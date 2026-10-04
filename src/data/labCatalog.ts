@@ -84,31 +84,289 @@ export const COMMON_INTERPRETATIONS: { [key: string]: string[] } = {
 export const LAB_CATALOG: CatalogProfileTemplate[] = [
   // 1. COMPLETE BLOOD PICTURE (CBC) with Auto Indices
   {
-    code: 'CBC',
-    titleEn: 'Complete Blood Picture (CBC)',
-    titleAr: 'صورة دم كاملة مع المؤشرات الحسابية',
-    category: 'Hematology',
-    sampleType: 'EDTA Whole Blood',
-    defaultInterpretation: 'Blood indices are within acceptable physiological limits.',
+    code: "CBC",
+    titleEn: "Complete Blood Count (CBC) with Full Automated Differential & Indices",
+    titleAr: "صورة الدم الكاملة مع الفيلم التفريقي والمؤشرات الحسابية",
+    category: "Hematology",
+    sampleType: "EDTA Whole Blood",
+    defaultInterpretation: "Microscopic evaluation and complete differential indices assessed according to international hematology criteria.",
     parameters: [
-      { name: 'Hemoglobin (Hb)', unit: 'g/dL', minNormal: 12.0, maxNormal: 16.5, panicLow: 7.0, panicHigh: 20.0, method: 'Automated SLS-Hb' },
-      { name: 'R.B.Cs Count', unit: 'x10^6/µL', minNormal: 4.2, maxNormal: 5.8, method: 'Electrical Impedance' },
-      { name: 'Hematocrit (PCV)', unit: '%', minNormal: 36.0, maxNormal: 48.0, notes: 'Auto-calculated: HGB × 3' },
-      { name: 'M.C.V', unit: 'fL', minNormal: 80.0, maxNormal: 98.0, notes: 'Auto-calculated: (HCT × 10) / RBC' },
-      { name: 'M.C.H', unit: 'pg', minNormal: 27.0, maxNormal: 33.0, notes: 'Auto-calculated: (HGB × 10) / RBC' },
-      { name: 'M.C.H.C', unit: 'g/dL', minNormal: 32.0, maxNormal: 36.0, notes: 'Auto-calculated: (HGB × 100) / HCT' },
-      { name: 'R.D.W-CV', unit: '%', minNormal: 11.5, maxNormal: 14.5 },
-      { name: 'Platelets Count', unit: 'x10^3/µL', minNormal: 150, maxNormal: 450, panicLow: 50, panicHigh: 1000 },
-      { name: 'Total Leucocytic Count (TLC)', unit: 'x10^3/µL', minNormal: 4.0, maxNormal: 11.0, panicLow: 2.0, panicHigh: 30.0 },
-      { name: 'Neutrophils %', unit: '%', minNormal: 40, maxNormal: 70 },
-      { name: 'Lymphocytes %', unit: '%', minNormal: 20, maxNormal: 45 },
-      { name: 'Monocytes %', unit: '%', minNormal: 2, maxNormal: 8 },
-      { name: 'Eosinophils %', unit: '%', minNormal: 1, maxNormal: 6 },
-      { name: 'Basophils %', unit: '%', minNormal: 0, maxNormal: 1 },
-      { name: 'Absolute Neutrophils (ANC)', unit: 'x10^3/µL', minNormal: 1.5, maxNormal: 7.5, notes: 'Auto-calculated: (WBC × Neut%) / 100' },
-      { name: 'Absolute Lymphocytes (ALC)', unit: 'x10^3/µL', minNormal: 1.0, maxNormal: 4.0, notes: 'Auto-calculated: (WBC × Lymph%) / 100' },
-      { name: 'NLR (Neutrophil/Lymphocyte)', unit: 'Ratio', minNormal: 0.8, maxNormal: 2.5, notes: 'Auto-calculated: Neut% / Lymph%' }
-    ]
+      {
+            "name": "Hemoglobin (Hb)",
+            "unit": "g/dL",
+            "minNormal": 12,
+            "maxNormal": 16.5,
+            "panicLow": 7,
+            "panicHigh": 20,
+            "method": "Automated SLS-Hb",
+            "textReference": "M: 13.0 - 17.5 | F: 12.0 - 15.5 g/dL"
+      },
+      {
+            "name": "R.B.Cs Count",
+            "unit": "x10^6/µL",
+            "minNormal": 4,
+            "maxNormal": 5.8,
+            "method": "Electrical Impedance",
+            "textReference": "M: 4.5 - 5.9 | F: 4.0 - 5.2"
+      },
+      {
+            "name": "Hematocrit (PCV)",
+            "unit": "%",
+            "minNormal": 36,
+            "maxNormal": 48,
+            "notes": "Auto-calculated: Hb × 3",
+            "textReference": "M: 40 - 52% | F: 36 - 48%"
+      },
+      {
+            "name": "M.C.V",
+            "unit": "fL",
+            "minNormal": 80,
+            "maxNormal": 98,
+            "notes": "Auto-calculated: (PCV × 10) / RBC",
+            "textReference": "80.0 - 98.0 fL"
+      },
+      {
+            "name": "M.C.H",
+            "unit": "pg",
+            "minNormal": 27,
+            "maxNormal": 33,
+            "notes": "Auto-calculated: (Hb × 10) / RBC",
+            "textReference": "27.0 - 33.0 pg"
+      },
+      {
+            "name": "M.C.H.C",
+            "unit": "g/dL",
+            "minNormal": 32,
+            "maxNormal": 36,
+            "notes": "Auto-calculated: (Hb × 100) / PCV",
+            "textReference": "32.0 - 36.0 g/dL"
+      },
+      {
+            "name": "R.D.W-CV",
+            "unit": "%",
+            "minNormal": 11.5,
+            "maxNormal": 14.5,
+            "textReference": "11.5 - 14.5 %"
+      },
+      {
+            "name": "R.D.W-SD",
+            "unit": "fL",
+            "minNormal": 39,
+            "maxNormal": 46,
+            "textReference": "39.0 - 46.0 fL"
+      },
+      {
+            "name": "Mentzer Index (MCV/RBC)",
+            "unit": "Ratio",
+            "notes": "<13 Thalassemia Trait | >13 Iron Deficiency",
+            "textReference": "> 13 Iron Def. | < 13 Thalassemia"
+      },
+      {
+            "name": "Green & King Index",
+            "unit": "Index",
+            "notes": "(MCV² × RDW) / (Hb × 100)",
+            "textReference": "< 72 Thalassemia | > 72 Iron Def."
+      },
+      {
+            "name": "Platelets Count",
+            "unit": "x10^3/µL",
+            "minNormal": 150,
+            "maxNormal": 450,
+            "panicLow": 50,
+            "panicHigh": 1000,
+            "textReference": "150 - 450 x10^3/µL"
+      },
+      {
+            "name": "MPV (Mean Platelet Volume)",
+            "unit": "fL",
+            "minNormal": 7.5,
+            "maxNormal": 11.5,
+            "textReference": "7.5 - 11.5 fL"
+      },
+      {
+            "name": "PDW (Platelet Dist. Width)",
+            "unit": "%",
+            "minNormal": 9,
+            "maxNormal": 17,
+            "textReference": "9.0 - 17.0 %"
+      },
+      {
+            "name": "PCT (Plateletcrit)",
+            "unit": "%",
+            "minNormal": 0.17,
+            "maxNormal": 0.35,
+            "notes": "Auto-calculated: (PLT × MPV) / 10,000",
+            "textReference": "0.17 - 0.35 %"
+      },
+      {
+            "name": "Total Leucocytic Count (TLC)",
+            "unit": "x10^3/µL",
+            "minNormal": 4,
+            "maxNormal": 11,
+            "panicLow": 2,
+            "panicHigh": 30,
+            "textReference": "4.0 - 11.0 x10^3/µL"
+      },
+      {
+            "name": "Segmented Neutrophils %",
+            "unit": "%",
+            "minNormal": 40,
+            "maxNormal": 65,
+            "textReference": "40 - 65 %"
+      },
+      {
+            "name": "Band Forms (Stab) %",
+            "unit": "%",
+            "minNormal": 0,
+            "maxNormal": 5,
+            "textReference": "0 - 5 % (Left Shift if > 6%)"
+      },
+      {
+            "name": "Total Neutrophils %",
+            "unit": "%",
+            "minNormal": 40,
+            "maxNormal": 70,
+            "notes": "Auto-calculated: Segmented% + Band%",
+            "textReference": "40 - 70 %"
+      },
+      {
+            "name": "Lymphocytes %",
+            "unit": "%",
+            "minNormal": 20,
+            "maxNormal": 45,
+            "textReference": "20 - 45 %"
+      },
+      {
+            "name": "Monocytes %",
+            "unit": "%",
+            "minNormal": 2,
+            "maxNormal": 8,
+            "textReference": "2 - 8 %"
+      },
+      {
+            "name": "Eosinophils %",
+            "unit": "%",
+            "minNormal": 1,
+            "maxNormal": 6,
+            "textReference": "1 - 6 %"
+      },
+      {
+            "name": "Basophils %",
+            "unit": "%",
+            "minNormal": 0,
+            "maxNormal": 1,
+            "textReference": "0 - 1 %"
+      },
+      {
+            "name": "Metamyelocytes %",
+            "unit": "%",
+            "minNormal": 0,
+            "maxNormal": 0,
+            "textReference": "0 % (Absent in normal blood)"
+      },
+      {
+            "name": "Myelocytes %",
+            "unit": "%",
+            "minNormal": 0,
+            "maxNormal": 0,
+            "textReference": "0 % (Absent in normal blood)"
+      },
+      {
+            "name": "Blast Cells %",
+            "unit": "%",
+            "minNormal": 0,
+            "maxNormal": 0,
+            "textReference": "0 % (Absent in normal blood)"
+      },
+      {
+            "name": "Absolute Neutrophils (ANC)",
+            "unit": "x10^3/µL",
+            "minNormal": 1.5,
+            "maxNormal": 7.5,
+            "notes": "Auto-calculated: (WBC × Neut%) / 100",
+            "textReference": "1.5 - 7.5 x10^3/µL"
+      },
+      {
+            "name": "Absolute Lymphocytes (ALC)",
+            "unit": "x10^3/µL",
+            "minNormal": 1,
+            "maxNormal": 4,
+            "notes": "Auto-calculated: (WBC × Lymph%) / 100",
+            "textReference": "1.0 - 4.0 x10^3/µL"
+      },
+      {
+            "name": "Absolute Monocytes (AMC)",
+            "unit": "x10^3/µL",
+            "minNormal": 0.2,
+            "maxNormal": 0.8,
+            "notes": "Auto-calculated: (WBC × Mono%) / 100",
+            "textReference": "0.2 - 0.8 x10^3/µL"
+      },
+      {
+            "name": "Absolute Eosinophils (AEC)",
+            "unit": "x10^3/µL",
+            "minNormal": 0.04,
+            "maxNormal": 0.44,
+            "notes": "Auto-calculated: (WBC × Eos%) / 100",
+            "textReference": "0.04 - 0.44 x10^3/µL"
+      },
+      {
+            "name": "Absolute Basophils (ABC)",
+            "unit": "x10^3/µL",
+            "minNormal": 0.01,
+            "maxNormal": 0.1,
+            "notes": "Auto-calculated: (WBC × Baso%) / 100",
+            "textReference": "0.01 - 0.1 x10^3/µL"
+      },
+      {
+            "name": "NLR (Neutrophil/Lymphocyte)",
+            "unit": "Ratio",
+            "minNormal": 0.8,
+            "maxNormal": 2.5,
+            "notes": "Auto-calculated: Neut% / Lymph%",
+            "textReference": "0.8 - 2.5 (Inflammatory Index)"
+      },
+      {
+            "name": "PLR (Platelet/Lymphocyte)",
+            "unit": "Ratio",
+            "minNormal": 100,
+            "maxNormal": 150,
+            "notes": "Auto-calculated: PLT / ALC",
+            "textReference": "100 - 150"
+      },
+      {
+            "name": "Reticulocyte Count %",
+            "unit": "%",
+            "minNormal": 0.5,
+            "maxNormal": 2.5,
+            "textReference": "0.5 - 2.5 %"
+      },
+      {
+            "name": "RPI (Reticulocyte Production Index)",
+            "unit": "Index",
+            "minNormal": 1,
+            "maxNormal": 3,
+            "textReference": "> 2.0 indicates adequate marrow response"
+      },
+      {
+            "name": "RBC Morphology",
+            "unit": "",
+            "textReference": "Normocytic normochromic, no anisopoikilocytosis",
+            "method": "Leishman Stain Microscopy"
+      },
+      {
+            "name": "WBC Morphology",
+            "unit": "",
+            "textReference": "Mature differential, no toxic granules, vacuoles, or blasts",
+            "method": "Leishman Stain Microscopy"
+      },
+      {
+            "name": "Platelet Morphology",
+            "unit": "",
+            "textReference": "Adequate on smear, normal aggregation, no giant forms",
+            "method": "Leishman Stain Microscopy"
+      }
+]
   },
 
   // 2. COMPLETE URINE ANALYSIS
