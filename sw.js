@@ -90,7 +90,7 @@ define(['./workbox-afac4cd2'], (function (workbox) { 'use strict';
     "revision": "59fa551bfe3ff81bc3bf063950cb5ecc"
   }, {
     "url": "index.html",
-    "revision": "a41884070873e72a0cd1786f9d41ada9"
+    "revision": "6a2140afff5f2ce269e1fba2a7a5b172"
   }, {
     "url": "icon.svg",
     "revision": "16b6398238a0b19399c81e4700707705"
@@ -101,22 +101,22 @@ define(['./workbox-afac4cd2'], (function (workbox) { 'use strict';
     "url": "assets/purify.es-Bvo9QlJ8.js",
     "revision": null
   }, {
-    "url": "assets/jspdf.es.min-BBN13RZi.js",
+    "url": "assets/jspdf.es.min-kczuDa6J.js",
     "revision": null
   }, {
-    "url": "assets/index.es-Cqnm0uFy.js",
+    "url": "assets/index.es-DoUlRdQP.js",
     "revision": null
   }, {
-    "url": "assets/index-nBtozSlj.js",
+    "url": "assets/index-DKBUEnLH.js",
     "revision": null
   }, {
-    "url": "assets/index-Buva6--2.css",
+    "url": "assets/index-Bdf7MPlH.css",
     "revision": null
   }, {
-    "url": "assets/html2canvas-DUZPN2YE.js",
+    "url": "assets/html2canvas-DRZOC5GV.js",
     "revision": null
   }, {
-    "url": "assets/__vite-browser-external-B19F85Ez.js",
+    "url": "assets/__vite-browser-external-C37Qdr6O.js",
     "revision": null
   }, {
     "url": "apple-touch-icon.png",
