@@ -1,5 +1,78 @@
 [
   {
+    "id": "rep-inc-1791126867915",
+    "reportNumber": "RT-BK-5104",
+    "invoiceNumber": "RT-BK-5104",
+    "barcode": "26193270",
+    "patientName": "حبيبة مجدى احمد",
+    "age": 26,
+    "gender": "female",
+    "phone": "01148879943",
+    "referringDoctor": "زيارة منزلية - أ/ يوسف طارق المنشاوي (أخصائي سحب العينات والزيارات)",
+    "tests": [
+      {
+        "id": "t-11",
+        "code": "CBC",
+        "nameAr": "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "nameEn": "Complete Blood Picture",
+        "price": 410,
+        "category": "Hematology",
+        "cost": 25,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-29",
+        "code": "IRON_PROFILE",
+        "nameAr": "بروفايل الحديد الكامل (Iron + TIBC + Ferritin)",
+        "nameEn": "Complete Iron Profile",
+        "price": 900,
+        "category": "Iron Profile",
+        "cost": 75,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-42",
+        "code": "MAGNESIUM",
+        "nameAr": "الماغنيسيوم بالدم (Serum Magnesium)",
+        "nameEn": "Serum Magnesium",
+        "price": 412,
+        "category": "Kidney Function",
+        "cost": 18,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-39",
+        "code": "CALCIUM_TOTAL",
+        "nameAr": "الكالسيوم الكلي (Total Serum Calcium)",
+        "nameEn": "Total Calcium",
+        "price": 288,
+        "category": "Kidney Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-84",
+        "code": "VIT_D",
+        "nameAr": "فيتامين د النشط بالدم (Vitamin D 25-OH Total)",
+        "nameEn": "25-Hydroxy Vitamin D",
+        "price": 900,
+        "category": "Vitamins",
+        "cost": 75,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      }
+    ],
+    "netAmount": 953,
+    "paidAmount": 953,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T15:14:27.915Z"
+  },
+  {
     "id": "rep-inc-1791125575336",
     "reportNumber": "RT-BK-8594",
     "invoiceNumber": "RT-BK-8594",
