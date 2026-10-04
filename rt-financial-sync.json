@@ -1,0 +1,220 @@
+{
+  "system": "RT Lab Financial & Accounting ERP",
+  "syncedAt": "2026-10-04T15:16:47.175Z",
+  "summary": {
+    "totalRevenue": 4031,
+    "totalExpenses": 0,
+    "netProfit": 4031,
+    "ceoShare": 1813.95,
+    "labShare": 1813.95,
+    "casesCount": 12
+  },
+  "clearedInvoices": [
+    {
+      "invoiceNumber": "RT-BK-5104",
+      "labNumber": "RT-BK-5104",
+      "barcode": "26193270",
+      "patientName": "حبيبة مجدى احمد",
+      "phone": "01148879943",
+      "testsCount": 5,
+      "testsList": [
+        "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "بروفايل الحديد الكامل (Iron + TIBC + Ferritin)",
+        "الماغنيسيوم بالدم (Serum Magnesium)",
+        "الكالسيوم الكلي (Total Serum Calcium)",
+        "فيتامين د النشط بالدم (Vitamin D 25-OH Total)"
+      ],
+      "netAmount": 953,
+      "paidAmount": 953,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-1493",
+      "labNumber": "RT-BK-1493",
+      "barcode": "26853906",
+      "patientName": "مريم عوض الكريم علي",
+      "phone": "01555108312",
+      "testsCount": 4,
+      "testsList": [
+        "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "الكالسيوم المتأين (Ionized Calcium)",
+        "الكالسيوم الكلي (Total Serum Calcium)",
+        "السكر التراكمي (HbA1c HPLC)"
+      ],
+      "netAmount": 587,
+      "paidAmount": 587,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-9820",
+      "labNumber": "RT-BK-9820",
+      "barcode": "26438292",
+      "patientName": "هويدا الهادي يحي",
+      "phone": "01277489467",
+      "testsCount": 1,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)"
+      ],
+      "netAmount": 200,
+      "paidAmount": 320,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-8594",
+      "labNumber": "RT-BK-8594",
+      "barcode": "26454943",
+      "patientName": "أمال محمد",
+      "phone": "01013242777",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)"
+      ],
+      "netAmount": 201,
+      "paidAmount": 201,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-9599",
+      "labNumber": "RT-BK-9599",
+      "barcode": "26174867",
+      "patientName": "كوثر ابراهيم",
+      "phone": "01124485444",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)"
+      ],
+      "netAmount": 201,
+      "paidAmount": 201,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-7317",
+      "labNumber": "RT-BK-7317",
+      "barcode": "26504791",
+      "patientName": "شريف عادل",
+      "phone": "01124485444",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)"
+      ],
+      "netAmount": 201,
+      "paidAmount": 201,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-1432",
+      "labNumber": "RT-BK-1432",
+      "barcode": "26256865",
+      "patientName": "نورا سعيد حلمى",
+      "phone": "01228439288",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "السكر التراكمي (HbA1c HPLC)"
+      ],
+      "netAmount": 198,
+      "paidAmount": 198,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-4276",
+      "labNumber": "RT-BK-4276",
+      "barcode": "26511184",
+      "patientName": "زينب محمد حسن محمد",
+      "phone": "01004359187",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)"
+      ],
+      "netAmount": 201,
+      "paidAmount": 201,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-9242",
+      "labNumber": "RT-BK-9242",
+      "barcode": "26404534",
+      "patientName": "كريمة حامد قورة",
+      "phone": "01006222705",
+      "testsCount": 2,
+      "testsList": [
+        "السكر التراكمي (HbA1c HPLC)",
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)"
+      ],
+      "netAmount": 198,
+      "paidAmount": 198,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-5752",
+      "labNumber": "RT-BK-5752",
+      "barcode": "26695819",
+      "patientName": "محمد صلاح الدين عبدة",
+      "phone": "01004359187",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "السكر التراكمي (HbA1c HPLC)"
+      ],
+      "netAmount": 198,
+      "paidAmount": 198,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-5873",
+      "labNumber": "RT-BK-5873",
+      "barcode": "26202971",
+      "patientName": "منال محمود بكر",
+      "phone": "01127452964",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "السكر التراكمي (HbA1c HPLC)"
+      ],
+      "netAmount": 198,
+      "paidAmount": 198,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-8097",
+      "labNumber": "RT-BK-8097",
+      "barcode": "26299360",
+      "patientName": "امانى محمد ابراهيم",
+      "phone": "01277634220",
+      "testsCount": 12,
+      "testsList": [
+        "سكر الدم الصائم (FBS)",
+        "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)",
+        "هرمون الغدة الدرقية الحر (Free T4)",
+        "إنزيم كبد ALT / SGPT",
+        "إنزيم كبد AST / SGOT",
+        "كرياتينين بالدم (Serum Creatinine)",
+        "بولينا بالدم (Blood Urea / BUN)",
+        "حمض البوليك / يوريك أسيد (Serum Uric Acid)",
+        "دهون الدم الكاملة (Lipid Profile Panel)",
+        "السكر التراكمي (HbA1c HPLC)",
+        "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "فيتامين د النشط بالدم (Vitamin D 25-OH Total)"
+      ],
+      "netAmount": 575,
+      "paidAmount": 575,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    }
+  ]
+}

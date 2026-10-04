@@ -1,0 +1,534 @@
+[
+  {
+    "id": "rep-inc-1791127003337",
+    "reportNumber": "RT-BK-8226",
+    "invoiceNumber": "RT-BK-8226",
+    "barcode": "26795204",
+    "patientName": "رجاء حسن ابراهيم",
+    "age": 56,
+    "gender": "female",
+    "phone": "01013242777",
+    "referringDoctor": "زيارة منزلية - منى احمد (أخصائي كيمياء طبية)",
+    "tests": [
+      {
+        "id": "t-11",
+        "code": "CBC",
+        "nameAr": "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "nameEn": "Complete Blood Picture",
+        "price": 410,
+        "category": "Hematology",
+        "cost": 25,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 230,
+    "paidAmount": 230,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T15:16:43.337Z"
+  },
+  {
+    "id": "rep-inc-1791126867915",
+    "reportNumber": "RT-BK-5104",
+    "invoiceNumber": "RT-BK-5104",
+    "barcode": "26193270",
+    "patientName": "حبيبة مجدى احمد",
+    "age": 26,
+    "gender": "female",
+    "phone": "01148879943",
+    "referringDoctor": "زيارة منزلية - أ/ يوسف طارق المنشاوي (أخصائي سحب العينات والزيارات)",
+    "tests": [
+      {
+        "id": "t-11",
+        "code": "CBC",
+        "nameAr": "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "nameEn": "Complete Blood Picture",
+        "price": 410,
+        "category": "Hematology",
+        "cost": 25,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-29",
+        "code": "IRON_PROFILE",
+        "nameAr": "بروفايل الحديد الكامل (Iron + TIBC + Ferritin)",
+        "nameEn": "Complete Iron Profile",
+        "price": 900,
+        "category": "Iron Profile",
+        "cost": 75,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-42",
+        "code": "MAGNESIUM",
+        "nameAr": "الماغنيسيوم بالدم (Serum Magnesium)",
+        "nameEn": "Serum Magnesium",
+        "price": 412,
+        "category": "Kidney Function",
+        "cost": 18,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-39",
+        "code": "CALCIUM_TOTAL",
+        "nameAr": "الكالسيوم الكلي (Total Serum Calcium)",
+        "nameEn": "Total Calcium",
+        "price": 288,
+        "category": "Kidney Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-84",
+        "code": "VIT_D",
+        "nameAr": "فيتامين د النشط بالدم (Vitamin D 25-OH Total)",
+        "nameEn": "25-Hydroxy Vitamin D",
+        "price": 900,
+        "category": "Vitamins",
+        "cost": 75,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      }
+    ],
+    "netAmount": 953,
+    "paidAmount": 953,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T15:14:27.915Z"
+  },
+  {
+    "id": "rep-inc-1791125575336",
+    "reportNumber": "RT-BK-8594",
+    "invoiceNumber": "RT-BK-8594",
+    "barcode": "26454943",
+    "patientName": "أمال محمد حسب الدائم",
+    "age": 49,
+    "gender": "female",
+    "phone": "01277489467",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-60",
+        "code": "TSH",
+        "nameAr": "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)",
+        "nameEn": "Thyroid Stimulating Hormone",
+        "price": 411,
+        "category": "Endocrinology",
+        "cost": 30,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 201,
+    "paidAmount": 201,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:52:55.336Z"
+  },
+  {
+    "id": "rep-inc-1791125455998",
+    "reportNumber": "RT-BK-9599",
+    "invoiceNumber": "RT-BK-9599",
+    "barcode": "26174867",
+    "patientName": "كوثر ابراهيم",
+    "age": 33,
+    "gender": "female",
+    "phone": "01095920078",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-60",
+        "code": "TSH",
+        "nameAr": "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)",
+        "nameEn": "Thyroid Stimulating Hormone",
+        "price": 411,
+        "category": "Endocrinology",
+        "cost": 30,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 201,
+    "paidAmount": 201,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:50:55.998Z"
+  },
+  {
+    "id": "rep-inc-1791125273776",
+    "reportNumber": "RT-BK-7317",
+    "invoiceNumber": "RT-BK-7317",
+    "barcode": "26504791",
+    "patientName": "شريف عادل",
+    "age": 36,
+    "gender": "male",
+    "phone": "01095920078",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-60",
+        "code": "TSH",
+        "nameAr": "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)",
+        "nameEn": "Thyroid Stimulating Hormone",
+        "price": 411,
+        "category": "Endocrinology",
+        "cost": 30,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 201,
+    "paidAmount": 201,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:47:53.777Z"
+  },
+  {
+    "id": "rep-inc-1791124918128",
+    "reportNumber": "RT-BK-1432",
+    "invoiceNumber": "RT-BK-1432",
+    "barcode": "26256865",
+    "patientName": "نورا سعيد حلمى",
+    "age": 51,
+    "gender": "female",
+    "phone": "01228439288",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-4",
+        "code": "HBA1C",
+        "nameAr": "السكر التراكمي (HbA1c HPLC)",
+        "nameEn": "Glycated Hemoglobin HbA1c",
+        "price": 400,
+        "category": "Diabetes",
+        "cost": 35,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 198,
+    "paidAmount": 198,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:41:58.128Z"
+  },
+  {
+    "id": "rep-inc-1791124702671",
+    "reportNumber": "RT-BK-4276",
+    "invoiceNumber": "RT-BK-4276",
+    "barcode": "26511184",
+    "patientName": "زينب محمد حسن محمد",
+    "age": 45,
+    "gender": "female",
+    "phone": "01004359187",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-60",
+        "code": "TSH",
+        "nameAr": "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)",
+        "nameEn": "Thyroid Stimulating Hormone",
+        "price": 411,
+        "category": "Endocrinology",
+        "cost": 30,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 201,
+    "paidAmount": 201,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:38:22.671Z"
+  },
+  {
+    "id": "rep-inc-1791124084105",
+    "reportNumber": "RT-BK-5752",
+    "invoiceNumber": "RT-BK-5752",
+    "barcode": "26695819",
+    "patientName": "محمد صلاح الدين عبدة",
+    "age": 47,
+    "gender": "male",
+    "phone": "01004359187",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-4",
+        "code": "HBA1C",
+        "nameAr": "السكر التراكمي (HbA1c HPLC)",
+        "nameEn": "Glycated Hemoglobin HbA1c",
+        "price": 400,
+        "category": "Diabetes",
+        "cost": 35,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 198,
+    "paidAmount": 198,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:28:04.105Z"
+  },
+  {
+    "id": "rep-inc-1791123722634",
+    "reportNumber": "RT-BK-5873",
+    "invoiceNumber": "RT-BK-5873",
+    "barcode": "26202971",
+    "patientName": "منال محمود بكر",
+    "age": 52,
+    "gender": "female",
+    "phone": "01127452964",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-4",
+        "code": "HBA1C",
+        "nameAr": "السكر التراكمي (HbA1c HPLC)",
+        "nameEn": "Glycated Hemoglobin HbA1c",
+        "price": 400,
+        "category": "Diabetes",
+        "cost": 35,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 198,
+    "paidAmount": 198,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:22:02.634Z"
+  },
+  {
+    "id": "rep-inc-1791123384421",
+    "reportNumber": "RT-BK-8097",
+    "invoiceNumber": "RT-BK-8097",
+    "barcode": "26299360",
+    "patientName": "امانى محمد ابراهيم",
+    "age": 54,
+    "gender": "female",
+    "phone": "01277634220",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-1",
+        "code": "GLU_F",
+        "nameAr": "سكر الدم الصائم (FBS)",
+        "nameEn": "Fasting Blood Sugar",
+        "price": 88,
+        "category": "Diabetes",
+        "cost": 12,
+        "sampleType": "Fluoride Plasma",
+        "turnaroundTime": "فوري (ساعة)"
+      },
+      {
+        "id": "t-60",
+        "code": "TSH",
+        "nameAr": "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)",
+        "nameEn": "Thyroid Stimulating Hormone",
+        "price": 411,
+        "category": "Endocrinology",
+        "cost": 30,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-62",
+        "code": "FREE_T4",
+        "nameAr": "هرمون الغدة الدرقية الحر (Free T4)",
+        "nameEn": "Free Thyroxine FT4",
+        "price": 377,
+        "category": "Endocrinology",
+        "cost": 30,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-43",
+        "code": "ALT_SGPT",
+        "nameAr": "إنزيم كبد ALT / SGPT",
+        "nameEn": "Alanine Aminotransferase SGPT",
+        "price": 188,
+        "category": "Liver Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-44",
+        "code": "AST_SGOT",
+        "nameAr": "إنزيم كبد AST / SGOT",
+        "nameEn": "Aspartate Aminotransferase SGOT",
+        "price": 188,
+        "category": "Liver Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-31",
+        "code": "CREAT",
+        "nameAr": "كرياتينين بالدم (Serum Creatinine)",
+        "nameEn": "Serum Creatinine",
+        "price": 188,
+        "category": "Kidney Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-32",
+        "code": "UREA",
+        "nameAr": "بولينا بالدم (Blood Urea / BUN)",
+        "nameEn": "Blood Urea Nitrogen",
+        "price": 188,
+        "category": "Kidney Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-33",
+        "code": "URIC",
+        "nameAr": "حمض البوليك / يوريك أسيد (Serum Uric Acid)",
+        "nameEn": "Serum Uric Acid",
+        "price": 188,
+        "category": "Kidney Function",
+        "cost": 15,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-55",
+        "code": "LIPID_PROFILE",
+        "nameAr": "دهون الدم الكاملة (Lipid Profile Panel)",
+        "nameEn": "Complete Lipid Profile",
+        "price": 900,
+        "category": "Lipids",
+        "cost": 45,
+        "sampleType": "Serum (12h Fasting)",
+        "turnaroundTime": "3 ساعات"
+      },
+      {
+        "id": "t-4",
+        "code": "HBA1C",
+        "nameAr": "السكر التراكمي (HbA1c HPLC)",
+        "nameEn": "Glycated Hemoglobin HbA1c",
+        "price": 400,
+        "category": "Diabetes",
+        "cost": 35,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-11",
+        "code": "CBC",
+        "nameAr": "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "nameEn": "Complete Blood Picture",
+        "price": 410,
+        "category": "Hematology",
+        "cost": 25,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-84",
+        "code": "VIT_D",
+        "nameAr": "فيتامين د النشط بالدم (Vitamin D 25-OH Total)",
+        "nameEn": "25-Hydroxy Vitamin D",
+        "price": 900,
+        "category": "Vitamins",
+        "cost": 75,
+        "sampleType": "Serum",
+        "turnaroundTime": "نفس اليوم"
+      }
+    ],
+    "netAmount": 575,
+    "paidAmount": 575,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:16:24.421Z"
+  }
+]
