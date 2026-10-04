@@ -1,5 +1,45 @@
 [
   {
+    "id": "rep-inc-1791124918128",
+    "reportNumber": "RT-BK-1432",
+    "invoiceNumber": "RT-BK-1432",
+    "barcode": "26256865",
+    "patientName": "نورا سعيد حلمى",
+    "age": 51,
+    "gender": "female",
+    "phone": "01228439288",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-4",
+        "code": "HBA1C",
+        "nameAr": "السكر التراكمي (HbA1c HPLC)",
+        "nameEn": "Glycated Hemoglobin HbA1c",
+        "price": 400,
+        "category": "Diabetes",
+        "cost": 35,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 198,
+    "paidAmount": 198,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:41:58.128Z"
+  },
+  {
     "id": "rep-inc-1791124702671",
     "reportNumber": "RT-BK-4276",
     "invoiceNumber": "RT-BK-4276",
