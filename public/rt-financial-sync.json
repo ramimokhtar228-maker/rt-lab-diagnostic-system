@@ -1,15 +1,47 @@
 {
   "system": "RT Lab Financial & Accounting ERP",
-  "syncedAt": "2026-10-04T14:22:05.347Z",
+  "syncedAt": "2026-10-04T14:35:38.663Z",
   "summary": {
-    "totalRevenue": 553,
+    "totalRevenue": 971,
     "totalExpenses": 0,
-    "netProfit": 553,
-    "ceoShare": 248.85,
-    "labShare": 248.85,
-    "casesCount": 1
+    "netProfit": 971,
+    "ceoShare": 436.95,
+    "labShare": 436.95,
+    "casesCount": 3
   },
   "clearedInvoices": [
+    {
+      "invoiceNumber": "RT-BK-5752",
+      "labNumber": "RT-BK-5752",
+      "barcode": "26695819",
+      "patientName": "محمد صلاح الدين عبدة",
+      "phone": "01004359187",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "السكر التراكمي (HbA1c HPLC)"
+      ],
+      "netAmount": 198,
+      "paidAmount": 198,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-5873",
+      "labNumber": "RT-BK-5873",
+      "barcode": "26202971",
+      "patientName": "منال محمود بكر",
+      "phone": "01127452964",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "السكر التراكمي (HbA1c HPLC)"
+      ],
+      "netAmount": 198,
+      "paidAmount": 198,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
     {
       "invoiceNumber": "RT-BK-8097",
       "labNumber": "RT-BK-8097",
@@ -32,9 +64,9 @@
         "فيتامين د النشط بالدم (Vitamin D 25-OH Total)"
       ],
       "netAmount": 575,
-      "paidAmount": 553,
-      "paymentStatus": "partial",
-      "financialClearance": "PAYMENT_PENDING"
+      "paidAmount": 575,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
     }
   ]
 }
