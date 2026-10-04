@@ -1,15 +1,30 @@
 {
   "system": "RT Lab Financial & Accounting ERP",
-  "syncedAt": "2026-10-04T14:59:38.608Z",
+  "syncedAt": "2026-10-04T15:05:27.818Z",
   "summary": {
-    "totalRevenue": 2171,
+    "totalRevenue": 2491,
     "totalExpenses": 0,
-    "netProfit": 2171,
-    "ceoShare": 976.95,
-    "labShare": 976.95,
-    "casesCount": 9
+    "netProfit": 2491,
+    "ceoShare": 1120.95,
+    "labShare": 1120.95,
+    "casesCount": 10
   },
   "clearedInvoices": [
+    {
+      "invoiceNumber": "RT-BK-9820",
+      "labNumber": "RT-BK-9820",
+      "barcode": "26438292",
+      "patientName": "هويدا الهادي يحي",
+      "phone": "01277489467",
+      "testsCount": 1,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)"
+      ],
+      "netAmount": 200,
+      "paidAmount": 320,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
     {
       "invoiceNumber": "RT-BK-8594",
       "labNumber": "RT-BK-8594",
