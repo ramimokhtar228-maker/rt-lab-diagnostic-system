@@ -53,11 +53,13 @@ export const Header: React.FC<HeaderProps> = ({
       if (saved) return JSON.parse(saved);
     } catch {}
     return {
-      hotline: '01001234567 / 02-23658900',
-      emergencyPhone: '01001234567',
-      branchesSummary: 'الفرع الرئيسي',
-      cairoAddress: 'المقر الرئيسي للمعمل',
-      gizaAddress: '',
+      hotline: '01012345678 / 0244667788',
+      emergencyPhone: '01012345678',
+      phone: '0244667788',
+      branchesSummary: 'الفرع الرئيسي - بهتيم شبرا الخيمة',
+      mainAddress: 'ميدان بهتيم برج صيدليه العزبى الدور الثالث امام الأسانسير شبرا الخيمه',
+      cairoAddress: 'ميدان بهتيم برج صيدليه العزبى الدور الثالث امام الأسانسير شبرا الخيمه',
+      gizaAddress: 'شارع القصر العيني أمام مستشفى قصر العيني الفرنساوي - القاهرة',
       alexAddress: ''
     };
   });
@@ -74,13 +76,28 @@ export const Header: React.FC<HeaderProps> = ({
     const updated = {
       hotline: editHotline,
       emergencyPhone: editEmergency,
+      phone: '0244667788',
       branchesSummary: editBranchesSummary,
+      mainAddress: editCairo,
       cairoAddress: editCairo,
       gizaAddress: editGiza,
       alexAddress: editAlex
     };
     setContactInfo(updated);
-    localStorage.setItem('rt_lab_contacts', JSON.stringify(updated));
+    try {
+      localStorage.setItem('rt_lab_contacts', JSON.stringify(updated));
+      const existingInfoStr = localStorage.getItem('rt_lab_info_v2');
+      const existingInfo = existingInfoStr ? JSON.parse(existingInfoStr) : {};
+      const newLabInfo = {
+        ...existingInfo,
+        labNameAr: "معامل RT للتحاليل الطبية والتشخيصية",
+        hotline: editHotline,
+        whatsapp: editEmergency,
+        phone: '0244667788',
+        mainAddress: editCairo
+      };
+      localStorage.setItem('rt_lab_info_v2', JSON.stringify(newLabInfo));
+    } catch {}
     setIsBranchesModalOpen(false);
   };
 

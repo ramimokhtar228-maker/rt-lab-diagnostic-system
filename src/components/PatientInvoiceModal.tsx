@@ -1,3 +1,4 @@
+import { tafqeetEGP } from '../utils/tafqeet';
 import React, { useRef, useState } from 'react';
 import { LabReport } from '../types/lab';
 import { RTLogo } from './RTLogo';
@@ -37,6 +38,21 @@ export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
   const invoiceContainerRef = useRef<HTMLDivElement>(null);
 
   if (!isOpen || !report) return null;
+
+  // Load dynamic lab info and contact details
+  const labInfo = (() => {
+    try {
+      const saved = localStorage.getItem('rt_lab_info_v2');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {
+      labNameAr: "معامل RT للتحاليل الطبية والتشخيصية",
+      hotline: "01012345678",
+      phone: "0244667788",
+      whatsapp: "01012345678",
+      mainAddress: "ميدان بهتيم برج صيدليه العزبى الدور الثالث امام الأسانسير شبرا الخيمه"
+    };
+  })();
 
   const p = report.patient;
   const invoiceNumber = p.clinicalHistory?.match(/فاتورة\s*(?:مالية)?\s*رقم\s*([\w\d-]+)/i)?.[1] 
@@ -277,7 +293,7 @@ export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
           <h1 style="margin: 0; font-size: 19px; font-weight: 900; color: #800000;">معامل RT للتحاليل التشخيصية</h1>
           <h2 style="margin: 2px 0 0 0; font-size: 13px; font-weight: 700; color: #0f172a;">معامل د. رامي مختار</h2>
           <p style="margin: 2px 0 0 0; font-size: 11px; font-weight: 600; color: #800000;">أطباء الباثولوجيا الإكلينيكية والكيميائية - طب قصر العيني</p>
-          <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;">المقر الرئيسي: ميدان بهتيم برج صيدلية العزبي الدور الثالث امام الأسانسير شبرا الخيمة | هاتف: 01012345678</p>
+          <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;">المقر الرئيسي: ${labInfo.mainAddress} | الخط الساخن: ${labInfo.hotline}</p>
         </div>
 
         <div style="text-align: center; padding: 0 16px;">
@@ -404,6 +420,10 @@ export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
               ${remainingAmount > 0 ? `${remainingAmount.toFixed(2)} ج.م` : 'مسدد بالكامل ✓'}
             </span>
           </div>
+          <!-- Tafqeet -->
+          <div style="margin-top: 8px; padding-top: 6px; border-top: 1px dashed #cbd5e1; font-size: 11px; font-weight: bold; color: #800000;">
+            المبلغ كتابةً: ${tafqeetEGP(netTotal)}
+          </div>
         </div>
       </div>
     </div>
@@ -432,7 +452,7 @@ export const PatientInvoiceModal: React.FC<PatientInvoiceModalProps> = ({
       </div>
 
       <div style="text-align: center; font-size: 9px; color: #94a3b8; margin-top: 10px; padding-top: 4px; border-top: 1px solid #f1f5f9;">
-        فاتورة إلكترونية معتمدة صادرة آلياً من منظومة RT LAB للتشخيص الطبي | تليفون الشكاوى والمقترحات: 01001234567
+        فاتورة إلكترونية معتمدة صادرة آلياً من منظومة RT LAB للتشخيص الطبي | تليفون الشكاوى والمقترحات: ${labInfo.hotline}
       </div>
     </div>
   </div>
@@ -526,7 +546,7 @@ ${discount > 0 ? `- الخصم: ${discount} ج.م\n` : ''}- الصافي الم�
 - المسدد نقداً: ${paidAmount} ج.م
 - المتبقي: ${remainingAmount > 0 ? `${remainingAmount} ج.م` : 'مسدد بالكامل ✓'}
 
-📞 الخط الساخن: 01001234567
+📞 الخط الساخن: ${labInfo.hotline}
 فروعنا: القاهرة (قصر العيني والمنيل) - الجيزة (الدقي) - الإسكندرية (سموحة)
 نتمنى لكم دوام الصحة والعافية!`;
 
@@ -668,7 +688,7 @@ ${discount > 0 ? `- الخصم: ${discount} ج.م\n` : ''}- الصافي الم�
                   <h1 className="text-lg font-black text-rose-950">معامل RT للتحاليل التشخيصية</h1>
                   <h2 className="text-xs font-bold text-slate-900">معامل د. رامي مختار</h2>
                   <p className="text-[11px] font-semibold text-rose-900">أطباء الباثولوجيا الإكلينيكية والكيميائية - طب قصر العيني</p>
-                  <p className="text-[10px] text-slate-500">الخط الساخن: 01001234567 | القاهرة · الجيزة · الإسكندرية</p>
+                  <p className="text-[10px] text-slate-500">الخط الساخن: ${labInfo.hotline} | القاهرة · الجيزة · الإسكندرية</p>
                 </div>
 
                 <div className="text-center px-4">
@@ -805,6 +825,12 @@ ${discount > 0 ? `- الخصم: ${discount} ج.م\n` : ''}- الصافي الم�
                       {remainingAmount > 0 ? `${remainingAmount.toFixed(2)} ج.م` : 'مسدد بالكامل ✓'}
                     </span>
                   </div>
+
+                  {/* Tafqeet in Arabic Words */}
+                  <div className="pt-2 border-t border-slate-200 text-[11px] font-bold text-rose-950 bg-amber-50/70 p-2 rounded-lg border border-amber-200">
+                    <span className="text-slate-500 font-normal">المبلغ كتابةً: </span>
+                    <span>{tafqeetEGP(netTotal)}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -833,7 +859,7 @@ ${discount > 0 ? `- الخصم: ${discount} ج.م\n` : ''}- الصافي الم�
               </div>
 
               <div className="text-center text-[9px] text-slate-400 mt-4 pt-2 border-t border-slate-100">
-                فاتورة فحص إلكترونية معتمدة - معامل RT للتحاليل التشخيصية · الخط الساخن: 01001234567
+                فاتورة فحص إلكترونية معتمدة - معامل RT للتحاليل التشخيصية · الخط الساخن: ${labInfo.hotline}
               </div>
             </div>
           </div>

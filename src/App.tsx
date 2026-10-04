@@ -1006,6 +1006,7 @@ export default function App() {
                 loyaltyProfiles={loyaltyProfiles}
                 onUpdateProfiles={setLoyaltyProfiles}
                 reports={reports}
+                onUpdateReports={setReports}
               />
             )}
 
