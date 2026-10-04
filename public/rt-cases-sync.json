@@ -1,5 +1,45 @@
 [
   {
+    "id": "rep-inc-1791125575336",
+    "reportNumber": "RT-BK-8594",
+    "invoiceNumber": "RT-BK-8594",
+    "barcode": "26454943",
+    "patientName": "أمال محمد",
+    "age": 49,
+    "gender": "female",
+    "phone": "01013242777",
+    "referringDoctor": "فحص بفرع (معامل RT للتحاليل التشخيصية)",
+    "tests": [
+      {
+        "id": "t-133",
+        "code": "PKG_VIP_RT",
+        "nameAr": "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "nameEn": "RT Lab Royal Executive VIP Package",
+        "price": 199,
+        "category": "Packages",
+        "cost": 199,
+        "sampleType": "Full Set (Blood & Urine)",
+        "turnaroundTime": "نفس اليوم"
+      },
+      {
+        "id": "t-60",
+        "code": "TSH",
+        "nameAr": "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)",
+        "nameEn": "Thyroid Stimulating Hormone",
+        "price": 411,
+        "category": "Endocrinology",
+        "cost": 30,
+        "sampleType": "Serum",
+        "turnaroundTime": "ساعتين"
+      }
+    ],
+    "netAmount": 201,
+    "paidAmount": 201,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T14:52:55.336Z"
+  },
+  {
     "id": "rep-inc-1791125455998",
     "reportNumber": "RT-BK-9599",
     "invoiceNumber": "RT-BK-9599",
