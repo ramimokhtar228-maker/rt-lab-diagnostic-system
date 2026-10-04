@@ -1,15 +1,30 @@
 {
   "system": "RT Lab Financial & Accounting ERP",
-  "syncedAt": "2026-10-04T15:16:47.175Z",
+  "syncedAt": "2026-10-04T20:18:49.006Z",
   "summary": {
-    "totalRevenue": 4031,
+    "totalRevenue": 4261,
     "totalExpenses": 0,
-    "netProfit": 4031,
-    "ceoShare": 1813.95,
-    "labShare": 1813.95,
-    "casesCount": 12
+    "netProfit": 4261,
+    "ceoShare": 1917.45,
+    "labShare": 1917.45,
+    "casesCount": 13
   },
   "clearedInvoices": [
+    {
+      "invoiceNumber": "RT-BK-8226",
+      "labNumber": "RT-BK-8226",
+      "barcode": "26795204",
+      "patientName": "رجاء حسن ابراهيم",
+      "phone": "01013242777",
+      "testsCount": 1,
+      "testsList": [
+        "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)"
+      ],
+      "netAmount": 230,
+      "paidAmount": 230,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
     {
       "invoiceNumber": "RT-BK-5104",
       "labNumber": "RT-BK-5104",
@@ -66,8 +81,8 @@
       "invoiceNumber": "RT-BK-8594",
       "labNumber": "RT-BK-8594",
       "barcode": "26454943",
-      "patientName": "أمال محمد",
-      "phone": "01013242777",
+      "patientName": "أمال محمد حسب الدائم",
+      "phone": "01277489467",
       "testsCount": 2,
       "testsList": [
         "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
@@ -83,7 +98,7 @@
       "labNumber": "RT-BK-9599",
       "barcode": "26174867",
       "patientName": "كوثر ابراهيم",
-      "phone": "01124485444",
+      "phone": "01095920078",
       "testsCount": 2,
       "testsList": [
         "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
@@ -99,7 +114,7 @@
       "labNumber": "RT-BK-7317",
       "barcode": "26504791",
       "patientName": "شريف عادل",
-      "phone": "01124485444",
+      "phone": "01095920078",
       "testsCount": 2,
       "testsList": [
         "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
