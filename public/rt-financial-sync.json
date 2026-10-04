@@ -1,15 +1,52 @@
 {
   "system": "RT Lab Financial & Accounting ERP",
-  "syncedAt": "2026-10-04T15:05:27.818Z",
+  "syncedAt": "2026-10-04T15:16:47.175Z",
   "summary": {
-    "totalRevenue": 2491,
+    "totalRevenue": 4031,
     "totalExpenses": 0,
-    "netProfit": 2491,
-    "ceoShare": 1120.95,
-    "labShare": 1120.95,
-    "casesCount": 10
+    "netProfit": 4031,
+    "ceoShare": 1813.95,
+    "labShare": 1813.95,
+    "casesCount": 12
   },
   "clearedInvoices": [
+    {
+      "invoiceNumber": "RT-BK-5104",
+      "labNumber": "RT-BK-5104",
+      "barcode": "26193270",
+      "patientName": "حبيبة مجدى احمد",
+      "phone": "01148879943",
+      "testsCount": 5,
+      "testsList": [
+        "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "بروفايل الحديد الكامل (Iron + TIBC + Ferritin)",
+        "الماغنيسيوم بالدم (Serum Magnesium)",
+        "الكالسيوم الكلي (Total Serum Calcium)",
+        "فيتامين د النشط بالدم (Vitamin D 25-OH Total)"
+      ],
+      "netAmount": 953,
+      "paidAmount": 953,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-1493",
+      "labNumber": "RT-BK-1493",
+      "barcode": "26853906",
+      "patientName": "مريم عوض الكريم علي",
+      "phone": "01555108312",
+      "testsCount": 4,
+      "testsList": [
+        "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "الكالسيوم المتأين (Ionized Calcium)",
+        "الكالسيوم الكلي (Total Serum Calcium)",
+        "السكر التراكمي (HbA1c HPLC)"
+      ],
+      "netAmount": 587,
+      "paidAmount": 587,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
     {
       "invoiceNumber": "RT-BK-9820",
       "labNumber": "RT-BK-9820",
