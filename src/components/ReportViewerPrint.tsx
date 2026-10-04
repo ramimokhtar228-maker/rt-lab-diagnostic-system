@@ -19,19 +19,26 @@ import {
   MapPin,
   Download,
   Loader2,
-  Receipt
+  Receipt,
+  Settings,
+  Microscope,
+  Sparkles
 } from 'lucide-react';
 
 interface ReportViewerPrintProps {
   report: LabReport;
   onBackToEdit: () => void;
   onOpenInvoice?: () => void;
+  onOpenLabInfoModal?: () => void;
+  onOpenIllustrationsModal?: (profileId: string) => void;
 }
 
 export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
   report,
   onBackToEdit,
-  onOpenInvoice
+  onOpenInvoice,
+  onOpenLabInfoModal,
+  onOpenIllustrationsModal
 }) => {
   const p = report.patient;
   const totalPages = report.profiles.length;
@@ -108,6 +115,18 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>تصدير PowerPoint</span>
           </button>
+
+          {/* Lab Info & Signatures Edit */}
+          {onOpenLabInfoModal && (
+            <button
+              onClick={onOpenLabInfoModal}
+              className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 text-xs font-bold rounded-lg shadow-sm transition-all"
+              title="تعديل بيانات المعمل والإمضاءات والهواتف والعنوان"
+            >
+              <Settings className="w-3.5 h-3.5 text-rose-400" />
+              <span>بيانات المعمل والإمضاءات</span>
+            </button>
+          )}
 
           {/* Invoice Button */}
           {onOpenInvoice && (
@@ -427,7 +446,7 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
 
                 {/* Profile Interpretation & Comments (Interpretation and comment) */}
                 {(profile.interpretation || profile.comment) && (
-                  <div className="bg-slate-50/80 border border-slate-200 rounded-lg p-3 mb-4 space-y-1 text-xs">
+                  <div className="bg-slate-50/80 border border-slate-200 rounded-lg p-3 mb-3 space-y-1 text-xs">
                     {profile.interpretation && (
                       <div>
                         <span className="font-bold text-rose-950 ml-1">Interpretation:</span>
@@ -441,6 +460,103 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
                       </div>
                     )}
                   </div>
+                )}
+
+                {/* CBC Peripheral Blood Film Findings Card */}
+                {profile.bloodFilmFindings && (
+                  <div className="bg-rose-50/40 border border-rose-200/90 rounded-lg p-2.5 mb-3 text-xs avoid-break-inside">
+                    <div className="flex items-center justify-between pb-1 border-b border-rose-200/70 mb-1.5">
+                      <span className="font-bold text-rose-950 flex items-center gap-1.5">
+                        <Microscope className="w-3.5 h-3.5 text-rose-800" />
+                        <span>فحص فيلم وشريحة الدم المجهري (Peripheral Blood Film & Morphology)</span>
+                      </span>
+                      {profile.bloodFilmFindings.reticulocytesPercent && (
+                        <span className="text-[10px] font-bold text-rose-900 bg-white px-2 py-0.5 rounded border border-rose-200">
+                          الخلايا الشبكية (Reticulocytes): {profile.bloodFilmFindings.reticulocytesPercent}
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10.5px]">
+                      <div className="bg-white/90 p-1.5 rounded border border-rose-100">
+                        <span className="font-bold text-rose-900 block">RBCs Morphology:</span>
+                        <span className="text-slate-700">{profile.bloodFilmFindings.rbcMorphology || 'Normocytic normochromic'}</span>
+                      </div>
+                      <div className="bg-white/90 p-1.5 rounded border border-rose-100">
+                        <span className="font-bold text-rose-900 block">WBCs Morphology:</span>
+                        <span className="text-slate-700">{profile.bloodFilmFindings.wbcMorphology || 'Normal mature cells'}</span>
+                      </div>
+                      <div className="bg-white/90 p-1.5 rounded border border-rose-100">
+                        <span className="font-bold text-rose-900 block">Platelets Morphology:</span>
+                        <span className="text-slate-700">{profile.bloodFilmFindings.plateletMorphology || 'Adequate, normal distribution'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Attached Disease Illustration or Pathological Infogram */}
+                {profile.attachedIllustration ? (
+                  <div className="bg-white border-2 border-slate-200 rounded-lg p-2.5 mb-3 text-xs avoid-break-inside shadow-xs">
+                    <div className="flex items-start gap-3">
+                      {profile.attachedIllustration.imageUrl && (
+                        <div className="w-24 h-16 shrink-0 rounded overflow-hidden border border-slate-300 bg-slate-100 flex items-center justify-center">
+                          <img
+                            src={profile.attachedIllustration.imageUrl}
+                            alt={profile.attachedIllustration.titleEn}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-rose-950 text-xs">
+                              {profile.attachedIllustration.titleAr}
+                            </span>
+                            <span className="text-[10px] text-slate-500 font-serif italic">
+                              ({profile.attachedIllustration.titleEn})
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[9.5px] px-2 py-0.5 rounded bg-rose-100 text-rose-900 font-bold">
+                              {profile.attachedIllustration.category}
+                            </span>
+                            {onOpenIllustrationsModal && (
+                              <button
+                                onClick={() => onOpenIllustrationsModal(profile.id)}
+                                className="no-print text-[10px] text-rose-700 hover:text-rose-900 font-bold underline px-1"
+                              >
+                                تغيير الرسم
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-[10.5px] text-slate-700 leading-snug">
+                          {profile.attachedIllustration.descriptionAr}
+                        </p>
+                        {profile.attachedIllustration.diagnosticCriteria && profile.attachedIllustration.diagnosticCriteria.length > 0 && (
+                          <div className="flex flex-wrap gap-1 pt-0.5">
+                            {profile.attachedIllustration.diagnosticCriteria.slice(0, 3).map((crit: string, cIdx: number) => (
+                              <span key={cIdx} className="text-[9px] bg-slate-100 text-slate-700 px-1 py-0.5 rounded border border-slate-200">
+                                ✓ {crit}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  onOpenIllustrationsModal && (
+                    <div className="no-print mb-3 text-center">
+                      <button
+                        onClick={() => onOpenIllustrationsModal(profile.id)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-200 transition"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-rose-600" />
+                        <span>إرفاق رسم مرضي / شريحة مجهرية لهذا البروفايل</span>
+                      </button>
+                    </div>
+                  )
                 )}
               </div>
 

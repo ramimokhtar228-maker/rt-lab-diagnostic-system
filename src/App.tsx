@@ -1,3 +1,7 @@
+import { runGlobalDataUpgrade } from "./utils/upgradeSavedData";
+import { DiseaseIllustrationsModal } from "./components/DiseaseIllustrationsModal";
+import { LabInfoEditModal } from "./components/LabInfoEditModal";
+import { INITIAL_LAB_INFO } from "./data/labCatalog";
 import { getLocalFinancialPendingReports, fetchCloudOrdersFromGitHub, convertOrderToLabReport } from "./utils/financialSync";
 import React, { useState, useEffect } from 'react';
 import { 
@@ -159,6 +163,21 @@ export default function App() {
   const [isManualTestModalOpen, setIsManualTestModalOpen] = useState(false);
   const [invoiceModalReport, setInvoiceModalReport] = useState<LabReport | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isIllustrationsModalOpen, setIsIllustrationsModalOpen] = useState(false);
+  const [activeProfileForIllustration, setActiveProfileForIllustration] = useState<string | null>(null);
+  const [isLabInfoModalOpen, setIsLabInfoModalOpen] = useState(false);
+  const [labInfo, setLabInfo] = useState(() => INITIAL_LAB_INFO);
+
+  useEffect(() => {
+    const res = runGlobalDataUpgrade();
+    if (res.upgradedReportsCount > 0) {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) setReports(JSON.parse(saved));
+      } catch {}
+    }
+  }, []);
+
 
   // Sync to local storage
   useEffect(() => {
@@ -934,9 +953,18 @@ export default function App() {
         {/* VIEW 1: PRINT & PDF VIEWER (Each profile on an independent page) */}
         {viewMode === 'print' && currentReport ? (
           <ReportViewerPrint
-            report={currentReport}
-            onBackToEdit={() => setViewMode('editor')}
+              report={currentReport}
+              onBackToEdit={() => setViewMode("editor")}
+              onOpenLabInfoModal={() => setIsLabInfoModalOpen(true)}
+              onOpenIllustrationsModal={(pId) => {
+                setActiveProfileForIllustration(pId);
+                setIsIllustrationsModalOpen(true);
+              }}
             onOpenInvoice={() => setInvoiceModalReport(currentReport)}
+                onOpenIllustrationsModal={(pId) => {
+                  setActiveProfileForIllustration(pId);
+                  setIsIllustrationsModalOpen(true);
+                }}
           />
         ) : (
           <>
@@ -1153,6 +1181,51 @@ export default function App() {
           }}
         />
       )}
+
+      
+      {/* Disease Illustrations Modal */}
+      <DiseaseIllustrationsModal
+        isOpen={isIllustrationsModalOpen}
+        onClose={() => {
+          setIsIllustrationsModalOpen(false);
+          setActiveProfileForIllustration(null);
+        }}
+        selectedIllustrationId={
+          currentReport?.profiles.find(p => p.id === activeProfileForIllustration)?.attachedIllustration?.id
+        }
+        onSelectIllustration={(illustration) => {
+          if (!currentReport) return;
+          const targetId = activeProfileForIllustration || currentReport.profiles[0]?.id;
+          const nextProfiles = currentReport.profiles.map(p => {
+            if (p.id === targetId) {
+              return { ...p, attachedIllustration: illustration };
+            }
+            return p;
+          });
+          handleUpdateCurrentReport({
+            ...currentReport,
+            profiles: nextProfiles,
+            updatedAt: new Date().toISOString()
+          });
+          showToast("تم إرفاق الرسم التوضيحي للتقرير بنجاح!");
+        }}
+      />
+
+      {/* Lab Info & Signatures Edit Modal */}
+      <LabInfoEditModal
+        isOpen={isLabInfoModalOpen}
+        onClose={() => setIsLabInfoModalOpen(false)}
+        labInfo={labInfo}
+        onUpdateLabInfo={setLabInfo}
+        staffSignatures={defaultStaff}
+        onUpdateStaffSignatures={(newSigs) => {
+          setDefaultStaff(newSigs);
+          if (currentReport) {
+            handleUpdateCurrentReport({ ...currentReport, staff: newSigs });
+          }
+          showToast("تم تحديث بيانات المعمل والإمضاءات على كافة التقارير!");
+        }}
+      />
 
       {/* Offline Connectivity State */}
       <OfflineIndicator />

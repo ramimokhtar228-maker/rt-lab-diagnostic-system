@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LabReport, TestProfile, TestParameter, LabStaffSignatures, ReportStatus } from '../types/lab';
 import { calculateFlag, formatReferenceDisplay, runAutomaticCalculations } from '../utils/calculator';
 import { COMMON_INTERPRETATIONS, STAFF_OPTIONS } from '../data/labCatalog';
+import { suggestHematologicalIllustration } from '../data/diseaseIllustrations';
 import { ColouredRangeChart } from './ColouredRangeChart';
 import { FlagBadge } from './FlagBadge';
 import { QuickResultPicker } from './QuickResultPicker';
@@ -26,7 +27,8 @@ import {
   UserCheck,
   Calculator,
   AlertCircle,
-  Receipt
+  Receipt,
+  Microscope
 } from 'lucide-react';
 
 interface ReportEditorProps {
@@ -39,6 +41,7 @@ interface ReportEditorProps {
   onOpenCatalog: () => void;
   onOpenManualTest: () => void;
   onOpenInvoice?: () => void;
+  onOpenIllustrationsModal?: (profileId: string) => void;
 }
 
 export const ReportEditor: React.FC<ReportEditorProps> = ({
@@ -50,7 +53,8 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
   onExportPPTX,
   onOpenCatalog,
   onOpenManualTest,
-  onOpenInvoice
+  onOpenInvoice,
+  onOpenIllustrationsModal
 }) => {
   const [activeProfileTab, setActiveProfileTab] = useState<string>(report.profiles[0]?.id || '');
   const [modalParamToEdit, setModalParamToEdit] = useState<TestParameter | null>(null);
@@ -401,6 +405,42 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
                   <span>إضافة تحليل هنا</span>
                 </button>
 
+                {/* Attach Disease Illustration Button */}
+                {onOpenIllustrationsModal && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenIllustrationsModal(currentProfile.id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white rounded-lg font-bold shadow-xs active:scale-95 transition-all"
+                    title="إرفاق رسم توضيحي لأمراض الدم أو إنفوجرام للأعضاء والتحاليل"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+                    <span>🎨 أطلس الرسومات المرضية</span>
+                  </button>
+                )}
+
+                {/* Auto Suggest Hematology Illustration for CBC */}
+                {(currentProfile.profileCode === 'CBC' || currentProfile.titleEn.toLowerCase().includes('blood')) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const { updatedParams } = runAutomaticCalculations(currentProfile.parameters, {
+                        age: report.patient.age,
+                        gender: report.patient.gender
+                      });
+                      const suggested = suggestHematologicalIllustration(updatedParams);
+                      handleUpdateProfile(currentProfile.id, {
+                        attachedIllustration: suggested,
+                        parameters: updatedParams
+                      });
+                      alert(`تم اقتراح وربط شريحة مرضية تلقائياً: ${suggested.titleAr} (${suggested.titleEn})`);
+                    }}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-bold shadow-xs transition-all text-xs"
+                    title="فحص مؤشرات الدم واقتراح شريحة مجهرية مطابقة لنتائج المريض آلياً"
+                  >
+                    <span>💡 اقتراح شريحة آلية</span>
+                  </button>
+                )}
+
                 {/* Move Profile Up/Down */}
                 <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
                   <button
@@ -443,6 +483,133 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
                   <span>تم حساب وتحديث المعادلات بنجاح: <strong>{lastCalculatedInfo.join('، ')}</strong></span>
                 </div>
                 <button onClick={() => setLastCalculatedInfo([])} className="text-blue-500 hover:text-blue-800 text-[11px]">✕</button>
+              </div>
+            )}
+
+            {/* Attached Disease Illustration / Infogram Banner */}
+            {currentProfile.attachedIllustration && (
+              <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3 flex items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-3">
+                  {currentProfile.attachedIllustration.imageUrl && (
+                    <img
+                      src={currentProfile.attachedIllustration.imageUrl}
+                      alt={currentProfile.attachedIllustration.titleEn}
+                      className="w-16 h-12 rounded object-cover border border-amber-300 shadow-2xs"
+                    />
+                  )}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-amber-950 text-sm">
+                        {currentProfile.attachedIllustration.titleAr}
+                      </span>
+                      <span className="text-slate-500 font-serif italic text-xs">
+                        ({currentProfile.attachedIllustration.titleEn})
+                      </span>
+                      <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">
+                        {currentProfile.attachedIllustration.category}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-700 mt-0.5">
+                      {currentProfile.attachedIllustration.descriptionAr}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {onOpenIllustrationsModal && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenIllustrationsModal(currentProfile.id)}
+                      className="px-2.5 py-1 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold transition"
+                    >
+                      تغيير الرسم
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleUpdateProfile(currentProfile.id, { attachedIllustration: undefined })}
+                    className="p-1 text-red-600 hover:text-red-800 text-xs font-bold"
+                    title="إزالة الرسم من التقرير"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* CBC Peripheral Blood Film Findings Editor */}
+            {(currentProfile.profileCode === 'CBC' || currentProfile.titleEn.toLowerCase().includes('blood')) && (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2 text-xs">
+                <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
+                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <Microscope className="w-4 h-4 text-rose-700" />
+                    <span>فحص شريحة وفيلم الدم المجهري (Peripheral Blood Film & Morphology)</span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-500 text-[11px]">الخلايا الشبكية (Reticulocytes %):</span>
+                    <input
+                      type="text"
+                      value={currentProfile.bloodFilmFindings?.reticulocytesPercent || ''}
+                      onChange={(e) => {
+                        const cur = currentProfile.bloodFilmFindings || { rbcMorphology: '', wbcMorphology: '', plateletMorphology: '' };
+                        handleUpdateProfile(currentProfile.id, {
+                          bloodFilmFindings: { ...cur, reticulocytesPercent: e.target.value }
+                        });
+                      }}
+                      placeholder="e.g. 0.5 - 2.0 %"
+                      className="px-2 py-0.5 text-xs bg-white border border-slate-300 rounded font-semibold w-24 text-center"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">فحص كرات الدم الحمراء (RBCs Morphology):</label>
+                    <input
+                      type="text"
+                      value={currentProfile.bloodFilmFindings?.rbcMorphology || ''}
+                      onChange={(e) => {
+                        const cur = currentProfile.bloodFilmFindings || { rbcMorphology: '', wbcMorphology: '', plateletMorphology: '' };
+                        handleUpdateProfile(currentProfile.id, {
+                          bloodFilmFindings: { ...cur, rbcMorphology: e.target.value }
+                        });
+                      }}
+                      placeholder="Normocytic normochromic, no anisocytosis"
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">فحص كرات الدم البيضاء (WBCs Morphology):</label>
+                    <input
+                      type="text"
+                      value={currentProfile.bloodFilmFindings?.wbcMorphology || ''}
+                      onChange={(e) => {
+                        const cur = currentProfile.bloodFilmFindings || { rbcMorphology: '', wbcMorphology: '', plateletMorphology: '' };
+                        handleUpdateProfile(currentProfile.id, {
+                          bloodFilmFindings: { ...cur, wbcMorphology: e.target.value }
+                        });
+                      }}
+                      placeholder="Normal differential, mature cells"
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">فحص الصفائح (Platelets Morphology):</label>
+                    <input
+                      type="text"
+                      value={currentProfile.bloodFilmFindings?.plateletMorphology || ''}
+                      onChange={(e) => {
+                        const cur = currentProfile.bloodFilmFindings || { rbcMorphology: '', wbcMorphology: '', plateletMorphology: '' };
+                        handleUpdateProfile(currentProfile.id, {
+                          bloodFilmFindings: { ...cur, plateletMorphology: e.target.value }
+                        });
+                      }}
+                      placeholder="Adequate in number, normal morphology"
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs"
+                    />
+                  </div>
+                </div>
               </div>
             )}
 

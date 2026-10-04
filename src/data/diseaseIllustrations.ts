@@ -398,19 +398,43 @@ export function getIllustrationByCode(code: string): DiseaseIllustration | undef
 }
 
 // Auto-suggest hematological illustration based on CBC parameters
-export function suggestHematologicalIllustration(params: {
-  hb?: number;
-  mcv?: number;
-  mch?: number;
-  mchc?: number;
-  rdw?: number;
-  wbc?: number;
-  neutrophils?: number;
-  bands?: number;
-  lymphocytes?: number;
-  platelets?: number;
-  mentzerIndex?: number;
-}): DiseaseIllustration {
+export function suggestHematologicalIllustration(paramsInput: any): DiseaseIllustration {
+  let params: {
+    hb?: number;
+    mcv?: number;
+    mch?: number;
+    mchc?: number;
+    rdw?: number;
+    wbc?: number;
+    neutrophils?: number;
+    bands?: number;
+    lymphocytes?: number;
+    platelets?: number;
+    mentzerIndex?: number;
+  } = {};
+
+  if (Array.isArray(paramsInput)) {
+    paramsInput.forEach((p: any) => {
+      const name = (p.name || '').toLowerCase();
+      const val = parseFloat(p.result);
+      if (!isNaN(val)) {
+        if (name.includes('hemo') || name.includes('hb') || name.includes('hgb')) params.hb = val;
+        else if (name.includes('mcv')) params.mcv = val;
+        else if (name.includes('mchc')) params.mchc = val;
+        else if (name.includes('mch')) params.mch = val;
+        else if (name.includes('rdw')) params.rdw = val;
+        else if (name.includes('wbc') || name.includes('leucocyte')) params.wbc = val;
+        else if (name.includes('neut')) params.neutrophils = val;
+        else if (name.includes('band') || name.includes('stab')) params.bands = val;
+        else if (name.includes('lymph')) params.lymphocytes = val;
+        else if (name.includes('platelet') || name.includes('plt')) params.platelets = val;
+        else if (name.includes('mentzer')) params.mentzerIndex = val;
+      }
+    });
+  } else if (typeof paramsInput === 'object' && paramsInput !== null) {
+    params = paramsInput;
+  }
+
   const { hb, mcv, rdw, wbc, bands, lymphocytes, platelets, mentzerIndex } = params;
 
   // 1. Severe bacterial sepsis / leukemoid
