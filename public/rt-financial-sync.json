@@ -1,15 +1,31 @@
 {
   "system": "RT Lab Financial & Accounting ERP",
-  "syncedAt": "2026-10-04T14:47:55.134Z",
+  "syncedAt": "2026-10-04T14:51:06.242Z",
   "summary": {
-    "totalRevenue": 1568,
+    "totalRevenue": 1769,
     "totalExpenses": 0,
-    "netProfit": 1568,
-    "ceoShare": 705.6,
-    "labShare": 705.6,
-    "casesCount": 6
+    "netProfit": 1769,
+    "ceoShare": 796.05,
+    "labShare": 796.05,
+    "casesCount": 7
   },
   "clearedInvoices": [
+    {
+      "invoiceNumber": "RT-BK-7317",
+      "labNumber": "RT-BK-7317",
+      "barcode": "26504791",
+      "patientName": "شريف عادل",
+      "phone": "01124485444",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)"
+      ],
+      "netAmount": 201,
+      "paidAmount": 201,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
     {
       "invoiceNumber": "RT-BK-1432",
       "labNumber": "RT-BK-1432",
