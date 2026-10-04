@@ -144,9 +144,9 @@
       }
     ],
     "netAmount": 575,
-    "paidAmount": 553,
-    "paymentStatus": "partial",
-    "financialClearance": "PAYMENT_PENDING",
+    "paidAmount": 575,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
     "createdAt": "2026-10-04T14:16:24.421Z"
   }
 ]
