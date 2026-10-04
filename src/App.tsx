@@ -922,6 +922,18 @@ export default function App() {
                         updatedAt: new Date().toISOString()
                       });
                     }}
+                    onRegisterLoyaltyProfile={(profile) => {
+                      setLoyaltyProfiles(prev => {
+                        const idx = prev.findIndex(p => p.phone === profile.phone || p.cardNumber === profile.cardNumber);
+                        if (idx >= 0) {
+                          const copy = [...prev];
+                          copy[idx] = { ...copy[idx], ...profile };
+                          return copy;
+                        }
+                        return [profile, ...prev];
+                      });
+                      showToast(`تم تفعيل وحفظ كارت الولاء (${profile.cardNumber}) للمريض بنجاح! 💳`);
+                    }}
                   />
 
                   {/* Report Clinical Editor */}

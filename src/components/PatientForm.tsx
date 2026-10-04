@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Patient, Gender, AgeUnit, DoctorTitle } from '../types/lab';
+import { Patient, Gender, AgeUnit, DoctorTitle, PatientLoyaltyProfile } from '../types/lab';
 import { 
   User, 
   Phone, 
@@ -38,10 +38,12 @@ import { send24HourEmailReminder } from '../utils/emailReminder';
 interface PatientFormProps {
   patient: Patient;
   onChange: (updated: Patient) => void;
+  onRegisterLoyaltyProfile?: (profile: PatientLoyaltyProfile) => void;
 }
 
-export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) => {
+export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange, onRegisterLoyaltyProfile }) => {
   const [couponInput, setCouponInput] = useState('');
+  const [whatsAppSent, setWhatsAppSent] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(patient.couponCode || null);
   const [customPercent, setCustomPercent] = useState<number>(15);
   const [customFlatDiscount, setCustomFlatDiscount] = useState<number>(0);
@@ -142,7 +144,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
   // WhatsApp booking confirmation
   const handleSendWhatsAppConfirmation = () => {
     const msg = formatBookingConfirmationWhatsAppMessage({
-      patientName: patient.fullName,
+      patientName: patient.fullName || 'العميل الكريم',
       labNumber: patient.labNumber,
       date: patient.appointmentDate || patient.sampleDate.split('T')[0],
       time: patient.appointmentTime || '10:00 ص',
@@ -156,39 +158,77 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
       netAmount,
       paymentMethod: patient.paymentMethod === 'card' ? 'بطاقة ائتمانية' : patient.paymentMethod === 'instapay' ? 'إنستا باي' : patient.paymentMethod === 'wallet' ? 'محفظة إلكترونية' : 'نقداً (كاش)'
     });
-    openWhatsApp(patient.phone, msg);
+    openWhatsApp(patient.phone || '01000000000', msg);
+    setWhatsAppSent(true);
   };
 
   // Post Sample Draw & Loyalty Activation
   const handleConfirmSampleDrawAndLoyalty = () => {
-    const cardCode = `RT-GOLD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    updateField('sampleCollected', true);
-    updateField('sampleCollectedAt', new Date().toISOString());
-    updateField('loyaltyCardIssued', true);
-    updateField('loyaltyCardNumber', cardCode);
+    const cardCode = patient.loyaltyCardNumber || `RT-GOLD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const pts = Math.max(50, Math.floor(netAmount / 2));
+    const nowIso = new Date().toISOString();
 
-    // Generate & download card
+    // 1. ATOMIC single update so all fields are stored immediately in report state
+    const updatedPatient: Patient = {
+      ...patient,
+      sampleCollected: true,
+      sampleCollectedAt: nowIso,
+      loyaltyCardIssued: true,
+      loyaltyCardNumber: cardCode
+    };
+    onChange(updatedPatient);
+
+    // 2. Register or update loyalty profile in system state & storage
+    if (onRegisterLoyaltyProfile) {
+      onRegisterLoyaltyProfile({
+        patientId: patient.labNumber || patient.nationalId || `pat-${Date.now()}`,
+        patientName: patient.fullName || 'مريض معمل RT',
+        phone: patient.phone || '01000000000',
+        cardNumber: cardCode,
+        barcode: cardCode,
+        bloodGroup: patient.bloodGroup || 'O+',
+        tier: 'Gold',
+        totalPoints: pts,
+        lifetimeSpent: netAmount,
+        issueDate: nowIso.substring(0, 10),
+        transactions: [
+          {
+            id: `tx-${Date.now()}`,
+            date: nowIso.substring(0, 10),
+            type: 'earn',
+            points: pts,
+            description: `تفعيل كارت الولاء الذهبي - ملف #${patient.labNumber}`,
+            invoiceNumber: patient.labNumber,
+            amountEGP: netAmount
+          }
+        ]
+      });
+    }
+
+    // 3. Generate & download card PNG
     generateAndDownloadLoyaltyCard({
       cardNumber: cardCode,
-      patientName: patient.fullName,
-      patientPhone: patient.phone,
+      patientName: patient.fullName || 'مريض معمل RT',
+      patientPhone: patient.phone || '01000000000',
       tier: 'Gold VIP',
       discountPercentage: customPercent || 15,
-      points: Math.floor(netAmount / 2)
-    });
+      points: pts
+    }).catch(err => console.warn('Card generation notice:', err));
 
-    // Send post sample WhatsApp
+    // 4. Send post sample WhatsApp
     const msg = formatPostSampleWhatsAppMessage({
-      patientName: patient.fullName,
+      patientName: patient.fullName || 'العميل الكريم',
       labNumber: patient.labNumber,
       notes: patient.sampleNotes || 'تم سحب العينات بنجاح وأمان كامل',
       expectedTime: 'اليوم خلال 4 إلى 6 ساعات بإذن الله',
       loyaltyCardCode: cardCode,
       discountPercentage: customPercent || 15
     });
-    openWhatsApp(patient.phone, msg);
+    openWhatsApp(patient.phone || '01000000000', msg);
 
-    alert(`تم تأكيد السحب وتفعيل كارت الولاء (${cardCode}) وتنزيل صورته وإرسال رسالة الواتساب للعميل بنجاح!`);
+    alert(`✅ تم تفعيل كارت الولاء (${cardCode}) بنجاح للمريض (${patient.fullName || 'المريض'})!
+• تم إدراج العميل في سجل كروت الولاء
+• تم تحميل صورة الكارت الفاخرة وإرسال رسالة الواتساب للعميل.`);
   };
 
   return (
@@ -708,7 +748,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({ patient, onChange }) =
             className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <MessageCircle className="w-4 h-4" />
-            <span>إرسال واتساب تأكيد الحجز للمريض</span>
+            <span>{whatsAppSent ? 'تم إرسال واتساب تأكيد الحجز للمريض ✓' : 'إرسال واتساب تأكيد الحجز للمريض'}</span>
           </button>
 
           {/* 24-Hour Email Reminder */}

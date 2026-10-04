@@ -124,6 +124,8 @@ export interface LoyaltyTransaction {
   points: number;
   description: string;
   reportNumber?: string;
+  invoiceNumber?: string;
+  amountEGP?: number;
 }
 
 export interface PatientLoyaltyProfile {
@@ -131,6 +133,7 @@ export interface PatientLoyaltyProfile {
   patientName: string;
   phone: string;
   barcode: string;
+  cardNumber?: string;
   bloodGroup: string;
   totalPoints: number;
   tier: LoyaltyTier;
