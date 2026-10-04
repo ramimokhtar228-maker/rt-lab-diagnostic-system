@@ -1,15 +1,31 @@
 {
   "system": "RT Lab Financial & Accounting ERP",
-  "syncedAt": "2026-10-04T14:35:38.663Z",
+  "syncedAt": "2026-10-04T14:38:25.465Z",
   "summary": {
-    "totalRevenue": 971,
+    "totalRevenue": 1169,
     "totalExpenses": 0,
-    "netProfit": 971,
-    "ceoShare": 436.95,
-    "labShare": 436.95,
-    "casesCount": 3
+    "netProfit": 1169,
+    "ceoShare": 526.05,
+    "labShare": 526.05,
+    "casesCount": 4
   },
   "clearedInvoices": [
+    {
+      "invoiceNumber": "RT-BK-9242",
+      "labNumber": "RT-BK-9242",
+      "barcode": "26404534",
+      "patientName": "كريمة حامد قورة",
+      "phone": "01006222705",
+      "testsCount": 2,
+      "testsList": [
+        "السكر التراكمي (HbA1c HPLC)",
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)"
+      ],
+      "netAmount": 198,
+      "paidAmount": 198,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
     {
       "invoiceNumber": "RT-BK-5752",
       "labNumber": "RT-BK-5752",
