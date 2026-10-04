@@ -1,15 +1,47 @@
 {
   "system": "RT Lab Financial & Accounting ERP",
-  "syncedAt": "2026-10-04T14:51:06.242Z",
+  "syncedAt": "2026-10-04T14:59:38.608Z",
   "summary": {
-    "totalRevenue": 1769,
+    "totalRevenue": 2171,
     "totalExpenses": 0,
-    "netProfit": 1769,
-    "ceoShare": 796.05,
-    "labShare": 796.05,
-    "casesCount": 7
+    "netProfit": 2171,
+    "ceoShare": 976.95,
+    "labShare": 976.95,
+    "casesCount": 9
   },
   "clearedInvoices": [
+    {
+      "invoiceNumber": "RT-BK-8594",
+      "labNumber": "RT-BK-8594",
+      "barcode": "26454943",
+      "patientName": "أمال محمد",
+      "phone": "01013242777",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)"
+      ],
+      "netAmount": 201,
+      "paidAmount": 201,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
+    {
+      "invoiceNumber": "RT-BK-9599",
+      "labNumber": "RT-BK-9599",
+      "barcode": "26174867",
+      "patientName": "كوثر ابراهيم",
+      "phone": "01124485444",
+      "testsCount": 2,
+      "testsList": [
+        "باقة الفحص الشامل الملكية VIP د. رامي مختار (32 فحص)",
+        "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)"
+      ],
+      "netAmount": 201,
+      "paidAmount": 201,
+      "paymentStatus": "paid",
+      "financialClearance": "CLEARED_FOR_RELEASE"
+    },
     {
       "invoiceNumber": "RT-BK-7317",
       "labNumber": "RT-BK-7317",
