@@ -53,16 +53,13 @@ const STAFF_MEMBERS_STORAGE_KEY = 'rt_lab_staff_members_v2';
 const FACILITIES_STORAGE_KEY = 'rt_lab_facilities_v2';
 const LOYALTY_STORAGE_KEY = 'rt_lab_loyalty_profiles_v2';
 
-// Clean old demo patients/branches/chemists on first load of this clean version
-if (typeof window !== "undefined" && !localStorage.getItem("rt_lab_clean_v5_prod")) {
+// Safe Retroactive Data Upgrade: Never delete patient reports; auto-upgrade them with 37 CBC parameters & disease illustrations
+if (typeof window !== "undefined") {
   try {
-    localStorage.removeItem("rt_lab_reports_v2");
-    localStorage.removeItem("rt_lab_reports_v1");
-    localStorage.removeItem("rt_lab_cases_sync_v1");
-    localStorage.removeItem("rt_lab_incoming_orders_queue");
-    localStorage.removeItem("rt_lab_loyalty_profiles_v2");
-    localStorage.setItem("rt_lab_clean_v5_prod", "true");
-  } catch {}
+    runGlobalDataUpgrade();
+  } catch (err) {
+    console.warn("Auto-upgrade error:", err);
+  }
 }
 
 export default function App() {
