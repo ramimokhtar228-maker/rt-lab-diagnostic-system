@@ -1,5 +1,45 @@
 [
   {
+    "id": "rep-inc-1791151837342",
+    "reportNumber": "RT-2026-0910",
+    "invoiceNumber": "INV-2026-0910",
+    "barcode": "9827361848",
+    "patientName": "أمانى محمد ابراهيم",
+    "age": 54,
+    "gender": "female",
+    "phone": "01277634220",
+    "referringDoctor": "Herself",
+    "tests": [
+      {
+        "id": "t-11",
+        "code": "CBC",
+        "nameAr": "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "nameEn": "Complete Blood Picture",
+        "price": 410,
+        "category": "Hematology",
+        "cost": 25,
+        "sampleType": "EDTA Whole Blood",
+        "turnaroundTime": "ساعتين"
+      },
+      {
+        "id": "t-65",
+        "code": "THYROID_PANEL",
+        "nameAr": "بروفايل الغدة الدرقية الثلاثي (TSH + FT3 + FT4)",
+        "nameEn": "Thyroid Function Panel",
+        "price": 1111,
+        "category": "Endocrinology",
+        "cost": 80,
+        "sampleType": "Serum",
+        "turnaroundTime": "3 ساعات"
+      }
+    ],
+    "netAmount": 9,
+    "paidAmount": 9,
+    "paymentStatus": "paid",
+    "financialClearance": "CLEARED_FOR_RELEASE",
+    "createdAt": "2026-10-04T22:10:37.342Z"
+  },
+  {
     "id": "rep-inc-1791145124663",
     "reportNumber": "RT-BK-6113",
     "invoiceNumber": "RT-BK-6113",
