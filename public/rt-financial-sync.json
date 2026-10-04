@@ -1,13 +1,40 @@
 {
   "system": "RT Lab Financial & Accounting ERP",
-  "syncedAt": "2026-10-03T21:55:00.000Z",
+  "syncedAt": "2026-10-04T14:22:05.347Z",
   "summary": {
-    "totalRevenue": 0,
+    "totalRevenue": 553,
     "totalExpenses": 0,
-    "netProfit": 0,
-    "ceoShare": 0,
-    "labShare": 0,
-    "casesCount": 0
+    "netProfit": 553,
+    "ceoShare": 248.85,
+    "labShare": 248.85,
+    "casesCount": 1
   },
-  "clearedInvoices": []
+  "clearedInvoices": [
+    {
+      "invoiceNumber": "RT-BK-8097",
+      "labNumber": "RT-BK-8097",
+      "barcode": "26299360",
+      "patientName": "امانى محمد ابراهيم",
+      "phone": "01277634220",
+      "testsCount": 12,
+      "testsList": [
+        "سكر الدم الصائم (FBS)",
+        "هرمون الغدة الدرقية الحساس (TSH 3rd Gen)",
+        "هرمون الغدة الدرقية الحر (Free T4)",
+        "إنزيم كبد ALT / SGPT",
+        "إنزيم كبد AST / SGOT",
+        "كرياتينين بالدم (Serum Creatinine)",
+        "بولينا بالدم (Blood Urea / BUN)",
+        "حمض البوليك / يوريك أسيد (Serum Uric Acid)",
+        "دهون الدم الكاملة (Lipid Profile Panel)",
+        "السكر التراكمي (HbA1c HPLC)",
+        "صورة دم كاملة 5 أجزاء (CBC with 5-Diff)",
+        "فيتامين د النشط بالدم (Vitamin D 25-OH Total)"
+      ],
+      "netAmount": 575,
+      "paidAmount": 553,
+      "paymentStatus": "partial",
+      "financialClearance": "PAYMENT_PENDING"
+    }
+  ]
 }
