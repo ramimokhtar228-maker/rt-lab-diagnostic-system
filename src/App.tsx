@@ -1,3 +1,5 @@
+import { realtimeSync } from './utils/realtimeMultiDeviceSync';
+import { SmartReportModal } from './components/SmartReportModal';
 import { runGlobalDataUpgrade } from "./utils/upgradeSavedData";
 import { DiseaseIllustrationsModal } from "./components/DiseaseIllustrationsModal";
 import { LabInfoEditModal } from "./components/LabInfoEditModal";
@@ -159,6 +161,7 @@ export default function App() {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [isManualTestModalOpen, setIsManualTestModalOpen] = useState(false);
   const [invoiceModalReport, setInvoiceModalReport] = useState<LabReport | null>(null);
+  const [smartReportTarget, setSmartReportTarget] = useState<LabReport | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isIllustrationsModalOpen, setIsIllustrationsModalOpen] = useState(false);
   const [activeProfileForIllustration, setActiveProfileForIllustration] = useState<string | null>(null);
@@ -382,8 +385,27 @@ export default function App() {
       console.warn("BroadcastChannel error:", err);
     }
 
+        // Multi-device real-time sync subscriber
+    const unsubRealtime = realtimeSync.subscribe((payload) => {
+      if (payload.type === 'NEW_INVOICE' || payload.type === 'UPDATE_INVOICE') {
+        setReports(prev => {
+          const pending = getLocalFinancialPendingReports(prev);
+          if (pending.length > 0) {
+            showToast("⚡ طلب فحص فوري جديد مسمّع من جهاز آخر!");
+            return [...pending, ...prev];
+          }
+          return prev;
+        });
+      } else if (payload.type === 'CATALOG_SYNC' && payload.data) {
+        if (Array.isArray(payload.data) && payload.data.length > 0) {
+          setIndividualTests(payload.data);
+          showToast("⚡ تم تحديث الكتالوج لحظياً من جهاز آخر!");
+        }
+      }
+    });
+
     const handleStorage = (e: StorageEvent) => {
-      if (e.key === "rt_lab_reports_v1" || e.key === "rt_lab_sync_trigger" || e.key === "rt_lab_cases_sync_v1") {
+      if (e.key === "rt_lab_reports_v2" || e.key === "rt_lab_reports_v1" || e.key === "rt_lab_sync_trigger" || e.key === "rt_lab_cases_sync_v1" || e.key === "rt_lab_incoming_orders_queue") {
         setReports(prev => {
           const pending = getLocalFinancialPendingReports(prev);
           if (pending.length > 0) {
@@ -438,6 +460,7 @@ export default function App() {
     return () => {
       if (channel) channel.close();
       window.removeEventListener("storage", handleStorage);
+      unsubRealtime();
       window.removeEventListener("focus", checkSync);
       clearInterval(timer);
     };
@@ -989,6 +1012,15 @@ export default function App() {
                 onNewPatientClick={() => createNewReport()}
                 onOpenInvoice={(r) => setInvoiceModalReport(r)}
                 onClearPatients={handleClearPatientReportsOnly}
+                onOpenSmartReport={(r) => setSmartReportTarget(r)}
+                onBulkDeleteReports={(ids) => {
+                  setReports(prev => prev.filter(r => !ids.includes(r.id)));
+                  showToast(`تم حذف ${ids.length} تقرير مجمع بنجاح`);
+                }}
+                onBulkUpdateStatus={(ids, status) => {
+                  setReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status, updatedAt: new Date().toISOString() } : r));
+                  showToast(`تم اعتماد وتحديث حالة ${ids.length} تقرير`);
+                }}
               />
             )}
 
@@ -1224,6 +1256,23 @@ export default function App() {
         }}
       />
 
+            {/* Smart Clinical Report Modal */}
+      <SmartReportModal
+        isOpen={!!smartReportTarget}
+        onClose={() => setSmartReportTarget(null)}
+        report={smartReportTarget}
+        onAttachToReport={(summaryAr) => {
+          if (smartReportTarget) {
+            const updated = {
+              ...smartReportTarget,
+              generalComment: [smartReportTarget.generalComment, "📋 التقرير الإكلينيكي الذكي:", summaryAr].filter(Boolean).join("\n\n"),
+              updatedAt: new Date().toISOString()
+            };
+            handleUpdateCurrentReport(updated);
+            showToast("تم إدراج ملخص التقرير الذكي كتعليق رسمي بالتقرير بنجاح!");
+          }
+        }}
+      />
       {/* Offline Connectivity State */}
       <OfflineIndicator />
     </div>

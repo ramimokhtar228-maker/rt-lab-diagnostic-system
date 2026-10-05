@@ -42,6 +42,7 @@ interface ReportEditorProps {
   onOpenManualTest: () => void;
   onOpenInvoice?: () => void;
   onOpenIllustrationsModal?: (profileId: string) => void;
+  onOpenSmartReport?: () => void;
 }
 
 export const ReportEditor: React.FC<ReportEditorProps> = ({
@@ -54,7 +55,8 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
   onOpenCatalog,
   onOpenManualTest,
   onOpenInvoice,
-  onOpenIllustrationsModal
+  onOpenIllustrationsModal,
+  onOpenSmartReport
 }) => {
   const [activeProfileTab, setActiveProfileTab] = useState<string>(report.profiles[0]?.id || '');
   const [modalParamToEdit, setModalParamToEdit] = useState<TestParameter | null>(null);
@@ -438,6 +440,19 @@ export const ReportEditor: React.FC<ReportEditorProps> = ({
                     title="فحص مؤشرات الدم واقتراح شريحة مجهرية مطابقة لنتائج المريض آلياً"
                   >
                     <span>💡 اقتراح شريحة آلية</span>
+                  </button>
+                )}
+
+                {/* Smart Clinical Report Button */}
+                {onOpenSmartReport && (
+                  <button
+                    type="button"
+                    onClick={onOpenSmartReport}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-600 via-orange-600 to-rose-700 hover:from-amber-500 hover:to-rose-600 text-white rounded-lg font-bold shadow-xs active:scale-95 transition-all text-xs"
+                    title="فتح التقرير الإكلينيكي الذكي وتحليل مؤشرات الأعضاء والمؤشرات السريرية"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-200 animate-pulse" />
+                    <span>⚡ التقرير الذكي والاستشاري</span>
                   </button>
                 )}
 

@@ -14,6 +14,7 @@ import {
   X, 
   Save, 
   Sparkles,
+  Zap,
   Layers,
   ChevronDown,
   ChevronUp,
@@ -113,7 +114,45 @@ export const CatalogBrowser: React.FC<CatalogBrowserProps> = ({
   });
 
   // HANDLERS FOR INDIVIDUAL TESTS
-  const handleOpenAddTest = () => {
+  const handleSyncFromFinancial = () => {
+    try {
+      const finStr = localStorage.getItem("rt_lab_catalog_v2");
+      let finItems: any[] = [];
+      if (finStr) {
+        finItems = JSON.parse(finStr);
+      }
+      if (!Array.isArray(finItems) || finItems.length === 0) {
+        finItems = INITIAL_INDIVIDUAL_TESTS;
+      }
+      const map = new Map<string, IndividualTest>();
+      individualTests.forEach(t => map.set(t.code, t));
+      finItems.forEach((t: any) => {
+        const existing = map.get(t.code);
+        map.set(t.code, {
+          ...(existing || {}),
+          ...t,
+          id: t.id || existing?.id || `test-${t.code}`,
+          code: t.code,
+          nameAr: t.nameAr,
+          nameEn: t.nameEn,
+          price: t.price || existing?.price || 100,
+          category: t.category || existing?.category || "Clinical Chemistry",
+          sampleType: t.sampleType || existing?.sampleType || "Serum",
+          turnaroundTime: t.turnaroundTime || existing?.turnaroundTime || "خلال ساعتين"
+        });
+      });
+      const merged = Array.from(map.values());
+      onUpdateIndividualTests(merged);
+      localStorage.setItem("rt_lab_individual_tests_v2", JSON.stringify(merged));
+      alert(`تم توحيد الكتالوج بالكامل! إجمالي الفحوصات المحدثة: ${merged.length} فحص وباقة.`);
+    } catch (err) {
+      console.error(err);
+      onUpdateIndividualTests(INITIAL_INDIVIDUAL_TESTS);
+      alert("تم استعادة وتوحيد الكتالوج الشامل (165 فحص).");
+    }
+  };
+
+    const handleOpenAddTest = () => {
     setEditingTest(null);
     setTestFormData({
       code: `TEST_${Math.floor(100 + Math.random() * 900)}`,

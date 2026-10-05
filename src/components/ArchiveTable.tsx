@@ -22,7 +22,8 @@ import {
   Layers,
   Zap,
   RefreshCw,
-  Receipt
+  Receipt,
+  Sparkles
 } from 'lucide-react';
 
 interface ArchiveTableProps {
@@ -40,6 +41,9 @@ interface ArchiveTableProps {
   onNewPatientClick?: () => void;
   onOpenInvoice?: (report: LabReport) => void;
   onClearPatients?: () => void;
+  onOpenSmartReport?: (report: LabReport) => void;
+  onBulkDeleteReports?: (reportIds: string[]) => void;
+  onBulkUpdateStatus?: (reportIds: string[], status: ReportStatus) => void;
 }
 
 export const ArchiveTable: React.FC<ArchiveTableProps> = ({
@@ -59,6 +63,61 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
   onClearPatients
 }) => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedReportIds, setSelectedReportIds] = useState<string[]>([]);
+
+  const handleToggleSelectOne = (id: string) => {
+    setSelectedReportIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedReportIds.length === filteredReports.length) {
+      setSelectedReportIds([]);
+    } else {
+      setSelectedReportIds(filteredReports.map(r => r.id));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedReportIds.length === 0) return;
+    if (window.confirm(`هل أنت متأكد من حذف ${selectedReportIds.length} تقرير محدد نهائياً؟`)) {
+      if (onBulkDeleteReports) {
+        onBulkDeleteReports(selectedReportIds);
+      } else {
+        selectedReportIds.forEach(id => onDeleteReport(id));
+      }
+      setSelectedReportIds([]);
+    }
+  };
+
+  const handleBulkChangeStatus = (status: ReportStatus) => {
+    if (selectedReportIds.length === 0) return;
+    if (onBulkUpdateStatus) {
+      onBulkUpdateStatus(selectedReportIds, status);
+    }
+    setSelectedReportIds([]);
+  };
+
+  const handleBulkPrint = () => {
+    const selectedReports = reports.filter(r => selectedReportIds.includes(r.id));
+    if (selectedReports.length === 0) return;
+    selectedReports.forEach((r, idx) => {
+      setTimeout(() => onPrintReport(r), idx * 400);
+    });
+  };
+
+  const handleBulkExportJson = () => {
+    const selectedReports = reports.filter(r => selectedReportIds.includes(r.id));
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(selectedReports, null, 2));
+    const a = document.createElement("a");
+    a.setAttribute("href", dataStr);
+    a.setAttribute("download", `rt-lab-selected-reports-${Date.now()}.json`);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
 
   const filteredReports = reports.filter(r => {
     if (!r || !r.patient) return false;
@@ -194,6 +253,15 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
         <table className="w-full text-right border-collapse text-xs" dir="rtl">
           <thead>
             <tr className="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200">
+              <th className="py-3 px-3 text-center w-10">
+                <input
+                  type="checkbox"
+                  checked={filteredReports.length > 0 && selectedReportIds.length === filteredReports.length}
+                  onChange={handleToggleSelectAll}
+                  className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 cursor-pointer"
+                  title="تحديد الكل للعمليات المجمعة"
+                />
+              </th>
               <th className="py-3 px-4 text-right">رقم التحليل</th>
               <th className="py-3 px-4 text-right">اسم المريض</th>
               <th className="py-3 px-4 text-center">السن / النوع</th>
@@ -206,7 +274,7 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
           <tbody className="divide-y divide-slate-100 bg-white">
             {filteredReports.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-16 text-slate-500">
+                <td colSpan={8} className="text-center py-16 text-slate-500">
                   <div className="max-w-md mx-auto space-y-4">
                     <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-100 shadow-sm">
                       <Archive className="w-8 h-8" />
@@ -268,7 +336,16 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
                 const isFinancialSync = p.clinicalHistory?.includes('فاتورة') || report.generalComment?.includes('فاتورة');
 
                 return (
-                  <tr key={report.id} className="hover:bg-rose-50/20 transition-colors">
+                  <tr key={report.id} className={`hover:bg-rose-50/20 transition-colors ${selectedReportIds.includes(report.id) ? "bg-rose-50/40" : ""}`}>
+                    {/* Row Checkbox */}
+                    <td className="py-3 px-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedReportIds.includes(report.id)}
+                        onChange={() => handleToggleSelectOne(report.id)}
+                        className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 cursor-pointer"
+                      />
+                    </td>
                     {/* Lab Number & Barcode */}
                     <td className="py-3 px-4">
                       <div className="font-mono-numbers font-bold text-rose-950 text-sm">
@@ -409,6 +486,67 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
           </tbody>
         </table>
       </div>
+
+      {/* Floating Sticky Batch Operations Bar (العمليات المجمعة) */}
+      {selectedReportIds.length > 0 && (
+        <div className="sticky bottom-4 z-40 bg-slate-900/95 backdrop-blur-md text-white p-3.5 rounded-2xl shadow-2xl border-2 border-rose-600 flex flex-wrap items-center justify-between gap-3 animate-in slide-in-from-bottom-3 duration-200">
+          <div className="flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold font-mono text-xs shadow-md">
+              {selectedReportIds.length}
+            </span>
+            <div className="text-right">
+              <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>العمليات المجمعة مفعلة</span>
+                <span className="text-[10px] text-rose-300 bg-rose-950 px-2 py-0.2 rounded border border-rose-800">
+                  تم تحديد {selectedReportIds.length} تقرير
+                </span>
+              </div>
+              <div className="text-[10px] text-slate-400">تنفيذ إجراء جماعي فوري على كافة السجلات المحددة</div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <button
+              onClick={handleBulkPrint}
+              className="px-3.5 py-2 bg-gradient-to-r from-red-800 to-rose-700 hover:from-red-900 hover:to-rose-800 text-white rounded-xl font-bold flex items-center gap-1.5 transition-all shadow-md"
+              title="طباعة جماعية لكافة التقارير المحددة"
+            >
+              <Printer className="w-4 h-4" />
+              <span>طباعة مجمعة ({selectedReportIds.length})</span>
+            </button>
+            <button
+              onClick={() => handleBulkChangeStatus('released')}
+              className="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold flex items-center gap-1.5 transition-colors shadow-sm"
+              title="اعتماد وتوثيق نهائي لكافة التقارير المحددة"
+            >
+              <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+              <span>اعتماد مجمع</span>
+            </button>
+            <button
+              onClick={handleBulkExportJson}
+              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-semibold flex items-center gap-1.5 transition-colors border border-slate-700"
+              title="تصدير السجلات المحددة إلى ملف JSON"
+            >
+              <Download className="w-4 h-4 text-slate-400" />
+              <span>تصدير JSON</span>
+            </button>
+            <button
+              onClick={handleBulkDelete}
+              className="px-3 py-2 bg-rose-950 hover:bg-rose-900 text-rose-200 rounded-xl font-semibold flex items-center gap-1.5 transition-colors border border-rose-800"
+              title="حذف كافة التقارير المحددة نهائياً"
+            >
+              <Trash2 className="w-4 h-4 text-rose-400" />
+              <span>حذف مجمع</span>
+            </button>
+            <button
+              onClick={() => setSelectedReportIds([])}
+              className="px-3 py-2 text-slate-400 hover:text-white text-xs transition-colors"
+            >
+              إلغاء التحديد
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

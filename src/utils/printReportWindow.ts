@@ -129,12 +129,13 @@ export function openPrintReportWindow(report: LabReport, labInfo?: LabInfo): voi
     let illustrationHtml = '';
     const ill = profile.attachedIllustration;
     if (ill) {
+      const imgHtml = ill.imageUrl 
+        ? `<img src="${ill.imageUrl}" alt="${ill.titleEn}" style="width:130px; height:80px; object-fit:cover; border-radius:6px; border:1.5px solid #800000; box-shadow:0 1px 3px rgba(0,0,0,0.15); flex-shrink:0;" />`
+        : `<div style="width:64px; height:64px; border-radius:8px; background:linear-gradient(135deg, #800000, #991b1b); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; flex-shrink:0; font-size:9px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.1);"><span style="font-size:20px;">🔬</span><span>ATLAS</span></div>`;
+
       illustrationHtml = `
         <div style="background:#fff1f2; border:1.5px solid #fecdd3; border-radius:6px; padding:8px 12px; margin-bottom:10px; display:flex; align-items:center; gap:12px;">
-          <div style="width:54px; height:54px; border-radius:8px; background:linear-gradient(135deg, #800000, #991b1b); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; flex-shrink:0; font-size:9px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-            <span style="font-size:18px;">🔬</span>
-            <span>PATHOLOGY</span>
-          </div>
+          ${imgHtml}
           <div style="flex:1; font-size:10px; line-height:1.4;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
               <strong style="color:#800000; font-size:11px;">${ill.titleAr} (${ill.titleEn})</strong>

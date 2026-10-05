@@ -1,3 +1,8 @@
+export { INITIAL_PACKAGES } from "./packagesData";
+export { INITIAL_INDIVIDUAL_TESTS } from "./individualTestsData";
+export { INITIAL_LAB_INFO, INITIAL_FACILITIES, INITIAL_STAFF_MEMBERS } from "./staffAndFacilitiesData";
+export { INITIAL_LOYALTY_PROFILES, TIER_BENEFITS } from "./loyaltyData";
+
 import { CatalogProfileTemplate, LabStaffSignatures } from '../types/lab';
 
 export const DEFAULT_STAFF: LabStaffSignatures = {

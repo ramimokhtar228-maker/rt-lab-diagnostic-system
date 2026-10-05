@@ -206,14 +206,24 @@ export const DiseaseIllustrationsModal: React.FC<DiseaseIllustrationsModalProps>
                   <h3 className="text-lg font-black text-white">{previewItem.titleAr}</h3>
                   <div className="text-sm font-semibold text-rose-300 mb-3" dir="ltr">{previewItem.titleEn}</div>
 
+                  {/* Actual High-Resolution Microscopic / Biochemical Vector Illustration */}
+                  {previewItem.imageUrl && (
+                    <div className="w-full h-48 rounded-xl overflow-hidden border-2 border-rose-800/60 bg-slate-950 flex items-center justify-center my-3 shadow-lg group relative">
+                      <img src={previewItem.imageUrl} alt={previewItem.titleEn} className="w-full h-full object-contain" />
+                      <span className="absolute top-2 left-2 bg-black/70 text-rose-300 text-[10px] font-mono px-2 py-0.5 rounded border border-rose-500/30">
+                        RT Optical Zoom Atlas
+                      </span>
+                    </div>
+                  )}
+
                   {/* Microscopic Field Simulation Graphic */}
-                  <div className="my-3 p-4 rounded-lg bg-slate-900/90 border border-rose-800/30 flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-rose-900/40 border-2 border-rose-500/60 flex flex-col items-center justify-center text-center p-1 text-rose-200 shrink-0">
-                      <Microscope className="w-6 h-6 text-rose-400 mb-0.5" />
-                      <span className="text-[8px] font-bold">100X OIL</span>
+                  <div className="my-3 p-3.5 rounded-lg bg-slate-900/90 border border-rose-800/30 flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-rose-900/40 border-2 border-rose-500/60 flex flex-col items-center justify-center text-center p-1 text-rose-200 shrink-0">
+                      <Microscope className="w-5 h-5 text-rose-400" />
+                      <span className="text-[7.5px] font-bold">1000X</span>
                     </div>
                     <div className="text-xs text-slate-300 leading-relaxed">
-                      <div className="font-bold text-rose-200 mb-1">المظهر المجهري والباثولوجي الدقيق:</div>
+                      <div className="font-bold text-rose-200 mb-0.5">المظهر المجهري والباثولوجي الدقيق:</div>
                       {previewItem.pathologySummaryAr}
                     </div>
                   </div>

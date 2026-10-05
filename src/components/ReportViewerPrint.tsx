@@ -31,6 +31,7 @@ interface ReportViewerPrintProps {
   onOpenInvoice?: () => void;
   onOpenLabInfoModal?: () => void;
   onOpenIllustrationsModal?: (profileId: string) => void;
+  onOpenSmartReport?: () => void;
 }
 
 export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
@@ -38,7 +39,8 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
   onBackToEdit,
   onOpenInvoice,
   onOpenLabInfoModal,
-  onOpenIllustrationsModal
+  onOpenIllustrationsModal,
+  onOpenSmartReport
 }) => {
   const p = report.patient;
   const totalPages = report.profiles.length;
@@ -497,20 +499,30 @@ export const ReportViewerPrint: React.FC<ReportViewerPrintProps> = ({
                 {profile.attachedIllustration ? (
                   <div className="bg-white border-2 border-slate-200 rounded-lg p-2.5 mb-3 text-xs avoid-break-inside shadow-xs">
                     <div className="flex items-start gap-3">
-                      <div className="w-32 h-20 shrink-0 rounded-lg overflow-hidden border-2 border-rose-400/60 bg-gradient-to-br from-slate-950 via-rose-950 to-slate-900 flex flex-col justify-between p-2 text-white shadow-md relative">
-                        <div className="flex justify-between items-center">
-                          <span className="text-[8px] font-mono bg-black/60 text-amber-300 px-1.5 py-0.2 rounded">1000X Oil Immersion</span>
-                          <span className="text-[8px] font-bold text-rose-300">Leishman</span>
+                      {profile.attachedIllustration.imageUrl ? (
+                        <div className="w-36 h-22 shrink-0 rounded-lg overflow-hidden border-2 border-rose-900/60 bg-slate-950 shadow-md relative flex items-center justify-center">
+                          <img
+                            src={profile.attachedIllustration.imageUrl}
+                            alt={profile.attachedIllustration.titleEn}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        <div>
-                          <div className="text-[9.5px] font-black text-white truncate drop-shadow">
-                            {profile.attachedIllustration.titleAr}
+                      ) : (
+                        <div className="w-32 h-20 shrink-0 rounded-lg overflow-hidden border-2 border-rose-400/60 bg-gradient-to-br from-slate-950 via-rose-950 to-slate-900 flex flex-col justify-between p-2 text-white shadow-md relative">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[8px] font-mono bg-black/60 text-amber-300 px-1.5 py-0.2 rounded">1000X Oil Immersion</span>
+                            <span className="text-[8px] font-bold text-rose-300">Leishman</span>
                           </div>
-                          <div className="text-[8px] text-slate-300 font-mono truncate">
-                            {profile.attachedIllustration.titleEn}
+                          <div>
+                            <div className="text-[9.5px] font-black text-white truncate drop-shadow">
+                              {profile.attachedIllustration.titleAr}
+                            </div>
+                            <div className="text-[8px] text-slate-300 font-mono truncate">
+                              {profile.attachedIllustration.titleEn}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
                       <div className="flex-1 space-y-0.5">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
