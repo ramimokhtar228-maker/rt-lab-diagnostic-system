@@ -217,53 +217,78 @@ export const Header: React.FC<HeaderProps> = ({
               <span>باقات الفحص الشاملة</span>
             </button>
 
-            <button
-              onClick={() => setActiveTab('catalog')}
-              className={`flex items-center gap-1.5 px-3 py-2 border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'catalog'
-                  ? 'border-rose-500 text-white font-black bg-slate-800/60'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-              }`}
-            >
-              <BookOpen className="w-4 h-4 text-rose-400" />
-              <span>دليل التحاليل والقوالب</span>
-            </button>
+            {/* Collapsible secondary dropdown with full click, tap, & hover support */}
+            <div className="relative group inline-block text-right">
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(prev => !prev)}
+                className={`flex items-center gap-1.5 px-3 py-2 border-b-2 transition-all whitespace-nowrap cursor-pointer select-none ${
+                  ["catalog", "patient-cards", "trends", "staff-facilities"].includes(activeTab) || isDropdownOpen
+                    ? "border-rose-500 text-rose-300 font-bold bg-slate-800/80 shadow-xs"
+                    : "border-transparent text-slate-300 hover:text-white hover:bg-slate-800/40"
+                }`}
+                title="الأدلة والإعدادات (مجمعة)"
+                aria-expanded={isDropdownOpen}
+              >
+                <Settings className="w-3.5 h-3.5 text-rose-400" />
+                <span>الأدلة والإعدادات (مجمعة)</span>
+                <ChevronDown className={`w-3.5 h-3.5 text-rose-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
 
-            <button
-              onClick={() => setActiveTab('patient-cards')}
-              className={`flex items-center gap-1.5 px-3 py-2 border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'patient-cards'
-                  ? 'border-rose-500 text-white font-black bg-slate-800/60'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-              }`}
-            >
-              <CreditCard className="w-4 h-4 text-rose-400" />
-              <span>كروت وخصومات المرضى</span>
-            </button>
+              {/* Backdrop for click outside */}
+              {isDropdownOpen && (
+                <div 
+                  className="fixed inset-0 z-40 cursor-default" 
+                  onClick={() => setIsDropdownOpen(false)} 
+                />
+              )}
 
-            <button
-              onClick={() => setActiveTab('trends')}
-              className={`flex items-center gap-1.5 px-3 py-2 border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'trends'
-                  ? 'border-rose-500 text-white font-black bg-slate-800/60'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-              }`}
-            >
-              <TrendingUp className="w-4 h-4 text-rose-400" />
-              <span>متابعة منحنى المريض</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('staff-facilities')}
-              className={`flex items-center gap-1.5 px-3 py-2 border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'staff-facilities'
-                  ? 'border-rose-500 text-white font-black bg-slate-800/60'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-              }`}
-            >
-              <Building className="w-4 h-4 text-rose-400" />
-              <span>الأطباء والفروع</span>
-            </button>
+              {/* Dropdown Menu (works on click state isDropdownOpen OR on group-hover for desktop) */}
+              <div 
+                className={`${isDropdownOpen ? 'block' : 'hidden group-hover:block'} absolute right-0 top-full mt-1 z-50 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-1 text-xs animate-in fade-in duration-150`}
+              >
+                <button
+                  onClick={() => {
+                    setActiveTab("catalog");
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`w-full text-right px-3 py-2.5 flex items-center gap-2 hover:bg-slate-800 transition-colors cursor-pointer ${activeTab === "catalog" ? "text-rose-400 font-bold bg-slate-800/60" : "text-slate-200"}`}
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-rose-400" />
+                  <span>دليل التحاليل والقوالب</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab("patient-cards");
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`w-full text-right px-3 py-2.5 flex items-center gap-2 hover:bg-slate-800 transition-colors cursor-pointer ${activeTab === "patient-cards" ? "text-rose-400 font-bold bg-slate-800/60" : "text-slate-200"}`}
+                >
+                  <CreditCard className="w-3.5 h-3.5 text-rose-400" />
+                  <span>كروت وخصومات المرضى</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab("trends");
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`w-full text-right px-3 py-2.5 flex items-center gap-2 hover:bg-slate-800 transition-colors cursor-pointer ${activeTab === "trends" ? "text-rose-400 font-bold bg-slate-800/60" : "text-slate-200"}`}
+                >
+                  <TrendingUp className="w-3.5 h-3.5 text-rose-400" />
+                  <span>متابعة منحنى المريض</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab("staff-facilities");
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`w-full text-right px-3 py-2.5 flex items-center gap-2 hover:bg-slate-800 transition-colors cursor-pointer ${activeTab === "staff-facilities" ? "text-rose-400 font-bold bg-slate-800/60" : "text-slate-200"}`}
+                >
+                  <Building className="w-3.5 h-3.5 text-rose-400" />
+                  <span>الأطباء والفروع</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
