@@ -1,55 +1,30 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RT LAB - نظام التحاليل التشخيصية وإدارة المعمل</title>
+    <meta name="description" content="نظام متكامل لمعامل RT للتحاليل الطبية والتشخيصية (معامل د. رامي مختار): باقات الفحص الشامل، التحاليل المنفردة والبروفايل، كروت المرضى ونقاط الولاء، وإدارة الطاقم والمنشآت." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script>
-      // RT Lab Emergency PWA Cache Purge
+      // Force kill any old service worker and caches
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           for (var r of regs) { r.unregister(); }
         });
       }
       if ('caches' in window) {
-        caches.keys().then(function(k) {
-          for (var i of k) { caches.delete(i); }
+        caches.keys().then(function(keys) {
+          for (var k of keys) { caches.delete(k); }
         });
       }
     </script>
-
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RT LAB - نظام التحاليل التشخيصية وإدارة المعمل</title>
-    <meta name="description" content="نظام متكامل لمعامل RT للتحاليل الطبية والتشخيصية (معامل د. رامي مختار): باقات الفحص الشامل، التحاليل المنفردة والبروفايل، كروت المرضى ونقاط الولاء، وإدارة الطاقم والمنشآت." />
-    <meta property="og:title" content="RT LAB - نظام التحاليل التشخيصية وإدارة المعمل" />
-    <meta property="og:description" content="نظام متكامل لمعامل RT للتحاليل الطبية والتشخيصية (معامل د. رامي مختار): باقات الفحص الشامل، التحاليل المنفردة والبروفايل، كروت المرضى ونقاط الولاء، وإدارة الطاقم والمنشآت." />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
-      <script>
-      // RT Lab Cache Busting & Instant PWA Update Engine v3.3
-      const CURRENT_APP_VERSION = "v3.3-clean-batch-ops";
-      const storedVersion = localStorage.getItem("rt_lab_build_version");
-      if (storedVersion !== CURRENT_APP_VERSION) {
-        localStorage.setItem("rt_lab_build_version", CURRENT_APP_VERSION);
-        if ("caches" in window) {
-          caches.keys().then(function(names) {
-            for (let name of names) { caches.delete(name); }
-          });
-        }
-        if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for (let registration of registrations) { registration.unregister(); }
-          });
-        }
-      }
-    </script>
-    <script type="module" crossorigin src="./assets/index-B3Ey7oss.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BeVIG7aH.css">
-  <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
+    <script type="module" crossorigin src="./assets/index-BFk1aaFN.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DQTOd_vn.css">
+  </head>
   <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-500 selection:text-white">
     <div id="root"></div>
   </body>
 </html>
-
