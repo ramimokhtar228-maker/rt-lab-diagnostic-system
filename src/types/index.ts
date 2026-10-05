@@ -1,31 +1,13 @@
 export type Language = 'ar' | 'en';
-export type UserRole = 'admin_ceo' | 'accountant' | 'chemist' | 'receptionist' | 'guest' | 'lab_tech' | 'hr_officer';
 
-export interface AppNotification {
-  id: string;
-  title: string;
-  message: string;
-  type: 'warning' | 'info' | 'danger' | 'success';
-  timestamp: string;
-  read: boolean;
-  targetTab?: string;
-}
-
-export interface DailyCloseout {
-  id: string;
-  date: string;
-  totalIncomeCash: number;
-  totalIncomeVisa: number;
-  totalIncomeTransfer: number;
-  totalIncomeDeferred: number;
-  totalExpenses: number;
-  expectedCashInDrawer: number;
-  actualCashInDrawer: number;
-  discrepancy: number;
-  closedBy: string;
-  notes?: string;
-  timestamp: string;
-}
+export type UserRole =
+  | 'admin_ceo'
+  | 'accountant'
+  | 'chemist'
+  | 'receptionist'
+  | 'lab_tech'
+  | 'hr_officer'
+  | 'guest';
 
 export interface UserProfile {
   id: string;
@@ -39,7 +21,26 @@ export interface UserProfile {
   titleEn: string;
 }
 
-export type PaymentMethod = 'cash' | 'visa' | 'bank_transfer' | 'deferred' | 'instapay' | 'vodafone_cash';
+export interface AppNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'warning' | 'info' | 'danger' | 'success';
+  timestamp: string;
+  read: boolean;
+  targetTab?: string;
+}
+
+export type PaymentMethod =
+  | 'cash'
+  | 'visa'
+  | 'card'
+  | 'bank_transfer'
+  | 'deferred'
+  | 'instapay'
+  | 'vodafone_cash'
+  | 'wallet';
+
 export type PaymentStatus = 'paid' | 'partial' | 'unpaid';
 
 export interface InvoiceTestItem {
@@ -119,6 +120,22 @@ export interface ExpenseRecord {
   notes?: string;
   department: string;
   createdAt: string;
+}
+
+export interface DailyCloseout {
+  id: string;
+  date: string;
+  totalIncomeCash: number;
+  totalIncomeVisa: number;
+  totalIncomeTransfer: number;
+  totalIncomeDeferred: number;
+  totalExpenses: number;
+  expectedCashInDrawer: number;
+  actualCashInDrawer: number;
+  discrepancy: number;
+  closedBy: string;
+  notes?: string;
+  timestamp: string;
 }
 
 export interface ProfitShareConfig {
@@ -240,20 +257,9 @@ export interface AuditLog {
   userId: string;
   userName: string;
   userRole: UserRole;
-  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'SYNC' | 'CLOSEOUT' | 'BACKUP' | 'LOGIN' | 'CATALOG_UPDATE' | 'LOYALTY';
-  module: 'INCOME' | 'EXPENSES' | 'INVENTORY' | 'HR' | 'LAB_TO_LAB' | 'SETTINGS' | 'SECURITY' | 'CATALOG' | 'LOYALTY';
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'SYNC' | 'CLOSEOUT' | 'BACKUP' | 'LOGIN' | 'CATALOG_UPDATE' | 'LOYALTY' | 'DEVICE_COMM';
+  module: 'INCOME' | 'EXPENSES' | 'INVENTORY' | 'HR' | 'LAB_TO_LAB' | 'SETTINGS' | 'SECURITY' | 'CATALOG' | 'LOYALTY' | 'DIAGNOSTIC' | 'DEVICE';
   description: string;
-}
-
-export interface GitHubSyncConfig {
-  repoOwner: string;
-  repoName: string;
-  branch: string;
-  token: string;
-  autoSync: boolean;
-  lastSyncAt: string | null;
-  status: 'idle' | 'syncing' | 'connected' | 'error';
-  errorMessage?: string;
 }
 
 export type LoyaltyTier = 'Silver' | 'Gold' | 'Platinum' | 'VIP';
@@ -296,7 +302,6 @@ export interface LoyaltyConfig {
   };
 }
 
-// Lab Information & Staff & Signatures
 export interface LabInfo {
   labNameAr: string;
   labNameEn: string;
@@ -348,7 +353,6 @@ export interface StaffMember {
   nationalId?: string;
 }
 
-// Diagnostic Specific Types
 export type Gender = 'male' | 'female';
 export type AgeUnit = 'years' | 'months' | 'days';
 export type DoctorTitle = 'Prof. Dr.' | 'Dr.' | 'Herself' | 'Himself' | 'Custom';
@@ -382,7 +386,7 @@ export interface Patient {
   deliveryNotes?: string;
   appointmentDate?: string;
   appointmentTime?: string;
-  paymentMethod?: 'cash' | 'card' | 'wallet' | 'instapay';
+  paymentMethod?: PaymentMethod;
   discountType?: 'percentage' | 'daily_fixed' | 'package_bundle' | 'dynamic_lab' | 'coupon' | 'none';
   couponCode?: string;
   sampleCollected?: boolean;
@@ -441,7 +445,6 @@ export interface TestProfile {
   interpretation?: string;
   comment?: string;
   attachedIllustration?: DiseaseIllustration;
-  // Peripheral blood smear findings if CBC
   bloodFilmFindings?: {
     rbcMorphology?: string;
     wbcMorphology?: string;
@@ -481,6 +484,7 @@ export interface LabReport {
     packagePrice: number;
   };
   attachedIllustrations?: DiseaseIllustration[];
+  invoiceId?: string;
 }
 
 export interface CatalogProfileTemplate {
@@ -531,4 +535,48 @@ export interface ComprehensivePackage {
   fastingRequired: string;
   sampleTypes: string[];
   isPopular?: boolean;
+}
+
+export type InstrumentProtocol = 'ASTM-E1381' | 'HL7-v2' | 'RS232_Serial' | 'TCP_IP_Socket' | 'USB_HID' | 'File_CSV';
+export type InstrumentStatus = 'online' | 'busy' | 'offline' | 'simulated';
+
+export interface LabInstrument {
+  id: string;
+  name: string;
+  model: string;
+  manufacturer: string;
+  category: 'hematology' | 'biochemistry' | 'coagulation' | 'immunoassay' | 'urinalysis';
+  protocol: InstrumentProtocol;
+  connectionPort: string;
+  status: InstrumentStatus;
+  supportedProfiles: string[];
+  lastSyncTime?: string;
+  totalTestsRun: number;
+  serialNumber: string;
+  autoApproveNormal: boolean;
+}
+
+export interface InstrumentTransmission {
+  id: string;
+  instrumentId: string;
+  instrumentName: string;
+  timestamp: string;
+  sampleBarcode: string;
+  patientLabNumber?: string;
+  patientName?: string;
+  testCode: string;
+  results: Record<string, string | number>;
+  rawMessage: string;
+  status: 'received' | 'mapped' | 'rejected';
+}
+
+export interface GitHubSyncConfig {
+  repoOwner: string;
+  repoName: string;
+  branch: string;
+  token: string;
+  autoSync: boolean;
+  lastSyncAt: string | null;
+  status: 'idle' | 'syncing' | 'connected' | 'error';
+  errorMessage?: string;
 }

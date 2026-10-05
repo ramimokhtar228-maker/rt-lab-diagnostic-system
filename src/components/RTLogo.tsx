@@ -6,6 +6,7 @@ interface RTLogoProps {
   showSlogan?: boolean;
   variant?: 'full' | 'compact' | 'badge';
   sloganColor?: string;
+  theme?: string;
 }
 
 export const RTLogo: React.FC<RTLogoProps> = ({

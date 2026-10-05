@@ -9,18 +9,25 @@ export function usePWAInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Detect standalone mode (already installed on mobile or desktop)
-    const isStandalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-    setIsInstalled(isStandalone);
+    // Detect standalone mode (already installed or running as PWA app)
+    const checkStandalone = () => {
+      const isStandaloneMedia = window.matchMedia('(display-mode: standalone)').matches;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const isIOSStandalone = (window.navigator as any).standalone === true;
+      const standalone = isStandaloneMedia || isIOSStandalone;
+      setIsStandalone(standalone);
+      setIsInstalled(standalone);
+    };
+
+    checkStandalone();
 
     // Detect iOS devices
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
-    setIsIOS(isIOSDevice);
+    const ua = window.navigator.userAgent.toLowerCase();
+    const isAppleDevice = /iphone|ipad|ipod/.test(ua);
+    setIsIOS(isAppleDevice);
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -41,30 +48,35 @@ export function usePWAInstall() {
     };
   }, []);
 
-  const install = async () => {
+  const install = async (): Promise<boolean> => {
     if (!deferredPrompt) return false;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setIsInstalled(true);
-      setDeferredPrompt(null);
-      return true;
+    try {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsInstalled(true);
+        setDeferredPrompt(null);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   return {
-    isInstallable: !!deferredPrompt,
+    canInstall: !!deferredPrompt || isIOS,
+    isInstallable: !!deferredPrompt || isIOS,
     isInstalled,
+    isStandalone,
     isIOS,
-    install,
+    hasNativePrompt: !!deferredPrompt,
+    install
   };
 }
 
-export function useOnlineStatus() {
-  const [isOnline, setIsOnline] = useState(
-    typeof navigator !== 'undefined' ? navigator.onLine : true
-  );
+export function useOnlineStatus(): boolean {
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
