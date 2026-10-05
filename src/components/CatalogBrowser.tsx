@@ -1,3 +1,4 @@
+import { INITIAL_INDIVIDUAL_TESTS } from '../data/labCatalog';
 import React, { useState } from 'react';
 import { CatalogProfileTemplate, TestParameter, IndividualTest } from '../types/lab';
 import { ParameterEditModal } from './ParameterEditModal';

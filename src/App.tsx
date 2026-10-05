@@ -981,10 +981,6 @@ export default function App() {
                 setIsIllustrationsModalOpen(true);
               }}
             onOpenInvoice={() => setInvoiceModalReport(currentReport)}
-                onOpenIllustrationsModal={(pId) => {
-                  setActiveProfileForIllustration(pId);
-                  setIsIllustrationsModalOpen(true);
-                }}
           />
         ) : (
           <>

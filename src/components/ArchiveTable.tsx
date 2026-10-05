@@ -60,7 +60,10 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
   isSyncing,
   onNewPatientClick,
   onOpenInvoice,
-  onClearPatients
+  onClearPatients,
+  onOpenSmartReport,
+  onBulkDeleteReports,
+  onBulkUpdateStatus
 }) => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedReportIds, setSelectedReportIds] = useState<string[]>([]);
