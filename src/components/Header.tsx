@@ -178,90 +178,88 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Navigation tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 border-t border-slate-800/80">
-        <nav className="flex items-center gap-1 overflow-x-auto py-1 scrollbar-none text-xs font-semibold">
-          <button
-            onClick={() => setActiveTab('archive')}
-            className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'archive'
-                ? 'border-rose-500 text-white font-black bg-slate-800/50'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-            }`}
-          >
-            <Archive className="w-4 h-4 text-rose-400" />
-            <span>أرشيف وسجل المرضى</span>
-          </button>
+        <nav className="flex items-center justify-between gap-2 overflow-x-auto py-1 scrollbar-none text-xs font-semibold w-full">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setActiveTab('archive')}
+              className={}
+            >
+              <Archive className="w-4 h-4 text-rose-400" />
+              <span>أرشيف وسجل المرضى</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('new-patient')}
-            className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'new-patient'
-                ? 'border-rose-500 text-white font-black bg-slate-800/50'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-            }`}
-          >
-            <FlaskConical className="w-4 h-4 text-rose-400" />
-            <span>إدخال وتعديل التقرير</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('new-patient')}
+              className={}
+            >
+              <FlaskConical className="w-4 h-4 text-rose-400" />
+              <span>إدخال وتعديل التقرير</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('packages')}
-            className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'packages'
-                ? 'border-rose-500 text-white font-black bg-slate-800/50'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-            }`}
-          >
-            <Package className="w-4 h-4 text-rose-400" />
-            <span>باقات الفحص الشاملة</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('packages')}
+              className={}
+            >
+              <Package className="w-4 h-4 text-rose-400" />
+              <span>باقات الفحص الشاملة</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('catalog')}
-            className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'catalog'
-                ? 'border-rose-500 text-white font-black bg-slate-800/50'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-            }`}
-          >
-            <BookOpen className="w-4 h-4 text-rose-400" />
-            <span>دليل التحاليل والقوالب</span>
-          </button>
+            {/* Collapsible secondary dropdown to eliminate clutter */}
+            <div className="relative group inline-block text-right">
+              <button
+                type="button"
+                className={}
+              >
+                <Settings className="w-3.5 h-3.5 text-rose-400" />
+                <span>الأدلة والإعدادات (مجمعة) ▾</span>
+              </button>
+              
+              <div className="hidden group-hover:block absolute right-0 top-full pt-1 z-50 w-52 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-1 text-xs">
+                <button
+                  onClick={() => setActiveTab('catalog')}
+                  className={}
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-rose-400" />
+                  <span>دليل التحاليل والقوالب</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('patient-cards')}
+                  className={}
+                >
+                  <CreditCard className="w-3.5 h-3.5 text-rose-400" />
+                  <span>كروت وخصومات المرضى</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('trends')}
+                  className={}
+                >
+                  <TrendingUp className="w-3.5 h-3.5 text-rose-400" />
+                  <span>متابعة منحنى المريض</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('staff-facilities')}
+                  className={}
+                >
+                  <Building className="w-3.5 h-3.5 text-rose-400" />
+                  <span>الأطباء وإدارة الفروع</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <button
-            onClick={() => setActiveTab('patient-cards')}
-            className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'patient-cards'
-                ? 'border-rose-500 text-white font-black bg-slate-800/50'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-            }`}
-          >
-            <CreditCard className="w-4 h-4 text-rose-400" />
-            <span>كروت وخصومات المرضى</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('trends')}
-            className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'trends'
-                ? 'border-rose-500 text-white font-black bg-slate-800/50'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4 text-rose-400" />
-            <span>متابعة منحنى المريض</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('staff-facilities')}
-            className={`flex items-center gap-1.5 px-3 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'staff-facilities'
-                ? 'border-rose-500 text-white font-black bg-slate-800/50'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
-            }`}
-          >
-            <Building className="w-4 h-4 text-rose-400" />
-            <span>الأطباء والفروع</span>
-          </button>
+          {/* Quick link to financial system */}
+          <div className="flex items-center gap-2 shrink-0">
+            <a
+              href="https://ramimokhtar228-maker.github.io/rt-lab-financial-system/?v=clean_rev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-lg bg-rose-950/70 border border-rose-700/60 hover:bg-rose-900 text-rose-200 text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs"
+              title="الانتقال لبرنامج الحسابات والمالية"
+            >
+              <span>برنامج الحسابات 💰</span>
+              <span className="text-[10px] text-rose-400 font-mono">↗</span>
+            </a>
+          </div>
         </nav>
       </div>
 
