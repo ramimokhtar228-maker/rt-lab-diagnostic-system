@@ -182,7 +182,11 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-1">
             <button
               onClick={() => setActiveTab('archive')}
-              className={}
+              className={`flex items-center gap-1.5 px-3 py-2 border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === 'archive'
+                  ? 'border-rose-500 text-white font-black bg-slate-800/60'
+                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
+              }`}
             >
               <Archive className="w-4 h-4 text-rose-400" />
               <span>أرشيف وسجل المرضى</span>
@@ -190,7 +194,11 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => setActiveTab('new-patient')}
-              className={}
+              className={`flex items-center gap-1.5 px-3 py-2 border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === 'new-patient'
+                  ? 'border-rose-500 text-white font-black bg-slate-800/60'
+                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
+              }`}
             >
               <FlaskConical className="w-4 h-4 text-rose-400" />
               <span>إدخال وتعديل التقرير</span>
@@ -198,7 +206,11 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => setActiveTab('packages')}
-              className={}
+              className={`flex items-center gap-1.5 px-3 py-2 border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === 'packages'
+                  ? 'border-rose-500 text-white font-black bg-slate-800/60'
+                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
+              }`}
             >
               <Package className="w-4 h-4 text-rose-400" />
               <span>باقات الفحص الشاملة</span>
@@ -208,7 +220,11 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative group inline-block text-right">
               <button
                 type="button"
-                className={}
+                className={`flex items-center gap-1 px-3 py-2 border-b-2 transition-colors whitespace-nowrap ${
+                  ['catalog', 'patient-cards', 'trends', 'staff-facilities'].includes(activeTab)
+                    ? 'border-rose-500 text-rose-300 font-bold bg-slate-800/60'
+                    : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
+                }`}
               >
                 <Settings className="w-3.5 h-3.5 text-rose-400" />
                 <span>الأدلة والإعدادات (مجمعة) ▾</span>
@@ -217,44 +233,42 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="hidden group-hover:block absolute right-0 top-full pt-1 z-50 w-52 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-1 text-xs">
                 <button
                   onClick={() => setActiveTab('catalog')}
-                  className={}
+                  className={`w-full text-right px-3 py-2 flex items-center gap-2 hover:bg-slate-800 transition-colors ${activeTab === 'catalog' ? 'text-rose-400 font-bold' : 'text-slate-300'}`}
                 >
                   <BookOpen className="w-3.5 h-3.5 text-rose-400" />
                   <span>دليل التحاليل والقوالب</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('patient-cards')}
-                  className={}
+                  className={`w-full text-right px-3 py-2 flex items-center gap-2 hover:bg-slate-800 transition-colors ${activeTab === 'patient-cards' ? 'text-rose-400 font-bold' : 'text-slate-300'}`}
                 >
                   <CreditCard className="w-3.5 h-3.5 text-rose-400" />
                   <span>كروت وخصومات المرضى</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('trends')}
-                  className={}
+                  className={`w-full text-right px-3 py-2 flex items-center gap-2 hover:bg-slate-800 transition-colors ${activeTab === 'trends' ? 'text-rose-400 font-bold' : 'text-slate-300'}`}
                 >
                   <TrendingUp className="w-3.5 h-3.5 text-rose-400" />
                   <span>متابعة منحنى المريض</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('staff-facilities')}
-                  className={}
+                  className={`w-full text-right px-3 py-2 flex items-center gap-2 hover:bg-slate-800 transition-colors ${activeTab === 'staff-facilities' ? 'text-rose-400 font-bold' : 'text-slate-300'}`}
                 >
                   <Building className="w-3.5 h-3.5 text-rose-400" />
-                  <span>الأطباء وإدارة الفروع</span>
+                  <span>الأطباء والفروع</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Quick link to financial system */}
           <div className="flex items-center gap-2 shrink-0">
             <a
               href="https://ramimokhtar228-maker.github.io/rt-lab-financial-system/?v=clean_rev"
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1.5 rounded-lg bg-rose-950/70 border border-rose-700/60 hover:bg-rose-900 text-rose-200 text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs"
-              title="الانتقال لبرنامج الحسابات والمالية"
             >
               <span>برنامج الحسابات 💰</span>
               <span className="text-[10px] text-rose-400 font-mono">↗</span>
