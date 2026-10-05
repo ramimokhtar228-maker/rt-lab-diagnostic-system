@@ -174,7 +174,7 @@ export function calculateBloodIndices(rbc: number, hgb: number, hct?: number) {
 function getVal(params: TestParameter[], matchers: string[]): number | null {
   for (const p of params) {
     for (const m of matchers) {
-      if (matchesParameter(p.name, m) || (p.code && matchesParameter(p.code, m))) {
+      if (matchesParameter(p.name, m) || ((p as any).code && matchesParameter((p as any).code, m))) {
         const val = parseFloat(p.result);
         if (!isNaN(val)) return val;
       }
@@ -195,7 +195,7 @@ function setVal(
   for (let i = 0; i < params.length; i++) {
     const p = params[i];
     for (const m of matchers) {
-      if (matchesParameter(p.name, m) || (p.code && matchesParameter(p.code, m))) {
+      if (matchesParameter(p.name, m) || ((p as any).code && matchesParameter((p as any).code, m))) {
         const resStr = typeof calculatedVal === 'number' ? calculatedVal.toFixed(1).replace(/\.0$/, '') : String(calculatedVal);
         params[i] = {
           ...p,

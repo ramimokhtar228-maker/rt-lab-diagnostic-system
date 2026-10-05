@@ -769,7 +769,7 @@ export const StaffAndFacilitiesManager: React.FC<StaffAndFacilitiesManagerProps>
                         التجهيزات والخدمات المتاحة:
                       </span>
                       <div className="flex flex-wrap gap-1.5">
-                        {fac.availableServices.map((srv, idx) => (
+                        {(fac.availableServices || []).map((srv, idx) => (
                           <span key={idx} className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium">
                             {srv}
                           </span>
